@@ -1,0 +1,50 @@
+{
+  "name": "nuxt4-cms",
+  "version": "1.0.0",
+  "description": "A WordPress-like CMS built with Nuxt 4",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.16",
+    "@iconify-json/simple-icons": "^1.2.16",
+    "@nuxt/image": "^2.0.0",
+    "@nuxt/ui": "^4.2.1",
+    "@nuxtjs/i18n": "^10.2.1",
+    "@tinymce/tinymce-vue": "^6.3.0",
+    "@unovis/ts": "^1.6.2",
+    "@unovis/vue": "^1.6.2",
+    "@vueuse/core": "^13.0.0",
+    "@vueuse/integrations": "^13.0.0",
+    "@vueuse/nuxt": "^13.0.0",
+    "bcrypt": "^5.1.1",
+    "cloudinary": "^2.5.1",
+    "date-fns": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.4",
+    "motion-v": "^1.7.4",
+    "nuxt": "^4.2.1",
+    "nuxt-og-image": "^5.1.12",
+    "sortablejs": "^1.15.6",
+    "tm-libs": "^1.4.5",
+    "vue": "^3.5.25",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.10.0",
+    "@types/bcrypt": "^5.0.2",
+    "@types/formidable": "^3.4.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4",
+    "vue-tsc": "^3.1.5"
+  },
+  "packageManager": "pnpm@10.23.0"
+}
