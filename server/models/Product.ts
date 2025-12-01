@@ -85,6 +85,8 @@ const ProductSchema = new Schema<IProductDocument>({
 
   metaTitle: String,
   metaDescription: String,
+  keywords: [String],
+  ogImage: String,
 
   views: { type: Number, default: 0 },
   sales: { type: Number, default: 0 },

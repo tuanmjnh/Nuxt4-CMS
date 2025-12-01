@@ -59,6 +59,8 @@ declare global {
       // SEO
       metaTitle?: string
       metaDescription?: string
+      keywords?: string[]
+      ogImage?: string
 
       // Stats
       sales: number

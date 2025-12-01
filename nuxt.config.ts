@@ -14,7 +14,8 @@ export default defineNuxtConfig({
     'nuxt-og-image',
     '@pinia/nuxt',
     'motion-v/nuxt',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
+    '~/modules/dynamic-config'
   ],
 
   css: ['~/assets/css/main.css'],
