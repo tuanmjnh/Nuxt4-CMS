@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { user, logout } = useAuth()
+const { t } = useI18n()
 
 const items = computed(() => [
   [
@@ -21,14 +22,14 @@ const items = computed(() => [
       to: '/admin/settings/profile'
     },
     {
-      label: 'Settings',
+      label: t('settings.title'),
       icon: 'i-lucide-settings',
       to: '/admin/settings/routes'
     }
   ],
   [
     {
-      label: 'Logout',
+      label: t('auth.logout'),
       icon: 'i-lucide-log-out',
       onSelect: () => logout()
     }

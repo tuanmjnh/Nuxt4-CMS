@@ -32,7 +32,7 @@ if (data.value?.data) {
     <UCard>
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-gray-500">Total Posts</p>
+          <p class="text-sm text-gray-500">{{ $t('posts.title') }}</p>
           <p class="text-2xl font-bold">{{ stats.posts }}</p>
         </div>
         <UIcon name="i-lucide-file-text" class="text-3xl text-primary-500" />
@@ -62,7 +62,7 @@ if (data.value?.data) {
     <UCard>
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-gray-500">Users</p>
+          <p class="text-sm text-gray-500">{{ $t('users.title') }}</p>
           <p class="text-2xl font-bold">{{ stats.users }}</p>
         </div>
         <UIcon name="i-lucide-users" class="text-3xl text-orange-500" />
@@ -74,7 +74,7 @@ if (data.value?.data) {
   <div class="grid gap-8 lg:grid-cols-2">
     <UCard>
       <template #header>
-        <h3 class="font-bold">Recent Posts</h3>
+        <h3 class="font-bold">{{ $t('posts.latest_posts') }}</h3>
       </template>
       <div class="space-y-4">
         <div v-for="post in recentPosts" :key="post._id"
@@ -95,17 +95,17 @@ if (data.value?.data) {
 
   <UCard>
     <template #header>
-      <h3 class="font-bold">Quick Actions</h3>
+      <h3 class="font-bold">{{ $t('common.actions') }}</h3>
     </template>
     <div class="grid gap-4">
       <UButton to="/admin/posts/create" icon="i-lucide-plus" block>
-        Create New Post
+        {{ $t('common.create') }} {{ $t('posts.single') }}
       </UButton>
       <UButton to="/admin/media" icon="i-lucide-image" variant="outline" block>
-        Upload Media
+        {{ $t('media.title') }}
       </UButton>
       <UButton to="/admin/users" icon="i-lucide-user-plus" variant="outline" block>
-        Manage Users
+        {{ $t('users.title') }}
       </UButton>
     </div>
   </UCard>

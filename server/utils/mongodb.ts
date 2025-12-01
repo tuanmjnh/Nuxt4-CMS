@@ -9,15 +9,16 @@ export const connectDB = async () => {
 
   try {
     const config = useRuntimeConfig()
-    const uri = config.mongodbUri
-    console.log(uri)
+    const mongodbUri = config.mongodbUri
+    const mongodbName = config.mongodbName
+    // console.log(uri)
 
-    if (!uri) {
+    if (!mongodbUri) {
       throw new Error('MONGODB_URI is not defined in environment variables')
     }
 
-    await mongoose.connect(uri, {
-      dbName: 'nuxt4-cms',
+    await mongoose.connect(mongodbUri, {
+      dbName: mongodbName,
     })
     isConnected = true
     console.log('✅ MongoDB connected successfully')

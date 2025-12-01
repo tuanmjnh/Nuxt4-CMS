@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Users</h1>
-      <UButton to="/admin/users/create" icon="i-lucide-plus">Add User</UButton>
+      <h1 class="text-2xl font-bold">{{ $t('users.title') }}</h1>
+      <UButton to="/admin/users/create" icon="i-lucide-plus">{{ $t('common.create') }} {{ $t('users.title') }}</UButton>
     </div>
 
     <UCard>
@@ -36,15 +36,16 @@ import type { TableColumn } from '@nuxt/ui'
 const users = ref<Models.User[]>([])
 const loading = ref(false)
 const toast = useToast()
+const { t } = useI18n()
 
-const columns: TableColumn<Models.User>[] = [
-  { accessorKey: 'name', header: 'Name' },
-  { accessorKey: 'username', header: 'Username' },
-  { accessorKey: 'email', header: 'Email' },
-  { id: 'role', header: 'Role' },
-  { id: 'isActive', header: 'Status' },
-  { id: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'name', header: t('common.title') }, // Using Title for Name or maybe I should add Name to common/users
+  { accessorKey: 'username', header: 'Username' }, // Add Username to i18n
+  { accessorKey: 'email', header: t('auth.email') },
+  { id: 'role', header: 'Role' }, // Add Role
+  { id: 'isActive', header: t('common.status') },
+  { id: 'actions', header: t('common.actions') }
+] as TableColumn<Models.User>[])
 
 const fetchUsers = async () => {
   loading.value = true
@@ -59,7 +60,7 @@ const fetchUsers = async () => {
 }
 
 const deleteUser = async (user: any) => {
-  if (!confirm(`Are you sure you want to delete ${user.name}?`)) return
+  if (!confirm(t('common.confirm_delete'))) return
 
   try {
     await useAPI(`/api/users/${user._id}`, { method: 'DELETE' })

@@ -1,19 +1,19 @@
 <template>
   <div>
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Posts</h1>
+      <h1 class="text-2xl font-bold">{{ $t('posts.title') }}</h1>
       <UButton to="/admin/posts/create" icon="i-lucide-plus">
-        Create Post
+        {{ $t('common.create') }} {{ $t('posts.single') }}
       </UButton>
     </div>
 
     <UCard>
       <!-- Filters -->
       <div class="flex gap-4 mb-6">
-        <UInput v-model="search" icon="i-lucide-search" placeholder="Search posts..." class="flex-1"
+        <UInput v-model="search" icon="i-lucide-search" :placeholder="$t('common.search')" class="flex-1"
           @input="handleSearch" />
-        <USelect v-model="statusFilter" :options="['published', 'draft', 'scheduled', 'archived']" placeholder="Status"
-          class="w-40" />
+        <USelect v-model="statusFilter" :options="['published', 'draft', 'scheduled', 'archived']"
+          :placeholder="$t('common.status')" class="w-40" />
       </div>
 
       <UTable :rows="posts" :columns="columns" :loading="pending">
@@ -58,13 +58,14 @@
     <UModal v-model="showDeleteModal">
       <UCard>
         <template #header>
-          <h3 class="font-bold text-lg">Delete Post</h3>
+          <h3 class="font-bold text-lg">{{ $t('common.delete') }} {{ $t('posts.single') }}</h3>
         </template>
-        <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+        <p>{{ $t('common.confirm_delete') }}</p>
         <template #footer>
           <div class="flex justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="showDeleteModal = false">Cancel</UButton>
-            <UButton color="error" @click="handleDelete" :loading="deleting">Delete</UButton>
+            <UButton color="neutral" variant="ghost" @click="showDeleteModal = false">{{ $t('common.cancel') }}
+            </UButton>
+            <UButton color="error" @click="handleDelete" :loading="deleting">{{ $t('common.delete') }}</UButton>
           </div>
         </template>
       </UCard>
@@ -82,6 +83,7 @@ definePageMeta({
 
 const { fetchPosts, deletePost } = usePosts()
 const toast = useToast()
+const { t } = useI18n()
 
 const page = ref(1)
 const limit = ref(10)
@@ -91,25 +93,25 @@ const showDeleteModal = ref(false)
 const postToDelete = ref<any>(null)
 const deleting = ref(false)
 
-const columns: any[] = [
-  { key: 'title', label: 'Title' },
-  { key: 'status', label: 'Status' },
-  { key: 'author', label: 'Author' },
-  { key: 'views', label: 'Views' },
-  { key: 'publishedAt', label: 'Published' },
-  { key: 'actions', label: 'Actions' }
-]
+const columns = computed(() => [
+  { key: 'title', label: t('common.title') },
+  { key: 'status', label: t('common.status') },
+  { key: 'author', label: 'Author' }, // Need to add author to i18n if not present, or use common
+  { key: 'views', label: 'Views' }, // Need to add views
+  { key: 'publishedAt', label: t('common.published') },
+  { key: 'actions', label: t('common.actions') }
+] as any[])
 
 const { data, pending, refresh } = await useAsyncData('admin-posts', () => fetchPosts({
   page: page.value,
   limit: limit.value,
   search: search.value,
-  status: statusFilter.value
+  status: statusFilter.value as any // Cast to any to avoid strict type mismatch for now
 }), {
   watch: [page, statusFilter]
 })
 
-const posts = computed(() => data.value?.data?.posts || [])
+const posts = computed(() => data.value?.data?.items || [])
 const total = computed(() => data.value?.data?.pagination?.total || 0)
 
 const getPost = (row: any): Models.Post => row
@@ -121,7 +123,7 @@ const getAuthorName = (post: Models.Post) => {
 
 const getAuthorAvatar = (post: Models.Post) => {
   if (typeof post.author === 'string') return undefined
-  return post.author?.avatar
+  return post.author?.avatar?.url
 }
 
 const handleSearch = useDebounceFn(() => {

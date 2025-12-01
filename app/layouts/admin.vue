@@ -2,7 +2,9 @@
 import { sub } from 'date-fns'
 import type { DropdownMenuItem } from '@nuxt/ui'
 const { user } = useAuth()
+const { t } = useI18n()
 const route = useRoute()
+
 // Computed routes with hierarchy
 const routes = computed(() => {
   if (!user.value?.role?.allowedRoutes) return []
@@ -53,7 +55,7 @@ const items = computed(() => routes.value.map(mapRouteToItem))
 // Breadcrumbs
 const breadcrumbItems = computed(() => {
   const pathSegments = route.path.split('/').filter(segment => segment !== '')
-  const items = [{ label: 'Home', to: '/' }]
+  const items = [{ label: t('common.home'), to: '/' }]
 
   let currentPath = ''
   for (const segment of pathSegments) {
@@ -116,7 +118,7 @@ const period = ref<PeriodType>('daily')
 
     <UDashboardPanel>
       <template #header>
-        <UDashboardNavbar title="Admin">
+        <UDashboardNavbar :title="$t('admin.title')">
           <template #left>
             <UBreadcrumb :items="breadcrumbItems" />
           </template>

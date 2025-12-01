@@ -8,11 +8,16 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/ui',
+    '@nuxt/image',
+    '@nuxt/content',
+    '@vueuse/nuxt',
+    'nuxt-og-image',
+    '@pinia/nuxt',
+    'motion-v/nuxt',
     '@nuxtjs/i18n'
   ],
 
   css: ['~/assets/css/main.css'],
-
 
   i18n: {
     locales: [
@@ -20,20 +25,21 @@ export default defineNuxtConfig({
       { code: 'vi', iso: 'vi-VN', name: 'Tiếng Việt', file: 'vi.json' }
     ],
     defaultLocale: 'vi',
-    strategy: 'prefix_except_default',
+    // strategy: 'prefix_except_default',
     // lazy: true,
     langDir: 'locales',
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: 'i18n_redirected',
-      redirectOn: 'root'
-    }
+    // detectBrowserLanguage: {
+    //   useCookie: true,
+    //   cookieKey: 'i18n_redirected',
+    //   redirectOn: 'root'
+    // }
   },
 
   // Runtime configuration
   runtimeConfig: {
     // Private keys (server-side only)
     mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017',
+    mongodbName: process.env.MONGODB_NAME || 'nuxt4-cms',
     jwtSecret: process.env.JWT_SECRET || '',
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '',
     jwt_expire: process.env.JWT_EXPIRE || '1d',
@@ -68,7 +74,13 @@ export default defineNuxtConfig({
   // Nitro configuration for Vercel
   nitro: {
     preset: 'vercel',
-    compressPublicAssets: true
+    compressPublicAssets: true,
+    prerender: {
+      routes: [
+        '/'
+      ],
+      crawlLinks: true
+    }
   },
 
   // TypeScript configuration
@@ -103,5 +115,13 @@ export default defineNuxtConfig({
   sourcemap: {
     server: false,
     client: false
+  },
+  image: {
+    domains: ['res.cloudinary.com', 'images.unsplash.com', 'plus.unsplash.com'],
+    alias: {
+      cloudinary: 'https://res.cloudinary.com',
+      unsplashPlus: 'https://plus.unsplash.com',
+      unsplashImages: 'https://images.unsplash.com'
+    }
   }
 })

@@ -9,14 +9,14 @@ const mobileMenuOpen = ref(false)
       <UContainer>
         <div class="flex items-center justify-between h-16">
           <NuxtLink to="/" class="text-xl font-bold">
-            {{ $t('site_name') }}
+            {{ $t('common.site_name') }}
           </NuxtLink>
 
           <!-- Navigation -->
           <nav class="hidden md:flex items-center gap-6">
-            <NuxtLink to="/" class="hover:text-primary">{{ $t('home') }}</NuxtLink>
-            <NuxtLink to="/posts" class="hover:text-primary">{{ $t('posts') }}</NuxtLink>
-            <NuxtLink to="/admin" class="hover:text-primary">{{ $t('admin_title') }}</NuxtLink>
+            <NuxtLink to="/" class="hover:text-primary">{{ $t('common.home') }}</NuxtLink>
+            <NuxtLink to="/posts" class="hover:text-primary">{{ $t('posts.title') }}</NuxtLink>
+            <NuxtLink to="/admin" class="hover:text-primary">{{ $t('admin.title') }}</NuxtLink>
             <UColorModeButton />
           </nav>
 
@@ -28,16 +28,16 @@ const mobileMenuOpen = ref(false)
         <div v-if="mobileMenuOpen" class="md:hidden py-4 border-t">
           <nav class="flex flex-col gap-4">
             <NuxtLink to="/" class="hover:text-primary" @click="mobileMenuOpen = false">
-              {{ $t('home') }}
+              {{ $t('common.home') }}
             </NuxtLink>
             <NuxtLink to="/posts" class="hover:text-primary" @click="mobileMenuOpen = false">
-              {{ $t('posts') }}
+              {{ $t('posts.title') }}
             </NuxtLink>
             <NuxtLink to="/admin" class="hover:text-primary" @click="mobileMenuOpen = false">
-              {{ $t('admin_title') }}
+              {{ $t('admin.title') }}
             </NuxtLink>
             <div class="flex items-center gap-2">
-              <span class="text-sm">{{ $t('theme') }}:</span>
+              <span class="text-sm">{{ $t('settings.theme') }}:</span>
               <UColorModeButton />
             </div>
           </nav>
@@ -54,7 +54,7 @@ const mobileMenuOpen = ref(false)
     <footer class="border-t bg-gray-50 dark:bg-gray-900 py-8">
       <UContainer>
         <div class="text-center text-sm text-gray-600 dark:text-gray-400">
-          <p>&copy; {{ new Date().getFullYear() }} {{ $t('copyright') }}</p>
+          <p>&copy; {{ new Date().getFullYear() }} {{ $t('common.copyright') }}</p>
         </div>
       </UContainer>
     </footer>

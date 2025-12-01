@@ -38,7 +38,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
 }
 
 useSeoMeta({
-  title: 'Admin Login',
+  title: 'Admin Login', // Keeping this static or use t() if needed, but useSeoMeta might need computed if using t
   robots: 'noindex, nofollow'
 })
 </script>
@@ -46,19 +46,19 @@ useSeoMeta({
   <UContainer class="py-12">
     <div class="max-w-md mx-auto">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-        <h1 class="text-2xl font-bold mb-6 text-center">Admin Login</h1>
+        <h1 class="text-2xl font-bold mb-6 text-center">{{ $t('auth.login') }}</h1>
 
         <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
-          <UFormField label="Username or Email" name="usernameOrEmail">
+          <UFormField :label="$t('auth.email')" name="usernameOrEmail">
             <UInput v-model="state.usernameOrEmail" placeholder="admin or admin@example.com" />
           </UFormField>
 
-          <UFormField label="Password" name="password">
-            <UInput v-model="state.password" type="password" placeholder="Enter your password" />
+          <UFormField :label="$t('auth.password')" name="password">
+            <UInput v-model="state.password" type="password" :placeholder="$t('auth.password')" />
           </UFormField>
 
           <UButton type="submit" block :loading="loading">
-            Login
+            {{ $t('auth.login') }}
           </UButton>
         </UForm>
       </div>

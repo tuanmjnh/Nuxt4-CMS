@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Media Library</h1>
+      <h1 class="text-2xl font-bold">{{ $t('media.title') }}</h1>
     </div>
 
     <UCard class="mb-6">
@@ -10,7 +10,7 @@
 
     <UCard>
       <div class="mb-4">
-        <UInput v-model="search" icon="i-lucide-search" placeholder="Search media..." @input="handleSearch" />
+        <UInput v-model="search" icon="i-lucide-search" :placeholder="$t('common.search')" @input="handleSearch" />
       </div>
 
       <div v-if="pending" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -25,13 +25,14 @@
     <UModal v-model="showDeleteModal">
       <UCard>
         <template #header>
-          <h3 class="font-bold">Delete Media</h3>
+          <h3 class="font-bold">{{ $t('common.delete') }}</h3>
         </template>
-        <p>Are you sure you want to delete this file? This cannot be undone.</p>
+        <p>{{ $t('common.confirm_delete') }}</p>
         <template #footer>
           <div class="flex justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="showDeleteModal = false">Cancel</UButton>
-            <UButton color="error" @click="handleDelete" :loading="deleting">Delete</UButton>
+            <UButton color="neutral" variant="ghost" @click="showDeleteModal = false">{{ $t('common.cancel') }}
+            </UButton>
+            <UButton color="error" @click="handleDelete" :loading="deleting">{{ $t('common.delete') }}</UButton>
           </div>
         </template>
       </UCard>
@@ -40,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import { useDebounceFn } from '@vueuse/core'
 definePageMeta({
   layout: 'admin',
   middleware: 'admin'
@@ -47,6 +49,7 @@ definePageMeta({
 
 const { fetchMedia, deleteMedia } = useMedia()
 const toast = useToast()
+const { t } = useI18n()
 
 const page = ref(1)
 const search = ref('')
