@@ -1,20 +1,46 @@
 <script setup lang="ts">
 import { DateFormatter, getLocalTimeZone, CalendarDate, today } from '@internationalized/date'
 
+interface RangesText {
+  last7Days?: string
+  last14Days?: string
+  last30Days?: string
+  last3Months?: string
+  last6Months?: string
+  lastYear?: string
+}
+
+interface Props {
+  rangesText?: RangesText
+  pickDateText?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  rangesText: () => ({
+    last7Days: 'Last 7 days',
+    last14Days: 'Last 14 days',
+    last30Days: 'Last 30 days',
+    last3Months: 'Last 3 months',
+    last6Months: 'Last 6 months',
+    lastYear: 'Last year'
+  }),
+  pickDateText: 'Pick a date'
+})
+
 const df = new DateFormatter('en-US', {
   dateStyle: 'medium'
 })
 
 const selected = defineModel<RangeType>({ required: true })
 
-const ranges = [
-  { label: 'Last 7 days', days: 7 },
-  { label: 'Last 14 days', days: 14 },
-  { label: 'Last 30 days', days: 30 },
-  { label: 'Last 3 months', months: 3 },
-  { label: 'Last 6 months', months: 6 },
-  { label: 'Last year', years: 1 }
-]
+const ranges = computed(() => [
+  { label: props.rangesText.last7Days || 'Last 7 days', days: 7 },
+  { label: props.rangesText.last14Days || 'Last 14 days', days: 14 },
+  { label: props.rangesText.last30Days || 'Last 30 days', days: 30 },
+  { label: props.rangesText.last3Months || 'Last 3 months', months: 3 },
+  { label: props.rangesText.last6Months || 'Last 6 months', months: 6 },
+  { label: props.rangesText.lastYear || 'Last year', years: 1 }
+])
 
 const toCalendarDate = (date: Date) => {
   return new CalendarDate(
@@ -89,7 +115,7 @@ const selectRange = (range: { days?: number, months?: number, years?: number }) 
           </template>
         </template>
         <template v-else>
-          Pick a date
+          {{ pickDateText }}
         </template>
       </span>
 

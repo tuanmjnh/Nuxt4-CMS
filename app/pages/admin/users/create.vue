@@ -1,56 +1,11 @@
-<template>
-  <div class="max-w-2xl mx-auto space-y-6">
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Create User</h1>
-      <UButton to="/admin/users" color="neutral" variant="ghost" icon="i-lucide-arrow-left">Back</UButton>
-    </div>
-
-    <UCard>
-      <form @submit.prevent="createUser" class="space-y-4">
-        <UFormGroup label="Name" name="name" required>
-          <UInput v-model="form.name" />
-        </UFormGroup>
-
-        <UFormGroup label="Username" name="username" required>
-          <UInput v-model="form.username" />
-        </UFormGroup>
-
-        <UFormGroup label="Email" name="email" required>
-          <UInput v-model="form.email" type="email" />
-        </UFormGroup>
-
-        <UFormGroup label="Password" name="password" required>
-          <UInput v-model="form.password" type="password" />
-        </UFormGroup>
-
-        <UFormGroup label="Role" name="role" required>
-          <USelect v-model="form.role" :options="roleOptions" option-attribute="name" value-attribute="_id" />
-        </UFormGroup>
-
-        <UFormGroup label="Category" name="category">
-          <USelect v-model="form.category" :options="categoryOptions" option-attribute="name" value-attribute="_id"
-            placeholder="Select category (optional)" />
-        </UFormGroup>
-
-        <UFormGroup label="Bio" name="bio">
-          <UTextarea v-model="form.bio" />
-        </UFormGroup>
-
-        <UFormGroup name="isActive">
-          <UCheckbox v-model="form.isActive" label="Active" />
-        </UFormGroup>
-
-        <div class="flex justify-end">
-          <UButton type="submit" :loading="loading">Create User</UButton>
-        </div>
-      </form>
-    </UCard>
-  </div>
-</template>
-
 <script setup lang="ts">
+definePageMeta({
+  layout: 'admin',
+  middleware: 'admin'
+})
 const router = useRouter()
 const toast = useToast()
+const { t } = useI18n()
 
 const loading = ref(false)
 const form = ref({
@@ -98,10 +53,10 @@ const createUser = async () => {
       method: 'POST',
       body: form.value
     })
-    toast.add({ title: 'User created successfully' })
+    toast.add({ title: t('users.create_success') })
     router.push('/admin/users')
   } catch (error: any) {
-    toast.add({ title: 'Error creating user', description: error.message, color: 'error' })
+    toast.add({ title: t('users.create_error'), description: error.message, color: 'error' })
   } finally {
     loading.value = false
   }
@@ -111,3 +66,53 @@ onMounted(() => {
   fetchData()
 })
 </script>
+
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">{{ $t('users.create') }}</h1>
+        <UButton to="/admin/users" color="neutral" variant="ghost" icon="i-lucide-arrow-left">{{ $t('common.back') }}
+        </UButton>
+      </div>
+    </template>
+    <form @submit.prevent="createUser" class="space-y-4">
+      <UFormField :label="$t('common.name')" name="name" required>
+        <UInput v-model="form.name" />
+      </UFormField>
+
+      <UFormField :label="$t('auth.username')" name="username" required>
+        <UInput v-model="form.username" />
+      </UFormField>
+
+      <UFormField :label="$t('auth.email')" name="email" required>
+        <UInput v-model="form.email" type="email" />
+      </UFormField>
+
+      <UFormField :label="$t('auth.password')" name="password" required>
+        <UInput v-model="form.password" type="password" />
+      </UFormField>
+
+      <UFormField :label="$t('users.role')" name="role" required>
+        <USelect v-model="form.role" :options="roleOptions" option-attribute="name" value-attribute="_id" />
+      </UFormField>
+
+      <UFormField :label="$t('common.category')" name="category">
+        <USelect v-model="form.category" :options="categoryOptions" option-attribute="name" value-attribute="_id"
+          :placeholder="$t('common.select_category')" />
+      </UFormField>
+
+      <UFormField :label="$t('users.bio')" name="bio">
+        <UTextarea v-model="form.bio" />
+      </UFormField>
+
+      <UFormField name="isActive">
+        <UCheckbox v-model="form.isActive" :label="$t('common.active')" />
+      </UFormField>
+
+      <div class="flex justify-end">
+        <UButton type="submit" :loading="loading">{{ $t('users.create') }}</UButton>
+      </div>
+    </form>
+  </UCard>
+</template>

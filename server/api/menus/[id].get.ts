@@ -7,21 +7,13 @@ export default defineEventHandler(async (event) => {
 
     const id = getRouterParam(event, 'id')
 
-    if (!id) {
-      throw createError({
-        statusCode: 400,
-        message: 'Menu ID is required'
-      })
-    }
+    if (!id)
+      throw createError({ statusCode: 400, message: 'Menu ID is required', statusMessage: 'error.validation' })
 
-    const menu = await Menu.findById(id).lean()
+    const menu = await Menu.findOne({ _id: id, isDeleted: false }).lean()
 
-    if (!menu) {
-      throw createError({
-        statusCode: 404,
-        message: 'Menu not found'
-      })
-    }
+    if (!menu)
+      throw createError({ statusCode: 404, message: 'Menu not found', statusMessage: 'error.not_found' })
 
     // Get items
     const menuData = menu as any
@@ -55,9 +47,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: any) {
     if (error.statusCode) throw error
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch menu'
-    })
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

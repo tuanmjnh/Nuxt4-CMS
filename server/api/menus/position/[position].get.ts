@@ -7,12 +7,8 @@ export default defineEventHandler(async (event) => {
 
     const position = getRouterParam(event, 'position')
 
-    if (!position) {
-      throw createError({
-        statusCode: 400,
-        message: 'Position is required'
-      })
-    }
+    if (!position)
+      throw createError({ statusCode: 400, message: 'Position is required', statusMessage: 'error.validation' })
 
     // Get active menu for this position
     const menu = await Menu.findOne({
@@ -62,10 +58,8 @@ export default defineEventHandler(async (event) => {
         items: tree
       }
     }
-  } catch (error) {
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch menu'
-    })
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

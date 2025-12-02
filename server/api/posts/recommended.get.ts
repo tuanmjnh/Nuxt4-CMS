@@ -42,10 +42,8 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: { posts }
     }
-  } catch (error) {
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch recommended posts'
-    })
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

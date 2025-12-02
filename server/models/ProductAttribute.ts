@@ -1,7 +1,6 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document } from 'mongoose'
 
-
 export interface IProductAttributeDocument extends Omit<Models.ProductAttribute, '_id' | 'createdAt' | 'updatedAt'>, Document { }
 
 const ProductAttributeSchema = new Schema<IProductAttributeDocument>({
@@ -21,21 +20,23 @@ const ProductAttributeSchema = new Schema<IProductAttributeDocument>({
   values: [{
     type: String,
     trim: true
-  }]
+  }],
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
+  }
 }, {
   timestamps: true
 })
 
 // Auto-generate slug from name if not provided
-// Auto-generate slug from name if not provided
 ProductAttributeSchema.pre('validate', function (next) {
   const doc = this as unknown as IProductAttributeDocument
-  if (!doc.slug && doc.name) {
-    doc.slug = doc.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-  }
+  if (!doc.slug && doc.name) doc.slug = toSlug(doc.name)
   next()
 })
 

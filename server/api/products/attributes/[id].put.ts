@@ -7,17 +7,10 @@ export default defineEventHandler(async (event) => {
 
   try {
     const attribute = await ProductAttribute.findByIdAndUpdate(id, body, { new: true })
-    if (!attribute) {
-      throw createError({
-        statusCode: 404,
-        message: 'Attribute not found'
-      })
-    }
+    if (!attribute) throw createError({ statusCode: 404, message: 'Attribute not found', statusMessage: 'error.not_found' })
     return attribute
   } catch (error: any) {
-    throw createError({
-      statusCode: 500,
-      message: error.message
-    })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

@@ -13,12 +13,7 @@ export default defineEventHandler(async (event) => {
     await connectDB()
 
     const currentUser = event.context.user
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw createError({
-        statusCode: 403,
-        message: 'Only administrators can create tags'
-      })
-    }
+    if (!currentUser || currentUser.role !== 'admin') throw createError({ statusCode: 403, message: 'Only administrators can create tags', statusMessage: 'error.unauthorized' })
 
     const body = await readBody(event)
     const data = createTagSchema.parse(body)
@@ -30,16 +25,9 @@ export default defineEventHandler(async (event) => {
       data: { tag }
     }
   } catch (error: any) {
-    if (error.name === 'ZodError') {
-      throw createError({
-        statusCode: 400,
-        message: 'Validation error',
-        data: error.errors
-      })
-    }
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to create tag'
-    })
+    if (error.name === 'ZodError')
+      throw createError({ statusCode: 400, message: 'Validation error', statusMessage: 'error.validation', data: error.errors })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

@@ -1,80 +1,3 @@
-<template>
-  <div>
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Create Post</h1>
-      <UButton to="/admin/posts" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
-        Back to Posts
-      </UButton>
-    </div>
-
-    <UCard>
-      <form @submit.prevent="handleSubmit" class="space-y-6">
-        <div class="grid gap-6 lg:grid-cols-3">
-          <!-- Main Content -->
-          <div class="lg:col-span-2 space-y-6">
-            <UFormGroup label="Title" name="title" required>
-              <UInput v-model="form.title" placeholder="Post title" />
-            </UFormGroup>
-
-            <UFormGroup label="Content" name="content" required>
-              <UTextarea v-model="form.content" :rows="15" placeholder="Write your post content here..." />
-              <!-- TODO: Replace with Rich Text Editor -->
-            </UFormGroup>
-
-            <UFormGroup label="Excerpt" name="excerpt">
-              <UTextarea v-model="form.excerpt" :rows="3" placeholder="Short summary for SEO and previews" />
-            </UFormGroup>
-          </div>
-
-          <!-- Sidebar -->
-          <div class="space-y-6">
-            <UCard>
-              <template #header>
-                <h3 class="font-bold">Publishing</h3>
-              </template>
-
-              <div class="space-y-4">
-                <UFormGroup label="Status">
-                  <USelect v-model="form.status" :options="['draft', 'published', 'scheduled', 'archived']" />
-                </UFormGroup>
-
-                <UFormGroup v-if="form.status === 'scheduled'" label="Schedule Date">
-                  <UInput type="datetime-local" v-model="form.scheduledAt" />
-                </UFormGroup>
-
-                <UButton type="submit" block :loading="loading">
-                  {{ form.status === 'published' ? 'Publish' : 'Save Draft' }}
-                </UButton>
-              </div>
-            </UCard>
-
-            <UCard>
-              <template #header>
-                <h3 class="font-bold">Organization</h3>
-              </template>
-
-              <div class="space-y-4">
-                <!-- Categories and Tags selectors will go here -->
-                <p class="text-sm text-gray-500">Categories & Tags selectors coming soon</p>
-              </div>
-            </UCard>
-
-            <UCard>
-              <template #header>
-                <h3 class="font-bold">Featured Image</h3>
-              </template>
-
-              <div class="space-y-4">
-                <AdminMediaGallery v-model="form.thumbnail" />
-              </div>
-            </UCard>
-          </div>
-        </div>
-      </form>
-    </UCard>
-  </div>
-</template>
-
 <script setup lang="ts">
 definePageMeta({
   layout: 'admin',
@@ -84,32 +7,115 @@ definePageMeta({
 const router = useRouter()
 const { createPost } = usePosts()
 const toast = useToast()
+const { user } = useAuth()
+const { t } = useI18n()
+
+interface PostForm {
+  title: string
+  content: string
+  excerpt: string
+  status: 'draft' | 'published' | 'scheduled' | 'archived'
+  thumbnail?: any
+  scheduledAt: string
+  tags: string[]
+  attributes: any[]
+  categories: string[]
+  type: 'post' | 'page' | 'product' | 'project' | 'service'
+  slug: string
+  author: string
+  format: 'standard' | 'gallery' | 'video' | 'audio' | 'quote' | 'link'
+}
 
 const loading = ref(false)
-const form = ref({
+const form = ref<PostForm>({
   title: '',
   content: '',
   excerpt: '',
   status: 'draft',
-  thumbnail: null,
-  scheduledAt: ''
+  thumbnail: undefined,
+  scheduledAt: '',
+  tags: [],
+  attributes: [],
+  categories: [],
+  type: 'post',
+  slug: '',
+  author: '',
+  format: 'standard'
 })
 
 const handleSubmit = async () => {
   if (!form.value.title || !form.value.content) {
-    toast.add({ title: 'Title and content are required', color: 'error' })
+    toast.add({ title: t('error.title_content_required'), color: 'error' })
     return
   }
 
   loading.value = true
   try {
-    await createPost(form.value)
-    toast.add({ title: 'Post created successfully', color: 'success' })
+    const postData: Models.CreatePost = {
+      ...form.value,
+      author: user.value?._id || ''
+    }
+    await createPost(postData)
+    toast.add({ title: t('posts.create_success'), color: 'success' })
     router.push('/admin/posts')
   } catch (error: any) {
-    toast.add({ title: error.message || 'Failed to create post', color: 'error' })
+    toast.add({ title: error.message || t('posts.create_error'), color: 'error' })
   } finally {
     loading.value = false
   }
 }
 </script>
+
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">{{ $t('posts.create') }}</h1>
+        <UButton to="/admin/posts" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
+          {{ $t('posts.back') }}
+        </UButton>
+      </div>
+    </template>
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <div class="grid gap-6 lg:grid-cols-3">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+          <UFormField :label="$t('common.title')" name="title" required>
+            <UInput v-model="form.title" :placeholder="$t('posts.title_placeholder')" />
+          </UFormField>
+
+          <UFormField :label="$t('common.content')" name="content" required>
+            <AdminTiptapEditor v-model="form.content" />
+          </UFormField>
+
+          <UFormField :label="$t('common.excerpt')" name="excerpt">
+            <UTextarea v-model="form.excerpt" :rows="3" :placeholder="$t('posts.excerpt_placeholder')" />
+          </UFormField>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <UCard>
+            <template #header>
+              <h3 class="font-bold">{{ $t('posts.publishing') }}</h3>
+            </template>
+
+            <div class="space-y-4">
+              <UFormField :label="$t('common.status')">
+                <USelect v-model="form.status" :options="['draft', 'published', 'scheduled', 'archived']" />
+              </UFormField>
+
+              <UFormField v-if="form.status === 'scheduled'" :label="$t('posts.schedule_date')">
+                <UInput type="datetime-local" v-model="form.scheduledAt" />
+              </UFormField>
+
+              <UButton type="submit" block :loading="loading">
+                {{ form.status === 'published' ? $t('common.publish') : $t('common.save_draft') }}
+              </UButton>
+            </div>
+          </UCard>
+        </div>
+      </div>
+    </form>
+  </UCard>
+</template>

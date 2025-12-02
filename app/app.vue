@@ -1,27 +1,14 @@
-<template>
-  <UApp :toaster="appConfig.toaster">
-    <NuxtLoadingIndicator color="#primary" />
-
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-
-    <!-- <ClientOnly>
-      <AppSearch v-model="isSearchOpen" />
-    </ClientOnly> -->
-  </UApp>
-</template>
-
 <script setup lang="ts">
 const appConfig = useAppConfig()
 const colorMode = useColorMode()
 const color = computed(() => colorMode.value === 'dark' ? '#020618' : 'white')
+const { locale } = useI18n()
 // Global SEO configuration
 useSeoMeta({
-  titleTemplate: '%s | Nuxt 4 CMS',
+  titleTemplate: `%s | ${$t('common.site_name')}`,
   ogType: 'website'
 })
-// Cấu hình Head
+// Head Configuration
 useHead({
   meta: [
     { charset: 'utf-8' },
@@ -32,9 +19,9 @@ useHead({
     { rel: 'icon', href: '/favicon.ico' }
   ],
   htmlAttrs: {
-    lang: 'vi'
+    lang: locale.value
   },
-  // Inject JSON-LD Schema (Cấu trúc dữ liệu cho Google)
+  // Inject JSON-LD Schema (Google Structured Data)
   script: [
     {
       type: 'application/ld+json',
@@ -50,3 +37,20 @@ useHead({
   ]
 })
 </script>
+
+<template>
+  <UApp :toaster="appConfig.toaster">
+    <NuxtLoadingIndicator color="#primary" />
+    <ClientOnly>
+      <LoadingOverlay />
+    </ClientOnly>
+
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+
+    <!-- <ClientOnly>
+      <AppSearch v-model="isSearchOpen" />
+    </ClientOnly> -->
+  </UApp>
+</template>

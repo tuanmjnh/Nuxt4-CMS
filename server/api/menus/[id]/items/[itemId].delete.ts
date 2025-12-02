@@ -5,12 +5,12 @@ export default defineEventHandler(async (event) => {
     await connectDB()
 
     const itemId = getRouterParam(event, 'itemId')
-    if (!itemId) throw createError({ statusCode: 400, message: 'Item ID required' })
+    if (!itemId)
+      throw createError({ statusCode: 400, message: 'Item ID required', statusMessage: 'error.validation' })
 
     const currentUser = event.context.user
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw createError({ statusCode: 403, message: 'Admin only' })
-    }
+    if (!currentUser || currentUser.role !== 'admin')
+      throw createError({ statusCode: 403, message: 'Admin only', statusMessage: 'error.unauthorized' })
 
     // Check for children
     const children = await MenuItem.find({ parent: itemId })
@@ -23,10 +23,14 @@ export default defineEventHandler(async (event) => {
       )
     }
 
-    await MenuItem.findByIdAndDelete(itemId)
+    await MenuItem.findByIdAndUpdate(itemId, {
+      isDeleted: true,
+      deletedAt: new Date()
+    })
 
     return { success: true, message: 'Item deleted' }
-  } catch (error) {
-    throw error
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

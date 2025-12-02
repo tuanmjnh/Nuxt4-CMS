@@ -3,27 +3,23 @@ import mongoose from 'mongoose'
 let isConnected = false
 
 export const connectDB = async () => {
-  if (isConnected) {
-    return
-  }
+  if (isConnected) return
 
   try {
     const config = useRuntimeConfig()
-    const mongodbUri = config.mongodbUri
-    const mongodbName = config.mongodbName
-    // console.log(uri)
+    // console.log(config)
 
-    if (!mongodbUri) {
+    if (!config.mongodbUri) {
       throw new Error('MONGODB_URI is not defined in environment variables')
     }
 
-    await mongoose.connect(mongodbUri, {
-      dbName: mongodbName,
+    await mongoose.connect(config.mongodbUri, {
+      dbName: config.mongodbName,
     })
     isConnected = true
-    console.log('✅ MongoDB connected successfully')
+    console.log('MongoDB connected successfully')
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error)
+    console.error('MongoDB connection error:', error)
     throw error
   }
 }

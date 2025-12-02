@@ -6,9 +6,26 @@ interface Props {
   files: Cloudinary.IResource[]
   selectedFiles: Cloudinary.IResource[]
   multiple?: boolean
+  emptyText?: string
+  previewText?: string
+  renameText?: string
+  deleteText?: string
+  renameModalTitle?: string
+  renameInputPlaceholder?: string
+  cancelButtonText?: string
+  renameButtonText?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  emptyText: 'No files in this folder',
+  previewText: 'Preview',
+  renameText: 'Rename',
+  deleteText: 'Delete',
+  renameModalTitle: 'Rename File',
+  renameInputPlaceholder: 'Enter new file name',
+  cancelButtonText: 'Cancel',
+  renameButtonText: 'Rename'
+})
 
 const emit = defineEmits<{
   (e: 'select', file: Cloudinary.IResource): void
@@ -71,7 +88,7 @@ const getFileIcon = (file: Cloudinary.IResource) => {
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
       </svg>
-      <p>No files in this folder</p>
+      <p>{{ emptyText }}</p>
     </div>
 
     <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -101,7 +118,7 @@ const getFileIcon = (file: Cloudinary.IResource) => {
         <!-- Action Overlay -->
         <div
           class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-          <button class="p-2 bg-white rounded-full hover:bg-gray-100 transition" title="Preview"
+          <button class="p-2 bg-white rounded-full hover:bg-gray-100 transition" :title="previewText"
             @click.stop="handlePreview(file)">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -111,7 +128,7 @@ const getFileIcon = (file: Cloudinary.IResource) => {
             </svg>
           </button>
 
-          <button class="p-2 bg-white rounded-full hover:bg-gray-100 transition" title="Rename"
+          <button class="p-2 bg-white rounded-full hover:bg-gray-100 transition" :title="renameText"
             @click.stop="startRename(file)">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -119,7 +136,7 @@ const getFileIcon = (file: Cloudinary.IResource) => {
             </svg>
           </button>
 
-          <button class="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition" title="Delete"
+          <button class="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition" :title="deleteText"
             @click.stop="$emit('delete', file)">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -141,27 +158,32 @@ const getFileIcon = (file: Cloudinary.IResource) => {
     </div>
 
     <!-- File Preview Modal -->
-    <file-preview v-if="previewFile" :file="previewFile" @close="previewFile = null" />
+    <admin-cloudinary-file-preview v-if="previewFile" :file="previewFile" @close="previewFile = null" />
 
     <!-- Rename Modal -->
-    <div v-if="renamingFile" class="fixed inset-0 z-9999 bg-black/50 flex items-center justify-center p-4"
-      @click.self="cancelRename">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-        <h3 class="text-lg font-bold mb-4">Rename File</h3>
-        <input v-model="newFileName" type="text"
-          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg mb-4"
-          @keyup.enter="confirmRename" @keyup.esc="cancelRename" />
-        <div class="flex gap-2 justify-end">
-          <button
-            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
-            @click="cancelRename">
-            Cancel
-          </button>
-          <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg" @click="confirmRename">
-            Rename
-          </button>
-        </div>
-      </div>
-    </div>
+    <UModal :model-value="!!renamingFile" @close="cancelRename">
+      <UCard>
+        <template #header>
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-bold">{{ renameModalTitle }}</h3>
+            <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="cancelRename" />
+          </div>
+        </template>
+
+        <UInput v-model="newFileName" type="text" :placeholder="renameInputPlaceholder" autofocus
+          @keyup.enter="confirmRename" />
+
+        <template #footer>
+          <div class="flex gap-2 justify-end">
+            <UButton color="neutral" variant="ghost" @click="cancelRename">
+              {{ cancelButtonText }}
+            </UButton>
+            <UButton color="primary" @click="confirmRename">
+              {{ renameButtonText }}
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
   </div>
 </template>

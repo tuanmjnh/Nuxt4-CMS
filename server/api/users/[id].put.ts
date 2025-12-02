@@ -7,12 +7,8 @@ export default defineEventHandler(async (event) => {
 
   // Check admin permission
   const currentUser = event.context.user
-  if (!currentUser || (currentUser.role.name !== 'admin' && currentUser.role !== 'admin')) {
-    throw createError({
-      statusCode: 403,
-      message: 'Access denied'
-    })
-  }
+  if (!currentUser || (currentUser.role.name !== 'admin' && currentUser.role !== 'admin'))
+    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
 
   try {
     // If role name is passed, find the role ID
@@ -24,17 +20,11 @@ export default defineEventHandler(async (event) => {
     }
 
     const user = await User.findByIdAndUpdate(id, body, { new: true, runValidators: true }).select('-password').populate('role')
-    if (!user) {
-      throw createError({
-        statusCode: 404,
-        message: 'User not found'
-      })
-    }
+    if (!user)
+      throw createError({ statusCode: 404, message: 'User not found', statusMessage: 'error.user_not_found' })
     return user
   } catch (error: any) {
-    throw createError({
-      statusCode: 500,
-      message: error.message
-    })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

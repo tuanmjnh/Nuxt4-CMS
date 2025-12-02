@@ -9,6 +9,8 @@ declare global {
       permissions: string[]
       allowedRoutes: (AdminRoute | string)[]
       isDefault: boolean
+      isDeleted: boolean
+      deletedAt?: string | Date
       createdAt: string | Date
       updatedAt: string | Date
     }

@@ -12,19 +12,8 @@ declare global {
       avatar?: Cloudinary.IFileAttach
       bio?: string
       isActive: boolean
-      createdAt: string | Date
-      updatedAt: string | Date
-    }
-
-    interface UserSession {
-      _id: string
-      user: User | string
-      refreshToken: string
-      deviceType: 'pc' | 'mobile' | 'tablet' | 'web'
-      userAgent?: string
-      ip?: string
-      lastActiveAt: string | Date
-      expiresAt: string | Date
+      isDeleted: boolean
+      deletedAt?: string | Date
       createdAt: string | Date
       updatedAt: string | Date
     }

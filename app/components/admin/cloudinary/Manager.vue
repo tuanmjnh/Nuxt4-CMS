@@ -15,6 +15,21 @@ interface Props {
   cancelText?: string
   renameTitle?: string
   renameText?: string
+  headerText?: string
+  searchText?: string
+  uploadText?: string
+  selectText?: string
+  selectedText?: string
+  loadingFoldersError?: string
+  loadingFilesError?: string
+  folderCreatedTitle?: string
+  folderCreatedText?: string
+  folderCreateError?: string
+  fileDeletedTitle?: string
+  folderDeletedTitle?: string
+  deleteError?: string
+  fileRenamedTitle?: string
+  renameError?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +40,22 @@ const props = withDefaults(defineProps<Props>(), {
   confirmText: 'Delete',
   cancelText: 'Cancel',
   renameTitle: 'Rename',
-  renameText: 'Enter new name'
+  renameText: 'Enter new name',
+  headerText: 'Cloudinary Manager',
+  searchText: 'Search files...',
+  uploadText: 'Upload',
+  selectText: 'Select',
+  selectedText: 'file(s) selected',
+  loadingFoldersError: 'Error loading folders',
+  loadingFilesError: 'Error loading files',
+  folderCreatedTitle: 'Folder created',
+  folderCreatedText: 'Folder "{name}" created successfully',
+  folderCreateError: 'Error creating folder',
+  fileDeletedTitle: 'File deleted',
+  folderDeletedTitle: 'Folder deleted',
+  deleteError: 'Error deleting',
+  fileRenamedTitle: 'File renamed',
+  renameError: 'Error renaming file'
 })
 
 const emit = defineEmits<{
@@ -76,7 +106,7 @@ const loadFolders = async (folder: string = 'root') => {
     return response.folders
   } catch (error: any) {
     toast?.add({
-      title: 'Error loading folders',
+      title: props.loadingFoldersError,
       description: error.message,
       color: 'error'
     })
@@ -97,7 +127,7 @@ const loadFiles = async (folder: string = 'root') => {
     files.value = response.resources || []
   } catch (error: any) {
     toast?.add({
-      title: 'Error loading files',
+      title: props.loadingFilesError,
       description: error.message,
       color: 'error'
     })
@@ -135,15 +165,15 @@ const handleCreateFolder = async (name: string) => {
     })
 
     toast?.add({
-      title: 'Folder created',
-      description: `Folder "${name}" created successfully`,
+      title: props.folderCreatedTitle,
+      description: props.folderCreatedText?.replace('{name}', name),
       color: 'success'
     })
 
     await loadFolders(currentFolder.value)
   } catch (error: any) {
     toast?.add({
-      title: 'Error creating folder',
+      title: props.folderCreateError,
       description: error.message,
       color: 'error'
     })
@@ -177,7 +207,7 @@ const confirmDelete = async () => {
 
       await loadFiles(currentFolder.value)
       toast?.add({
-        title: 'File deleted',
+        title: props.fileDeletedTitle,
         color: 'success'
       })
     } else {
@@ -188,13 +218,13 @@ const confirmDelete = async () => {
 
       await loadFolders(currentFolder.value)
       toast?.add({
-        title: 'Folder deleted',
+        title: props.folderDeletedTitle,
         color: 'success'
       })
     }
   } catch (error: any) {
     toast?.add({
-      title: 'Error deleting',
+      title: props.deleteError,
       description: error.message,
       color: 'error'
     })
@@ -221,12 +251,12 @@ const handleRenameFile = async (file: Cloudinary.IResource, newName: string) => 
 
     await loadFiles(currentFolder.value)
     toast?.add({
-      title: 'File renamed',
+      title: props.fileRenamedTitle,
       color: 'success'
     })
   } catch (error: any) {
     toast?.add({
-      title: 'Error renaming file',
+      title: props.renameError,
       description: error.message,
       color: 'error'
     })
@@ -267,12 +297,12 @@ onMounted(async () => {
       <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center gap-4 flex-1">
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-            Cloudinary Manager
+            {{ headerText }}
           </h2>
 
           <!-- Search -->
           <div class="flex-1 max-w-md">
-            <input v-model="searchQuery" type="text" placeholder="Search files..."
+            <input v-model="searchQuery" type="text" :placeholder="searchText"
               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
           </div>
         </div>
@@ -281,14 +311,14 @@ onMounted(async () => {
           <!-- Upload Button -->
           <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
             @click="showUpload = true">
-            Upload
+            {{ uploadText }}
           </button>
 
           <!-- Select Button (Modal mode) -->
           <button v-if="isModal && selectedFiles.length > 0"
             class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
             @click="handleConfirmSelection">
-            Select ({{ selectedFiles.length }})
+            {{ selectText }} ({{ selectedFiles.length }})
           </button>
 
           <!-- Close Button (Modal mode) -->
@@ -319,7 +349,7 @@ onMounted(async () => {
       <!-- Footer (Modal mode) -->
       <div v-if="isModal" class="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <div class="text-sm text-gray-600 dark:text-gray-400">
-          {{ selectedFiles.length }} file(s) selected
+          {{ selectedFiles.length }} {{ selectedText }}
         </div>
         <div class="flex gap-2">
           <button
@@ -341,8 +371,8 @@ onMounted(async () => {
       @complete="handleUploadComplete" />
 
     <!-- Confirm Delete Modal -->
-    <confirm-modal :visible="showConfirmDelete" :title="deleteTitle" :message="deleteMessage"
-      :confirm-text="confirmText" :cancel-text="cancelText" @confirm="confirmDelete"
+    <confirm-modal v-model="showConfirmDelete" :title="deleteTitle" :description="deleteMessage"
+      :confirm-label="confirmText" :cancel-label="cancelText" color="error" @confirm="confirmDelete"
       @cancel="showConfirmDelete = false" />
 
     <!-- Loading Spinner -->

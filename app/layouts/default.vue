@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const runtimeConfig = useRuntimeConfig()
 const mobileMenuOpen = ref(false)
 </script>
 
@@ -54,7 +55,7 @@ const mobileMenuOpen = ref(false)
     <footer class="border-t bg-gray-50 dark:bg-gray-900 py-8">
       <UContainer>
         <div class="text-center text-sm text-gray-600 dark:text-gray-400">
-          <p>&copy; {{ new Date().getFullYear() }} {{ $t('common.copyright') }}</p>
+          <p>&copy; {{ new Date().getFullYear() }} {{ runtimeConfig.public.copyright }}</p>
         </div>
       </UContainer>
     </footer>

@@ -1,105 +1,62 @@
-<template>
-  <div>
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">{{ $t('media.title') }}</h1>
-    </div>
-
-    <UCard class="mb-6">
-      <MediaUploader @upload-success="handleUploadSuccess" />
-    </UCard>
-
-    <UCard>
-      <div class="mb-4">
-        <UInput v-model="search" icon="i-lucide-search" :placeholder="$t('common.search')" @input="handleSearch" />
-      </div>
-
-      <div v-if="pending" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <USkeleton v-for="i in 12" :key="i" class="aspect-square rounded-lg" />
-      </div>
-
-      <MediaGallery v-else :media="media" :pagination="pagination" @delete="confirmDelete"
-        @page-change="handlePageChange" />
-    </UCard>
-
-    <!-- Delete Confirmation -->
-    <UModal v-model="showDeleteModal">
-      <UCard>
-        <template #header>
-          <h3 class="font-bold">{{ $t('common.delete') }}</h3>
-        </template>
-        <p>{{ $t('common.confirm_delete') }}</p>
-        <template #footer>
-          <div class="flex justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="showDeleteModal = false">{{ $t('common.cancel') }}
-            </UButton>
-            <UButton color="error" @click="handleDelete" :loading="deleting">{{ $t('common.delete') }}</UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { useDebounceFn } from '@vueuse/core'
 definePageMeta({
   layout: 'admin',
   middleware: 'admin'
 })
 
-const { fetchMedia, deleteMedia } = useMedia()
-const toast = useToast()
-const { t } = useI18n()
-
-const page = ref(1)
-const search = ref('')
-const showDeleteModal = ref(false)
-const itemToDelete = ref<any>(null)
-const deleting = ref(false)
-
-const { data, pending, refresh } = await useAsyncData('media', () => fetchMedia({
-  page: page.value,
-  limit: 18,
-  search: search.value
-}), {
-  watch: [page]
-})
-
-const media = computed(() => data.value?.data?.media || [])
-const pagination = computed(() => data.value?.data?.pagination)
-
-const handleSearch = useDebounceFn(() => {
-  page.value = 1
-  refresh()
-}, 500)
-
-const handlePageChange = (newPage: number) => {
-  page.value = newPage
-}
-
-const handleUploadSuccess = () => {
-  toast.add({ title: 'Upload successful', color: 'success' })
-  refresh()
-}
-
-const confirmDelete = (item: any) => {
-  itemToDelete.value = item
-  showDeleteModal.value = true
-}
-
-const handleDelete = async () => {
-  if (!itemToDelete.value) return
-
-  deleting.value = true
-  try {
-    await deleteMedia(itemToDelete.value._id)
-    showDeleteModal.value = false
-    refresh()
-    toast.add({ title: 'File deleted', color: 'success' })
-  } catch (error) {
-    toast.add({ title: 'Failed to delete file', color: 'error' })
-  } finally {
-    deleting.value = false
-  }
-}
+const items = computed(() => [{
+  label: $t('media.cloudinary'),
+  slot: 'cloudinary',
+  icon: 'i-simple-icons-cloudinary'
+}, {
+  label: $t('media.local'),
+  slot: 'local',
+  icon: 'i-heroicons-computer-desktop'
+}])
 </script>
+
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between px-4 py-3">
+        <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+          {{ $t('media.title') }}
+        </h1>
+      </div>
+    </template>
+    <div class="px-4">
+      <UTabs :items="items" class="w-full">
+        <template #cloudinary>
+          <div class="h-[calc(100vh-9rem)] mt-4">
+            <AdminCloudinaryManager mode="page" :header-text="$t('media.title')" :search-text="$t('common.search')"
+              :upload-text="$t('media.upload_text')" :select-text="$t('common.select')"
+              :selected-text="$t('media.selected_files_text')"
+              :loading-folders-error="$t('media.loading_folders_error')"
+              :loading-files-error="$t('media.loading_files_error')"
+              :folder-created-title="$t('media.folder_created_title')"
+              :folder-created-text="$t('media.folder_created_text')"
+              :folder-create-error="$t('media.folder_create_error')"
+              :file-deleted-title="$t('media.file_deleted_title')"
+              :folder-deleted-title="$t('media.folder_deleted_title')" :delete-error="$t('media.delete_error')"
+              :file-renamed-title="$t('media.file_renamed_title')" :rename-error="$t('media.rename_error')"
+              :delete-title="$t('common.delete')" :delete-message="$t('common.confirm_delete')"
+              :confirm-text="$t('common.delete')" :cancel-text="$t('common.cancel')"
+              :rename-title="$t('media.rename_modal_title')" :rename-text="$t('media.rename_input_placeholder')" />
+          </div>
+        </template>
+
+        <template #local>
+          <div
+            class="h-[calc(100vh-9rem)] mt-4 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+            <div class="text-center">
+              <UIcon name="i-heroicons-computer-desktop" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ $t('media.local_storage') }}
+              </h3>
+              <p class="text-gray-500 dark:text-gray-400">{{ $t('media.local_coming_soon') }}</p>
+            </div>
+          </div>
+        </template>
+      </UTabs>
+    </div>
+  </UCard>
+</template>

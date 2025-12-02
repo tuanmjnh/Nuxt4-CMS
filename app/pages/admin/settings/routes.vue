@@ -9,6 +9,7 @@ definePageMeta({
 })
 
 const toast = useToast()
+const { t } = useI18n()
 const { data: routesData, refresh } = await useFetch<any>('/api/admin/routes')
 
 // Transform flat routes to tree
@@ -110,10 +111,10 @@ const saveOrder = async (tree: any[]) => {
       method: 'PUT',
       body: updates
     })
-    toast.add({ title: 'Order updated successfully' })
+    toast.add({ title: t('settings.order_updated') })
     // Don't refresh here to avoid resetting the tree state while dragging
   } catch (error: any) {
-    toast.add({ title: 'Error updating order', description: error.message, color: 'error' })
+    toast.add({ title: t('settings.order_error'), description: error.message, color: 'error' })
     refresh() // Revert on error
   }
 }
@@ -123,7 +124,7 @@ const isEditing = ref(false)
 const editingId = ref('')
 
 const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, t('validation.name_min')),
   path: z.string().min(1, 'Path is required'),
   icon: z.string().optional(),
   sortOrder: z.number().default(0),
@@ -167,17 +168,17 @@ const onEdit = (row: any) => {
 
 const toggleVisibility = async (row: any) => {
   const action = row.isVisible ? 'hide' : 'show'
-  if (!confirm(`Are you sure you want to ${action} "${row.name}"?`)) return
+  if (!confirm(t('settings.toggle_confirm', { action, name: row.name }))) return
 
   try {
     await $fetch(`/api/admin/routes/${row._id}`, {
       method: 'PUT',
       body: { ...row, isVisible: !row.isVisible }
     })
-    toast.add({ title: `Route ${action === 'hide' ? 'hidden' : 'shown'} successfully` })
+    toast.add({ title: t('settings.toggle_success') })
     refresh()
   } catch (error: any) {
-    toast.add({ title: 'Error updating route', description: error.message, color: 'error' })
+    toast.add({ title: t('settings.route_error'), description: error.message, color: 'error' })
   }
 }
 
@@ -188,19 +189,19 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
         method: 'PUT',
         body: event.data
       })
-      toast.add({ title: 'Route updated successfully' })
+      toast.add({ title: t('settings.route_updated') })
     } else {
       await $fetch('/api/admin/routes', {
         method: 'POST',
         body: event.data
       })
-      toast.add({ title: 'Route created successfully' })
+      toast.add({ title: t('settings.route_created') })
     }
     isOpen.value = false
     refresh()
     resetForm()
   } catch (error: any) {
-    toast.add({ title: 'Error saving route', description: error.message, color: 'error' })
+    toast.add({ title: t('settings.route_error'), description: error.message, color: 'error' })
   }
 }
 
@@ -209,80 +210,83 @@ const flatRoutes = computed(() => routesData.value?.data || [])
 </script>
 
 <template>
-  <div class="space-y-4">
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Route Management</h1>
-      <UButton icon="i-lucide-plus" @click="isOpen = true">Add Route</UButton>
-    </div>
-
-    <UCard>
-      <div v-if="routeTree.length === 0" class="text-center py-8 text-gray-500">
-        No routes found. Add one to get started.
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">{{ $t('settings.routes_title') }}</h1>
+        <UButton icon="i-lucide-plus" @click="isOpen = true">{{ $t('settings.add_route') }}</UButton>
       </div>
-      <UTree v-else ref="tree" :items="routeTree" :nested="false" :unmount-on-hide="false" :ui="{
-        item: 'block w-full'
-      }">
-        <template #item-label="{ item }">
-          <div
-            class="flex items-center justify-between w-full p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md group">
-            <div class="flex items-center gap-2">
-              <UIcon name="i-lucide-grip-vertical" class="drag-handle cursor-move text-gray-400" />
-              <UIcon :name="item.icon || 'i-lucide-circle'" class="w-5 h-5 text-gray-500" />
-              <div class="flex flex-col text-left">
-                <span class="font-medium text-sm">{{ item.name }}</span>
-                <span class="text-xs text-gray-400">{{ item.path }}</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <UBadge v-if="!item.isVisible" color="neutral" variant="subtle" size="xs">Hidden</UBadge>
-              <UButton icon="i-lucide-edit" color="neutral" variant="ghost" size="xs" @click.stop="onEdit(item)" />
-              <UButton :icon="item.isVisible ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                :color="item.isVisible ? 'warning' : 'success'" variant="ghost" size="xs"
-                @click.stop="toggleVisibility(item)" />
+    </template>
+    <div v-if="routeTree.length === 0" class="text-center py-8 text-gray-500">
+      {{ $t('settings.no_routes') }}
+    </div>
+    <UTree v-else ref="tree" :items="routeTree" :nested="false" :unmount-on-hide="false" :ui="{
+      item: 'block w-full'
+    }">
+      <template #item-label="{ item }">
+        <div
+          class="flex items-center justify-between w-full p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md group">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-grip-vertical" class="drag-handle cursor-move text-gray-400" />
+            <UIcon :name="item.icon || 'i-lucide-circle'" class="w-5 h-5 text-gray-500" />
+            <div class="flex flex-col text-left">
+              <span class="font-medium text-sm">{{ item.name }}</span>
+              <span class="text-xs text-gray-400">{{ item.path }}</span>
             </div>
           </div>
-        </template>
-      </UTree>
-    </UCard>
+          <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <UBadge v-if="!item.isVisible" color="neutral" variant="subtle" size="xs">{{ $t('common.hidden') }}
+            </UBadge>
+            <UButton icon="i-lucide-edit" color="neutral" variant="ghost" size="xs" @click.stop="onEdit(item)" />
+            <UButton :icon="item.isVisible ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+              :color="item.isVisible ? 'warning' : 'success'" variant="ghost" size="xs"
+              @click.stop="toggleVisibility(item)" />
+          </div>
+        </div>
+      </template>
+    </UTree>
+  </UCard>
 
-    <UModal v-model="isOpen">
+  <UModal v-model:open="isOpen">
+    <template #content>
       <UCard>
         <template #header>
-          <h3 class="text-lg font-semibold">{{ isEditing ? 'Edit Route' : 'Add Route' }}</h3>
+          <h3 class="text-lg font-semibold">{{ isEditing ? $t('settings.edit_route') : $t('settings.add_route') }}
+          </h3>
         </template>
 
         <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
-          <UFormField label="Name" name="name">
+          <UFormField :label="$t('common.name')" name="name">
             <UInput v-model="state.name" />
           </UFormField>
 
-          <UFormField label="Path" name="path">
+          <UFormField :label="$t('common.path')" name="path">
             <UInput v-model="state.path" />
           </UFormField>
 
-          <UFormField label="Icon" name="icon">
+          <UFormField :label="$t('common.icon')" name="icon">
             <UInput v-model="state.icon" placeholder="i-lucide-..." />
           </UFormField>
 
-          <UFormField label="Parent Route" name="parent">
+          <UFormField :label="$t('settings.parent_route')" name="parent">
             <USelectMenu v-model="state.parent" :options="flatRoutes" option-attribute="name" value-attribute="_id"
-              placeholder="Select parent (optional)" searchable />
+              :placeholder="$t('settings.select_parent')" searchable />
           </UFormField>
 
-          <UFormField label="Sort Order" name="sortOrder">
+          <UFormField :label="$t('common.sort_order')" name="sortOrder">
             <UInput v-model="state.sortOrder" type="number" />
           </UFormField>
 
           <UFormField name="isVisible">
-            <UCheckbox v-model="state.isVisible" label="Visible in menu" />
+            <UCheckbox v-model="state.isVisible" :label="$t('settings.visible_in_menu')" />
           </UFormField>
 
           <div class="flex justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="isOpen = false">Cancel</UButton>
-            <UButton type="submit">Save</UButton>
+            <UButton color="neutral" variant="ghost" @click="isOpen = false">{{ $t('common.cancel') }}</UButton>
+            <UButton type="submit">{{ $t('common.save') }}</UButton>
           </div>
         </UForm>
       </UCard>
-    </UModal>
-  </div>
+    </template>
+  </UModal>
 </template>

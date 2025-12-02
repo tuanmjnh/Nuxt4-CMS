@@ -1,7 +1,6 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document, Types } from 'mongoose'
 
-
 export interface IProductDocument extends Omit<Models.Product, '_id' | 'createdAt' | 'updatedAt'>, Document { }
 
 const VariantSchema = new Schema({
@@ -91,7 +90,15 @@ const ProductSchema = new Schema<IProductDocument>({
   views: { type: Number, default: 0 },
   sales: { type: Number, default: 0 },
   ratingAverage: { type: Number, default: 0 },
-  ratingCount: { type: Number, default: 0 }
+  ratingCount: { type: Number, default: 0 },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
+  }
 }, {
   timestamps: true
 })
@@ -104,15 +111,9 @@ ProductSchema.index({ status: 1 })
 ProductSchema.index({ price: 1 })
 
 // Auto-generate slug
-// Auto-generate slug
 ProductSchema.pre('validate', function (next) {
   const doc = this as unknown as IProductDocument
-  if (!doc.slug && doc.name) {
-    doc.slug = doc.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-  }
+  if (!doc.slug && doc.name) doc.slug = toSlug(doc.name)
   next()
 })
 

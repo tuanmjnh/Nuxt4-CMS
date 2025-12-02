@@ -38,9 +38,8 @@ const items = computed(() => [
 </script>
 
 <template>
-  <UDropdownMenu :items="items" :popper="{ placement: 'right-start' }" arrow :modal="false" :ui="{
-    item: 'cursor-pointer'
-  }">
+  <UDropdownMenu :items="items" :popper="{ placement: 'right-start' }" arrow :modal="false"
+    :ui="{ item: 'cursor-pointer' }">
     <UButton color="neutral" variant="ghost" class="w-full justify-start">
       <UAvatar :src="user?.avatar?.url" :alt="user?.name" size="xs" />
       <span class="truncate text-gray-700 dark:text-gray-200 font-medium">{{ user?.name }}</span>

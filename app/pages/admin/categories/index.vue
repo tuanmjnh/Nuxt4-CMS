@@ -1,88 +1,17 @@
-<template>
-  <div>
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Categories</h1>
-      <UButton @click="openCreateModal" icon="i-lucide-plus">
-        Create Category
-      </UButton>
-    </div>
-
-    <UCard>
-      <div class="mb-4">
-        <UTabs :items="tabs" @change="onTabChange" />
-      </div>
-
-      <UTable :rows="categories" :columns="columns" :loading="pending">
-        <template #actions-data="{ row }">
-          <div class="flex items-center gap-2">
-            <UButton icon="i-lucide-edit" color="info" variant="ghost" size="xs" @click="editCategory(row)" />
-            <UButton icon="i-lucide-trash" color="error" variant="ghost" size="xs" @click="confirmDelete(row)" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Create/Edit Modal -->
-    <UModal v-model="showModal">
-      <UCard>
-        <template #header>
-          <h3 class="font-bold">{{ editingCategory ? 'Edit Category' : 'Create Category' }}</h3>
-        </template>
-
-        <form @submit.prevent="handleSubmit" class="space-y-4">
-          <UFormGroup label="Type" name="type">
-            <USelect v-model="form.type" :options="['post', 'product']" disabled />
-          </UFormGroup>
-
-          <UFormGroup label="Name" name="name" required>
-            <UInput v-model="form.name" />
-          </UFormGroup>
-
-          <UFormGroup label="Description" name="description">
-            <UTextarea v-model="form.description" />
-          </UFormGroup>
-
-          <UFormGroup label="Parent Category" name="parent">
-            <USelect v-model="form.parent" :options="parentOptions" option-attribute="name" value-attribute="_id"
-              placeholder="None" />
-          </UFormGroup>
-
-          <div class="flex justify-end gap-2 pt-4">
-            <UButton color="neutral" variant="ghost" @click="showModal = false">Cancel</UButton>
-            <UButton type="submit" :loading="saving">Save</UButton>
-          </div>
-        </form>
-      </UCard>
-    </UModal>
-
-    <!-- Delete Confirmation -->
-    <UModal v-model="showDeleteModal">
-      <UCard>
-        <template #header>
-          <h3 class="font-bold">Delete Category</h3>
-        </template>
-        <p>Are you sure you want to delete this category? Items will be unassigned.</p>
-        <template #footer>
-          <div class="flex justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="showDeleteModal = false">Cancel</UButton>
-            <UButton color="error" @click="handleDelete" :loading="deleting">Delete</UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
-  </div>
-</template>
-
 <script setup lang="ts">
+import { useSortable } from '@vueuse/integrations/useSortable'
+
 definePageMeta({
   layout: 'admin',
   middleware: 'admin'
 })
 
 const toast = useToast()
+const { t } = useI18n()
 const { token } = useAuth()
 
 const showModal = ref(false)
+const showMediaManager = ref(false)
 const showDeleteModal = ref(false)
 const editingCategory = ref<any>(null)
 const categoryToDelete = ref<any>(null)
@@ -90,24 +19,21 @@ const saving = ref(false)
 const deleting = ref(false)
 const currentType = ref('post')
 
-const tabs = [
-  { label: 'Post Categories', slot: 'post', content: 'post' },
-  { label: 'Product Categories', slot: 'product', content: 'product' }
-]
+const tabs = computed(() => [
+  { label: t('categories.post_categories'), slot: 'post', content: 'post' },
+  { label: t('categories.product_categories'), slot: 'product', content: 'product' }
+])
 
 const form = ref({
   name: '',
   description: '',
   parent: '',
-  type: 'post'
+  type: 'post',
+  metaTitle: '',
+  metaDescription: '',
+  keywords: [] as string[],
+  ogImage: ''
 })
-
-const columns = [
-  { key: 'name', label: 'Name' },
-  { key: 'slug', label: 'Slug' },
-  { key: 'postCount', label: 'Count' },
-  { key: 'actions', label: 'Actions' }
-]
 
 const { data, pending, refresh } = await useFetch('/api/categories', {
   query: { type: currentType }
@@ -116,17 +42,154 @@ const { data, pending, refresh } = await useFetch('/api/categories', {
 const categories = computed(() => data.value?.data?.categories || [])
 
 const parentOptions = computed(() => {
-  return categories.value.filter((c: any) => c._id !== editingCategory.value?._id)
+  // Flatten tree or just use the categories list (which is flat from API)
+  // Filter out self and children to prevent cycles if editing
+  if (!editingCategory.value) return categories.value
+
+  const getDescendants = (id: string, list: any[]): string[] => {
+    const children = list.filter(c => c.parent === id || c.parent?._id === id)
+    let descendants = children.map(c => c._id)
+    children.forEach(c => {
+      descendants = [...descendants, ...getDescendants(c._id, list)]
+    })
+    return descendants
+  }
+
+  const descendants = getDescendants(editingCategory.value._id, categories.value)
+  return categories.value.filter((c: any) => c._id !== editingCategory.value._id && !descendants.includes(c._id))
 })
 
-const onTabChange = (index: number) => {
-  currentType.value = tabs[index].content
-  refresh()
+// Tree Logic
+const buildTree = (items: any[]) => {
+  const map: any = {}
+  const roots: any[] = []
+
+  // Deep copy to avoid mutating original data
+  const list = JSON.parse(JSON.stringify(items))
+
+  list.forEach((item: any) => {
+    map[item._id] = { ...item, label: item.name, children: [] }
+  })
+
+  list.forEach((item: any) => {
+    const parentId = item.parent?._id || item.parent
+    if (parentId && map[parentId]) {
+      map[parentId].children.push(map[item._id])
+    } else {
+      roots.push(map[item._id])
+    }
+  })
+
+  // Sort by sortOrder
+  const sortItems = (list: any[]) => {
+    list.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    list.forEach(item => sortItems(item.children))
+  }
+  sortItems(roots)
+
+  return roots
 }
 
-const openCreateModal = () => {
+const categoryTree = shallowRef<any[]>([])
+
+watch(() => categories.value, (newItems) => {
+  if (newItems) {
+    categoryTree.value = buildTree(newItems)
+  }
+}, { immediate: true })
+
+// Drag and Drop Logic
+function flatten(
+  items: any[],
+  parent = items
+): { item: any; parent: any[]; index: number }[] {
+  return items.flatMap((item, index) => [
+    { item, parent, index },
+    ...(item.children?.length ? flatten(item.children, item.children) : [])
+  ])
+}
+
+function moveItem(oldIndex: number, newIndex: number) {
+  if (oldIndex === newIndex) return
+
+  const flat = flatten(categoryTree.value)
+  const source = flat[oldIndex]
+  const target = flat[newIndex]
+
+  if (!source || !target) return
+
+  const [moved] = source.parent.splice(source.index, 1)
+  if (!moved) return
+
+  const updatedFlat = flatten(categoryTree.value)
+  const updatedTarget = updatedFlat.find(({ item }) => item === target.item)
+  if (!updatedTarget) return
+
+  const insertIndex = oldIndex < newIndex ? updatedTarget.index + 1 : updatedTarget.index
+  updatedTarget.parent.splice(insertIndex, 0, moved)
+
+  // Trigger save
+  saveOrder(categoryTree.value)
+}
+
+const treeRef = useTemplateRef<HTMLElement>('tree')
+
+useSortable(treeRef, categoryTree, {
+  animation: 150,
+  ghostClass: 'opacity-50',
+  handle: '.drag-handle',
+  onUpdate: (e: any) => moveItem(e.oldIndex, e.newIndex)
+})
+
+const saveOrder = async (tree: any[]) => {
+  // Flatten tree to get new order and parents
+  const flattenForSave = (list: any[], parent: string | null = null): any[] => {
+    return list.reduce((acc: any[], item: any, index: number) => {
+      const current = {
+        id: item._id,
+        parent,
+        sortOrder: index
+      }
+      const children = item.children ? flattenForSave(item.children, item._id) : []
+      return [...acc, current, ...children]
+    }, [])
+  }
+
+  const flatItems = flattenForSave(tree)
+
+  try {
+    await $fetch('/api/categories/reorder', {
+      method: 'PUT',
+      body: { items: flatItems },
+      headers: { Authorization: `Bearer ${token.value}` }
+    })
+    toast.add({ title: t('categories.order_updated') })
+  } catch (error: any) {
+    toast.add({ title: t('categories.order_error'), description: error.message, color: 'error' })
+    refresh() // Revert on error
+  }
+}
+
+const onTabChange = (index: number) => {
+  const tab = tabs.value[index]
+  if (tab) {
+    currentType.value = tab.content
+    refresh()
+  }
+}
+
+const openCreateModal = (parentItem: any = null) => {
   editingCategory.value = null
-  form.value = { name: '', description: '', parent: '', type: currentType.value }
+  form.value = {
+    name: '',
+    description: '',
+    parent: parentItem?._id || '',
+    type: currentType.value,
+    metaTitle: '',
+    metaDescription: '',
+    keywords: [],
+    ogImage: ''
+  }
   showModal.value = true
 }
 
@@ -136,9 +199,20 @@ const editCategory = (category: any) => {
     name: category.name,
     description: category.description || '',
     parent: category.parent?._id || category.parent || '',
-    type: category.type || 'post'
+    type: category.type || 'post',
+    metaTitle: category.metaTitle || '',
+    metaDescription: category.metaDescription || '',
+    keywords: category.keywords || [],
+    ogImage: category.ogImage || ''
   }
   showModal.value = true
+}
+
+const handleImageSelect = (files: any[]) => {
+  if (files.length > 0) {
+    form.value.ogImage = files[0].secure_url
+  }
+  showMediaManager.value = false
 }
 
 const handleSubmit = async () => {
@@ -156,11 +230,11 @@ const handleSubmit = async () => {
       headers: { Authorization: `Bearer ${token.value}` }
     })
 
-    toast.add({ title: `Category ${editingCategory.value ? 'updated' : 'created'} successfully`, color: 'success' })
+    toast.add({ title: t('categories.save_success'), color: 'success' })
     showModal.value = false
     refresh()
   } catch (error: any) {
-    toast.add({ title: error.message || 'Operation failed', color: 'error' })
+    toast.add({ title: error.message || t('categories.save_error'), color: 'error' })
   } finally {
     saving.value = false
   }
@@ -181,13 +255,152 @@ const handleDelete = async () => {
       headers: { Authorization: `Bearer ${token.value}` }
     })
 
-    toast.add({ title: 'Category deleted successfully', color: 'success' })
+    toast.add({ title: t('categories.delete_success'), color: 'success' })
     showDeleteModal.value = false
     refresh()
   } catch (error: any) {
-    toast.add({ title: 'Failed to delete category', color: 'error' })
+    toast.add({ title: t('categories.delete_error'), color: 'error' })
   } finally {
     deleting.value = false
   }
 }
 </script>
+
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">{{ $t('categories.title') }}</h1>
+        <UButton @click="openCreateModal" icon="i-lucide-plus">
+          {{ $t('categories.create') }}
+        </UButton>
+      </div>
+    </template>
+    <div class="mb-4">
+      <UTabs :items="tabs" @change="onTabChange" />
+    </div>
+
+    <div v-if="pending" class="space-y-4">
+      <USkeleton class="h-12 w-full" />
+      <USkeleton class="h-64 w-full" />
+    </div>
+
+    <div v-else>
+      <div v-if="categoryTree.length === 0" class="text-center py-8 text-gray-500">
+        {{ $t('categories.no_categories') }}
+      </div>
+
+      <UTree v-else ref="tree" :items="categoryTree" :nested="false" :unmount-on-hide="false" :ui="{
+        item: 'block w-full'
+      }">
+        <template #item-label="{ item }">
+          <div
+            class="flex items-center justify-between w-full p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md group">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-grip-vertical" class="drag-handle cursor-move text-gray-400" />
+              <div class="flex flex-col text-left">
+                <span class="font-medium text-sm">{{ item.label }}</span>
+                <div class="flex gap-2 items-center text-xs text-gray-500">
+                  <span>{{ item.slug }}</span>
+                  <span v-if="item.postCount > 0">• {{ item.postCount }} posts</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <UButton icon="i-lucide-plus" color="neutral" variant="ghost" size="xs"
+                @click.stop="openCreateModal(item)" :title="$t('categories.add_child')" />
+              <UButton icon="i-lucide-edit" color="info" variant="ghost" size="xs" @click.stop="editCategory(item)" />
+              <UButton icon="i-lucide-trash" color="error" variant="ghost" size="xs"
+                @click.stop="confirmDelete(item)" />
+            </div>
+          </div>
+        </template>
+      </UTree>
+    </div>
+  </UCard>
+
+  <!-- Create/Edit Modal -->
+  <UModal v-model:open="showModal">
+    <template #content>
+      <UCard>
+        <template #header>
+          <h3 class="font-bold">{{ editingCategory ? $t('categories.edit') : $t('categories.create') }}</h3>
+        </template>
+
+        <form @submit.prevent="handleSubmit" class="space-y-4">
+          <UFormField :label="$t('categories.type')" name="type">
+            <USelect v-model="form.type" :options="['post', 'product']" disabled />
+          </UFormField>
+
+          <UFormField :label="$t('categories.name')" name="name" required>
+            <UInput v-model="form.name" />
+          </UFormField>
+
+          <UFormField :label="$t('categories.description')" name="description">
+            <UTextarea v-model="form.description" />
+          </UFormField>
+
+          <UFormField :label="$t('categories.parent')" name="parent">
+            <USelect v-model="form.parent" :options="parentOptions" option-attribute="name" value-attribute="_id"
+              :placeholder="$t('categories.none')" />
+          </UFormField>
+
+          <Divider :label="$t('categories.seo_settings')" class="my-6" />
+
+          <UFormField :label="$t('categories.meta_title')" name="metaTitle">
+            <UInput v-model="form.metaTitle" :placeholder="$t('categories.meta_title')" />
+          </UFormField>
+
+          <UFormField :label="$t('categories.meta_description')" name="metaDescription">
+            <UTextarea v-model="form.metaDescription" :rows="2" :placeholder="$t('categories.meta_description')" />
+          </UFormField>
+
+          <UFormField :label="$t('categories.keywords')" name="keywords">
+            <UInputMenu v-model="form.keywords" multiple creatable :placeholder="$t('categories.add_keywords')" />
+          </UFormField>
+
+          <UFormField :label="$t('categories.og_image')" name="ogImage">
+            <div v-if="form.ogImage"
+              class="relative w-full h-48 mb-2 rounded-lg overflow-hidden group border border-gray-200 dark:border-gray-700">
+              <img :src="form.ogImage" class="w-full h-full object-cover" />
+              <UButton icon="i-lucide-trash" color="error" variant="solid" size="xs"
+                class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                @click="form.ogImage = ''" />
+            </div>
+            <UButton v-else icon="i-lucide-image" color="neutral" @click="showMediaManager = true">
+              {{ $t('categories.select_image') }}
+            </UButton>
+          </UFormField>
+
+          <div class="flex justify-end gap-2 pt-4">
+            <UButton color="neutral" variant="ghost" @click="showModal = false">{{ $t('common.cancel') }}</UButton>
+            <UButton type="submit" :loading="saving">{{ $t('common.save') }}</UButton>
+          </div>
+        </form>
+      </UCard>
+    </template>
+  </UModal>
+
+  <!-- Cloudinary Manager Modal -->
+  <AdminCloudinaryManager v-if="showMediaManager" mode="modal" :multiple="false" @close="showMediaManager = false"
+    @selected-files="handleImageSelect" />
+
+  <!-- Delete Confirmation -->
+  <UModal v-model:open="showDeleteModal">
+    <template #content>
+      <UCard>
+        <template #header>
+          <h3 class="font-bold">{{ $t('categories.delete') }}</h3>
+        </template>
+        <p>{{ $t('categories.delete_confirm') }}</p>
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton color="neutral" variant="ghost" @click="showDeleteModal = false">{{ $t('common.cancel') }}
+            </UButton>
+            <UButton color="error" @click="handleDelete" :loading="deleting">{{ $t('common.delete') }}</UButton>
+          </div>
+        </template>
+      </UCard>
+    </template>
+  </UModal>
+</template>

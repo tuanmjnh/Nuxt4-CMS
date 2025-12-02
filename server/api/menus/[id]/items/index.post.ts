@@ -20,12 +20,12 @@ export default defineEventHandler(async (event) => {
     await connectDB()
 
     const menuId = getRouterParam(event, 'id')
-    if (!menuId) throw createError({ statusCode: 400, message: 'Menu ID required' })
+    if (!menuId)
+      throw createError({ statusCode: 400, message: 'Menu ID required', statusMessage: 'error.validation' })
 
     const currentUser = event.context.user
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw createError({ statusCode: 403, message: 'Admin only' })
-    }
+    if (!currentUser || currentUser.role !== 'admin')
+      throw createError({ statusCode: 403, message: 'Admin only', statusMessage: 'error.unauthorized' })
 
     const body = await readBody(event)
     const data = createItemSchema.parse(body)
@@ -44,7 +44,8 @@ export default defineEventHandler(async (event) => {
 
     return { success: true, data: { item } }
   } catch (error: any) {
-    if (error.name === 'ZodError') throw createError({ statusCode: 400, message: error.errors })
-    throw error
+    if (error.name === 'ZodError') throw createError({ statusCode: 400, message: error.errors, statusMessage: 'error.validation' })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

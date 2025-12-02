@@ -7,6 +7,8 @@ declare global {
       name: string
       slug: string
       values: string[]
+      isDeleted: boolean
+      deletedAt?: string | Date
       createdAt: string | Date
       updatedAt: string | Date
     }
@@ -67,6 +69,8 @@ declare global {
       views: number
       ratingCount: number
       ratingAverage: number
+      isDeleted: boolean
+      deletedAt?: string | Date
 
       createdAt: string | Date
       updatedAt: string | Date

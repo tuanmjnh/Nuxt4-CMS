@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     await connectDB()
 
-    const tags = await Tag.find()
+    const tags = await Tag.find({ isDeleted: false })
       .sort({ name: 1 })
       .lean()
 
@@ -12,10 +12,8 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: { tags }
     }
-  } catch (error) {
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch tags'
-    })
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

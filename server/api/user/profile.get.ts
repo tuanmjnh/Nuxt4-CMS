@@ -5,12 +5,7 @@ export default defineEventHandler(async (event) => {
     // Get user from context (set by auth middleware)
     const currentUser = event.context.user
 
-    if (!currentUser) {
-      throw createError({
-        statusCode: 401,
-        message: 'Not authenticated'
-      })
-    }
+    if (!currentUser) throw createError({ statusCode: 401, message: 'Not authenticated', statusMessage: 'error.unauthorized' })
 
     // Connect to database
     await connectDB()
@@ -26,12 +21,8 @@ export default defineEventHandler(async (event) => {
         }
       })
 
-    if (!user || !user.isActive) {
-      throw createError({
-        statusCode: 404,
-        message: 'User not found or inactive'
-      })
-    }
+    if (!user || !user.isActive)
+      throw createError({ statusCode: 404, message: 'User not found or inactive', statusMessage: 'error.not_found' })
 
     return {
       success: true,
@@ -47,7 +38,8 @@ export default defineEventHandler(async (event) => {
         }
       }
     }
-  } catch (error) {
-    throw error
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

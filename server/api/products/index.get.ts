@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const status = query.status as string
   const category = query.category as string
 
-  const filter: any = {}
+  const filter: any = { isDeleted: false }
 
   if (status) {
     filter.status = status
@@ -45,9 +45,7 @@ export default defineEventHandler(async (event) => {
       }
     }
   } catch (error: any) {
-    throw createError({
-      statusCode: 500,
-      message: error.message
-    })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

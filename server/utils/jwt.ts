@@ -4,7 +4,7 @@ export interface JWTPayload {
   userId: string
   email: string
   username: string
-  role: string
+  role: string | Models.Role
   deviceType?: 'pc' | 'mobile' | 'tablet' | 'web'
 }
 

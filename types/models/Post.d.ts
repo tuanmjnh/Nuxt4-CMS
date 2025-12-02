@@ -2,17 +2,6 @@ export { }
 
 declare global {
   namespace Models {
-    interface Tag {
-      _id: string
-      name: string
-      slug: string
-      description?: string
-      color?: string
-      postCount: number
-      createdAt: string | Date
-      updatedAt: string | Date
-    }
-
     interface PostMediaData {
       type: 'video' | 'audio' | 'iframe' | 'embed'
       url: string // Youtube/Vimeo link or MP4/MP3 file
@@ -22,12 +11,24 @@ declare global {
       title?: string // Media title
     }
 
+    interface PostAttribute {
+      _id: string
+      name: string
+      slug: string
+      values: string[]
+      isDeleted: boolean
+      deletedAt?: string | Date
+      createdAt: string | Date
+      updatedAt: string | Date
+    }
+
     interface Post {
       _id: string
       title: { en: string; vi: string } | string
       slug: string
       content: { en: string; vi: string } | string
       excerpt?: { en: string; vi: string } | string
+      featuredImage?: string
       thumbnail?: Cloudinary.IFileAttach
 
       // Format-specific fields
@@ -36,6 +37,11 @@ declare global {
       quoteText?: string
       quoteAuthor?: string
       linkUrl?: string
+
+      attributes?: {
+        name: string
+        value: string
+      }[]
 
       author: User | string
       categories: (Category | string)[]
@@ -57,6 +63,8 @@ declare global {
       comments: number
       ratingCount: number
       ratingAverage: number
+      isDeleted: boolean
+      deletedAt?: string | Date
 
       publishedAt?: string | Date
       scheduledAt?: string | Date

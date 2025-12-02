@@ -1,7 +1,6 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document, Types } from 'mongoose'
 
-
 export interface IPostMediaData {
   type: 'video' | 'audio' | 'iframe' | 'embed'
   url: string // Youtube/Vimeo link or MP4/MP3 file
@@ -17,6 +16,10 @@ export interface IPostDocument extends Omit<Models.Post, '_id' | 'createdAt' | '
   quoteText?: string
   quoteAuthor?: string
   linkUrl?: string
+  attributes?: {
+    name: string
+    value: string
+  }[]
 }
 
 const PostSchema = new Schema<IPostDocument>({
@@ -98,6 +101,12 @@ const PostSchema = new Schema<IPostDocument>({
     enum: ['standard', 'gallery', 'video', 'audio', 'quote', 'link'],
     default: 'standard'
   },
+
+  attributes: [{
+    name: String,
+    value: String
+  }],
+
   type: {
     type: String,
     enum: ['post', 'page', 'product', 'project', 'service'],
@@ -138,7 +147,15 @@ const PostSchema = new Schema<IPostDocument>({
 
   // Publishing
   publishedAt: Date,
-  scheduledAt: Date
+  scheduledAt: Date,
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
+  }
 }, {
   timestamps: true
 })
@@ -160,12 +177,7 @@ PostSchema.index({ tags: 1 })
 // Auto-generate slug from title (English) if not provided
 PostSchema.pre('save', function (next) {
   const post = this as unknown as Models.Post
-  if (!post.slug && post.title && typeof post.title === 'object' && 'en' in post.title && post.title.en) {
-    post.slug = post.title.en
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-  }
+  if (!post.slug && post.title && typeof post.title === 'object' && 'en' in post.title && post.title.en) post.slug = toSlug(post.title.en)
   next()
 })
 

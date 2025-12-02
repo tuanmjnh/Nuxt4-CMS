@@ -3,11 +3,9 @@ import { ref, computed } from 'vue'
 // import ImageCard from './cloudinary/ImageCard.vue'
 // import ConfirmModal from '../ConfirmModal.vue'
 
-type FileResource = Cloudinary.IResource
-
 const props = withDefaults(
   defineProps<{
-    modelValue: FileResource[] | FileResource | null
+    modelValue: Cloudinary.IFileAttach[] | Cloudinary.IFileAttach | null | undefined
     class?: string
     multiple?: boolean
     deleteTitle?: string
@@ -19,6 +17,16 @@ const props = withDefaults(
     uploadNewFile?: string
     columns?: number
     folder?: string
+    uploadSuccessTitle?: string
+    uploadSuccessText?: string
+    uploadErrorTitle?: string
+    uploadErrorText?: string
+    clickToUploadText?: string
+    uploadFromComputerText?: string
+    uploadFromComputerDesc?: string
+    browseLibraryText?: string
+    browseLibraryDesc?: string
+    uploadingText?: string
   }>(),
   {
     deleteTitle: 'Confirm Delete',
@@ -28,16 +36,26 @@ const props = withDefaults(
     uploadSelectText: 'Select or Drag and Drop files',
     uploadNewFile: 'Upload new file',
     columns: 4,
-    folder: 'nuxt4-cms'
+    folder: 'nuxt4-cms',
+    uploadSuccessTitle: 'Upload successful',
+    uploadSuccessText: 'file(s) uploaded',
+    uploadErrorTitle: 'Upload failed',
+    uploadErrorText: 'Please try again',
+    clickToUploadText: 'Click to choose upload method',
+    uploadFromComputerText: 'Upload from Computer',
+    uploadFromComputerDesc: 'Choose files from your device',
+    browseLibraryText: 'Browse Media Library',
+    browseLibraryDesc: 'Select from existing files or upload',
+    uploadingText: 'Uploading...'
   }
 )
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: any): void//FileResource[] | FileResource | null): void
-  (e: 'selected', files: FileResource[]): void
-  (e: 'preview', file: FileResource): void
-  (e: 'edit', file: FileResource): void
-  (e: 'delete', file: FileResource): void
+  (e: 'update:modelValue', value: any): void//Cloudinary.IFileAttach[] | Cloudinary.IFileAttach | null): void
+  (e: 'selected', files: Cloudinary.IFileAttach[]): void
+  (e: 'preview', file: Cloudinary.IFileAttach): void
+  (e: 'edit', file: Cloudinary.IFileAttach): void
+  (e: 'delete', file: Cloudinary.IFileAttach): void
 }>()
 
 const { uploadToCloudinary } = useCloudinary()
@@ -45,19 +63,19 @@ const toast = useToast()
 
 const showCloudinaryManager = ref(false)
 const isConfirmDelete = ref(false)
-const selectedFile = ref<FileResource | null>(null)
+const selectedFile = ref<Cloudinary.IFileAttach | null>(null)
 const selectedIndex = ref<number | null>(null)
-const selectedFiles = ref<FileResource[]>([])
+const selectedFiles = ref<Cloudinary.IFileAttach[]>([])
 const uploading = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const showUploadMenu = ref(false)
 
-const isSelected = (file: FileResource): boolean => {
+const isSelected = (file: Cloudinary.IFileAttach): boolean => {
   if (!file) return false
   return selectedFiles.value.some(s => s.public_id === file.public_id)
 }
 
-const handleToggleFile = (file: FileResource) => {
+const handleToggleFile = (file: Cloudinary.IFileAttach) => {
   const exists = isSelected(file)
 
   if (props.multiple) {
@@ -90,13 +108,13 @@ function mergeByKey<T extends Record<string, any>>(base: T[], updates: T[], key:
   return Array.from(map.values())
 }
 
-const onEditFile = (file: FileResource) => {
+const onEditFile = (file: Cloudinary.IFileAttach) => {
   selectedFile.value = file
   showCloudinaryManager.value = true
   emit('edit', file)
 }
 
-const onOpenConfirmDelete = (file: FileResource, index: number) => {
+const onOpenConfirmDelete = (file: Cloudinary.IFileAttach, index: number) => {
   selectedFile.value = file
   selectedIndex.value = index
   isConfirmDelete.value = true
@@ -129,7 +147,7 @@ const handleFileSelect = async (event: Event) => {
   showUploadMenu.value = false
 
   try {
-    const uploadedFiles: FileResource[] = []
+    const uploadedFiles: Cloudinary.UploadedResponse[] = []
 
     for (const file of Array.from(files)) {
       const result = await uploadToCloudinary(file, props.folder)
@@ -144,7 +162,7 @@ const handleFileSelect = async (event: Event) => {
         created_at: new Date().toISOString(),
         width: result.width,
         height: result.height,
-        type: 'upload'
+        // type: 'upload'
       })
     }
 
@@ -158,16 +176,16 @@ const handleFileSelect = async (event: Event) => {
       }
 
       toast?.add({
-        title: 'Upload successful',
-        description: `${uploadedFiles.length} file(s) uploaded`,
+        title: props.uploadSuccessTitle,
+        description: `${uploadedFiles.length} ${props.uploadSuccessText}`,
         color: 'success'
       })
     }
   } catch (error: any) {
     console.error('Upload failed:', error)
     toast?.add({
-      title: 'Upload failed',
-      description: error.message || 'Please try again',
+      title: props.uploadErrorTitle,
+      description: error.message || props.uploadErrorText,
       color: 'error'
     })
   } finally {
@@ -186,22 +204,20 @@ const openCloudinaryManager = () => {
   showCloudinaryManager.value = true
 }
 
-const handleCloudinaryManagerSelect = (files: FileResource[]) => {
+const handleCloudinaryManagerSelect = (files: Cloudinary.IFileAttach[]) => {
   if (files && files.length > 0) {
     if (props.multiple) {
       const newItems = files.map(f => ({
         public_id: f.public_id,
-        url: f.url || f.secure_url,
-        secure_url: f.secure_url || f.url,
-        resource_type: f.resource_type,
+        display_name: f.display_name,
+        url: f.url,
+        thumbnail_url: f.thumbnail_url,
         format: f.format,
         bytes: f.bytes,
-        created_at: f.created_at,
         width: f.width,
         height: f.height,
-        type: f.type
+        created_at: Date.parse(String(f.created_at))
       }))
-
       const base = Array.isArray(props.modelValue) ? [...props.modelValue] : []
       const merged = mergeByKey(base, newItems, 'public_id')
 
@@ -211,15 +227,14 @@ const handleCloudinaryManagerSelect = (files: FileResource[]) => {
       if (!single) return
       const result = {
         public_id: single.public_id,
-        url: single.url || single.secure_url,
-        secure_url: single.secure_url || single.url,
-        resource_type: single.resource_type,
+        display_name: single.display_name,
+        url: single.url,
+        thumbnail_url: single.thumbnail_url,
         format: single.format,
         bytes: single.bytes,
-        created_at: single.created_at,
         width: single.width,
         height: single.height,
-        type: single.type
+        created_at: single.created_at
       }
 
       emit('update:modelValue', result)
@@ -251,7 +266,7 @@ const gridClass = computed(() => {
         </svg>
         <div class="text-center">
           <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ uploadSelectText }}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Click to choose upload method</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ clickToUploadText }}</p>
         </div>
       </button>
 
@@ -266,8 +281,8 @@ const gridClass = computed(() => {
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
           <div>
-            <p class="font-medium text-gray-900 dark:text-white">Upload from Computer</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Choose files from your device</p>
+            <p class="font-medium text-gray-900 dark:text-white">{{ uploadFromComputerText }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ uploadFromComputerDesc }}</p>
           </div>
         </button>
 
@@ -279,8 +294,8 @@ const gridClass = computed(() => {
               d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
           </svg>
           <div>
-            <p class="font-medium text-gray-900 dark:text-white">Browse Media Library</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Select from existing files or upload</p>
+            <p class="font-medium text-gray-900 dark:text-white">{{ browseLibraryText }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ browseLibraryDesc }}</p>
           </div>
         </button>
       </div>
@@ -290,17 +305,19 @@ const gridClass = computed(() => {
   <!-- File list -->
   <div v-else :class="class">
     <div v-if="multiple" :class="gridClass">
-      <image-card v-for="(f, i) in (modelValue as FileResource[])" :key="f.public_id" :file="f" :size="size"
+      <image-card v-for="(f, i) in (modelValue as Cloudinary.IFileAttach[])" :key="f.public_id" :file="f" :size="size"
         :is-show-selected="multiple" :is-selected="isSelected(f)" :upload-select-text="uploadSelectText"
         :upload-new-file="uploadNewFile" @toggle="handleToggleFile" @preview="emit('preview', f)" @edit="onEditFile(f)"
         @delete="onOpenConfirmDelete(f, i)" />
     </div>
 
     <!-- Single file -->
-    <image-card v-else :file="modelValue as FileResource" :size="size" :is-show-selected="false"
-      :is-selected="isSelected(modelValue as FileResource)" :upload-select-text="uploadSelectText"
-      :upload-new-file="uploadNewFile" @toggle="handleToggleFile" @preview="emit('preview', modelValue as FileResource)"
-      @edit="onEditFile(modelValue as FileResource)" @delete="onOpenConfirmDelete(modelValue as FileResource, 0)" />
+    <image-card v-else :file="modelValue as Cloudinary.IFileAttach" :size="size" :is-show-selected="false"
+      :is-selected="isSelected(modelValue as Cloudinary.IFileAttach)" :upload-select-text="uploadSelectText"
+      :upload-new-file="uploadNewFile" @toggle="handleToggleFile"
+      @preview="emit('preview', modelValue as Cloudinary.IFileAttach)"
+      @edit="onEditFile(modelValue as Cloudinary.IFileAttach)"
+      @delete="onOpenConfirmDelete(modelValue as Cloudinary.IFileAttach, 0)" />
   </div>
 
   <!-- Cloudinary Manager Modal -->
@@ -311,8 +328,8 @@ const gridClass = computed(() => {
   </ClientOnly>
 
   <!-- Confirm delete dialog -->
-  <confirm-modal :visible="isConfirmDelete" :title="deleteTitle" :confirm-text="confirmText" :cancel-text="cancelText"
-    @confirm="onConfirmDelete" @cancel="isConfirmDelete = false">
+  <confirm-modal v-model="isConfirmDelete" :title="deleteTitle" :confirm-label="confirmText" :cancel-label="cancelText"
+    color="error" @confirm="onConfirmDelete" @cancel="isConfirmDelete = false">
     <template #default>
       <div class="text-center">
         <p>{{ deleteMessage }}</p>
@@ -333,7 +350,7 @@ const gridClass = computed(() => {
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
           </path>
         </svg>
-        <p class="text-gray-700 dark:text-gray-300 font-medium">Uploading...</p>
+        <p class="text-gray-700 dark:text-gray-300 font-medium">{{ uploadingText }}</p>
       </div>
     </div>
   </div>

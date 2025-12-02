@@ -15,8 +15,13 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'motion-v/nuxt',
     '@nuxtjs/i18n',
-    '~/modules/dynamic-config'
+    './modules/dynamic-config',
+    'nuxt-tiptap-editor'
   ],
+
+  tiptap: {
+    prefix: 'Tiptap', //prefix for Tiptap imports, defaults to Tiptap
+  },
 
   css: ['~/assets/css/main.css'],
 
@@ -29,6 +34,7 @@ export default defineNuxtConfig({
     // strategy: 'prefix_except_default',
     // lazy: true,
     langDir: 'locales',
+    detectBrowserLanguage: false,
     // detectBrowserLanguage: {
     //   useCookie: true,
     //   cookieKey: 'i18n_redirected',
@@ -66,9 +72,11 @@ export default defineNuxtConfig({
     // Public keys (client-side accessible)
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://nuxt.com',
       siteName: 'Nuxt 4 CMS',
-      siteDescription: 'A modern content management system built with Nuxt 4'
+      siteIcon: 'i-lucide-layout-dashboard',
+      siteDescription: 'A modern content management system built with Nuxt 4',
+      copyright: 'tuanmjnh'
     }
   },
 

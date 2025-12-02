@@ -3,7 +3,7 @@ import { AdminRoute } from '../../../models/AdminRoute'
 export default defineEventHandler(async (event) => {
   const currentUser = event.context.user
   if (!currentUser || currentUser.role.name !== 'admin') {
-    throw createError({ statusCode: 403, message: 'Access denied' })
+    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
   }
 
   await connectDB()
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
   // body should be an array of { _id, parent, sortOrder }
   if (!Array.isArray(body)) {
-    throw createError({ statusCode: 400, message: 'Invalid body, expected array' })
+    throw createError({ statusCode: 400, message: 'Invalid body, expected array', statusMessage: 'error.validation' })
   }
 
   try {
@@ -38,9 +38,7 @@ export default defineEventHandler(async (event) => {
       message: 'Routes updated successfully'
     }
   } catch (error: any) {
-    throw createError({
-      statusCode: 400,
-      message: error.message
-    })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 400, message: error.message, statusMessage: 'error.server_error' })
   }
 })

@@ -9,6 +9,8 @@ declare global {
       position: string
       isActive: boolean
       sortOrder: number
+      isDeleted: boolean
+      deletedAt?: string | Date
       items?: MenuItem[] // Virtual populated
       createdAt: string | Date
       updatedAt: string | Date
@@ -30,6 +32,8 @@ declare global {
       cssClass?: string
       isVisible: boolean
       sortOrder: number
+      isDeleted: boolean
+      deletedAt?: string | Date
       children?: MenuItem[] // Virtual populated
       createdAt: string | Date
       updatedAt: string | Date

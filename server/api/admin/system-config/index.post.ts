@@ -7,10 +7,7 @@ export default defineEventHandler(async (event) => {
   const { key, value, isPublic, type, description } = body
 
   if (!key) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Key is required'
-    })
+    throw createError({ statusCode: 400, message: 'error.validation', statusMessage: 'error.validation' })
   }
 
   try {
@@ -41,11 +38,8 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: config
     }
-  } catch (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal Server Error',
-      data: error
-    })
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })
   }
 })

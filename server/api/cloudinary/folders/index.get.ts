@@ -1,12 +1,8 @@
 export default defineEventHandler(async (event) => {
   // Check authentication
   const currentUser = event.context.user
-  if (!currentUser) {
-    throw createError({
-      statusCode: 401,
-      message: 'Authentication required'
-    })
-  }
+  if (!currentUser)
+    throw createError({ statusCode: 401, statusMessage: 'error.unauthorized', message: 'Authentication required' })
 
   try {
     const query = getQuery(event)
@@ -42,10 +38,7 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error: any) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to fetch folders',
-      message: error.message
-    })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

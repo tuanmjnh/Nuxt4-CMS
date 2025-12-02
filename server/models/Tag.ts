@@ -1,7 +1,6 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document } from 'mongoose'
 
-
 export interface ITagDocument extends Omit<Models.Tag, '_id' | 'createdAt' | 'updatedAt'>, Document { }
 
 const TagSchema = new Schema<ITagDocument>({
@@ -30,6 +29,14 @@ const TagSchema = new Schema<ITagDocument>({
   postCount: {
     type: Number,
     default: 0
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true
@@ -38,15 +45,9 @@ const TagSchema = new Schema<ITagDocument>({
 // Indexes
 
 // Auto-generate slug from name if not provided
-// Auto-generate slug from name if not provided
-TagSchema.pre('save', function (next) {
+TagSchema.pre('validate', function (next) {
   const doc = this as unknown as ITagDocument
-  if (!doc.slug && doc.name) {
-    doc.slug = doc.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-  }
+  if (!doc.slug && doc.name) doc.slug = toSlug(doc.name)
   next()
 })
 

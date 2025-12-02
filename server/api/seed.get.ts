@@ -114,7 +114,8 @@ export default defineEventHandler(async (event) => {
     console.error('Seeding error:', error)
     throw createError({
       statusCode: 500,
-      message: error.message
+      message: error.message,
+      statusMessage: 'error.server_error'
     })
   }
 })

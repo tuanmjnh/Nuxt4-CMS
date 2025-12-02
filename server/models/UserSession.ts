@@ -15,6 +15,11 @@ const UserSessionSchema = new Schema<IUserSessionDocument>({
     required: true,
     index: true
   },
+  deviceId: {
+    type: String,
+    required: true,
+    index: true
+  },
   deviceType: {
     type: String,
     enum: ['pc', 'mobile', 'tablet', 'web'],

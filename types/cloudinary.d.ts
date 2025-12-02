@@ -130,9 +130,10 @@ declare global {
     /**
      * Upload response from Cloudinary
      */
-    interface UploadResponse {
+    interface UploadedResponse {
       public_id: string
       url: string
+      thumbnail_url?: string
       secure_url: string
       resource_type: string
       format: string
@@ -147,11 +148,12 @@ declare global {
      * Simplified file attachment interface for storing in database
      */
     interface IFileAttach {
-      _id?: string
+      // _id?: string
       public_id?: string
       display_name?: string
       url: string
-      secure_url?: string
+      thumbnail_url?: string
+      // secure_url?: string
       format?: string
       bytes?: number
       width?: number

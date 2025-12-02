@@ -3,7 +3,7 @@ import { formatTimeAgo } from '@vueuse/core'
 
 const { isNotificationsSlideoverOpen } = useDashboard()
 
-const { data: notifications } = await useFetch<Models.Notification[]>('/api/notifications')
+const { data: notifications } = await useAPI<Models.Notification[]>('/api/notifications')
 </script>
 
 <template>

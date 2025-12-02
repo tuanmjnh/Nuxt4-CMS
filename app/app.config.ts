@@ -8,9 +8,14 @@ export default defineAppConfig({
   },
   ui: {
     colors: {
-      primary: 'green',//'blue',
+      primary: 'blue',//'blue',
       neutral: 'slate',
       gray: 'cool'
+    },
+    icons: {
+      system: 'i-ph-desktop',
+      light: 'i-ph-sun',
+      dark: 'i-ph-moon'
     }
   }
 })

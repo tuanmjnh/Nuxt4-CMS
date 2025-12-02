@@ -1,11 +1,32 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
 interface Props {
   folder: string
+  title?: string
+  dropText?: string
+  descriptionText?: string
+  browseText?: string
+  uploadingText?: string
+  uploadText?: string
+  cancelText?: string
+  selectedFilesText?: string
+  successTitle?: string
+  successDescription?: string
+  errorTitle?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  title: 'Upload Files',
+  dropText: 'Drop files here or click to browse',
+  descriptionText: 'Upload images, videos, or other files',
+  browseText: 'Browse Files',
+  uploadingText: 'Uploading...',
+  uploadText: 'Upload',
+  cancelText: 'Cancel',
+  selectedFilesText: 'file(s) selected',
+  successTitle: 'Upload complete',
+  successDescription: 'file(s) uploaded successfully',
+  errorTitle: 'Upload failed'
+})
 
 const emit = defineEmits<{
   (e: 'close'): void
@@ -53,8 +74,8 @@ const uploadFiles = async () => {
     }
 
     toast?.add({
-      title: 'Upload complete',
-      description: `${files.value.length} file(s) uploaded successfully`,
+      title: props.successTitle,
+      description: `${files.value.length} ${props.successDescription}`,
       color: 'success'
     })
 
@@ -62,7 +83,7 @@ const uploadFiles = async () => {
     emit('close')
   } catch (error: any) {
     toast?.add({
-      title: 'Upload failed',
+      title: props.errorTitle,
       description: error.message,
       color: 'error'
     })
@@ -84,7 +105,7 @@ const formatFileSize = (bytes: number) => {
     <div class="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-2xl">
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-xl font-bold">Upload Files</h3>
+        <h3 class="text-xl font-bold">{{ title }}</h3>
         <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition" @click="$emit('close')">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -103,12 +124,12 @@ const formatFileSize = (bytes: number) => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
-          <p class="text-lg font-medium mb-2">Drop files here or click to browse</p>
-          <p class="text-sm text-gray-500 mb-4">Upload images, videos, or other files</p>
+          <p class="text-lg font-medium mb-2">{{ dropText }}</p>
+          <p class="text-sm text-gray-500 mb-4">{{ descriptionText }}</p>
           <input type="file" multiple class="hidden" id="file-input" @change="handleFileSelect" />
           <label for="file-input"
             class="inline-block px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer transition">
-            Browse Files
+            {{ browseText }}
           </label>
         </div>
 
@@ -145,18 +166,18 @@ const formatFileSize = (bytes: number) => {
       <!-- Footer -->
       <div class="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700">
         <p class="text-sm text-gray-600 dark:text-gray-400">
-          {{ files.length }} file(s) selected
+          {{ files.length }} {{ selectedFilesText }}
         </p>
         <div class="flex gap-2">
           <button
             class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
             :disabled="uploading" @click="$emit('close')">
-            Cancel
+            {{ cancelText }}
           </button>
           <button
             class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="files.length === 0 || uploading" @click="uploadFiles">
-            {{ uploading ? 'Uploading...' : 'Upload' }}
+            {{ uploading ? uploadingText : uploadText }}
           </button>
         </div>
       </div>

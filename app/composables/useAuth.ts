@@ -4,11 +4,21 @@ export const useAuth = () => {
   const refreshToken = useCookie('refreshToken')
   const router = useRouter()
 
+  const getDeviceId = () => {
+    const deviceId = useCookie('deviceId', {
+      maxAge: 60 * 60 * 24 * 365 * 10 // 10 years
+    })
+    if (!deviceId.value) {
+      deviceId.value = crypto.randomUUID()
+    }
+    return deviceId.value
+  }
+
   const login = async (usernameOrEmail: string, password: string): Promise<boolean> => {
     try {
       const data = await $fetch<Models.AuthResponse>('/api/auth/login', {
         method: 'POST',
-        body: { usernameOrEmail, password }
+        body: { usernameOrEmail, password, deviceId: getDeviceId() }
       })
 
       if (data?.success) {
@@ -30,9 +40,7 @@ export const useAuth = () => {
         await $fetch('/api/auth/logout', {
           method: 'POST',
           body: { refreshToken: refreshToken.value },
-          headers: token.value ? {
-            Authorization: `Bearer ${token.value}`
-          } : {}
+          headers: token.value ? { Authorization: `Bearer ${token.value}` } : {}
         })
       }
     } catch (error) {
@@ -50,9 +58,7 @@ export const useAuth = () => {
 
     try {
       const data = await $fetch<Models.UserResponse>('/api/auth/me', {
-        headers: {
-          Authorization: `Bearer ${token.value}`
-        }
+        headers: { Authorization: `Bearer ${token.value}` }
       })
       user.value = data?.data?.user
     } catch (error) {

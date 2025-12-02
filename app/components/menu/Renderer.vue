@@ -1,3 +1,34 @@
+<script setup lang="ts">
+const props = defineProps<{
+  position: string
+  containerClass?: string
+  listClass?: string
+  linkClass?: string
+}>()
+
+const { fetchMenuByPosition } = useMenu()
+const route = useRoute()
+
+const { data } = await useAsyncData(`menu-${props.position}`, () => fetchMenuByPosition(props.position))
+const items = computed(() => data.value?.data?.items || [])
+
+const getLink = (item: any) => {
+  switch (item.linkType) {
+    case 'url': return item.url
+    case 'post': return `/posts/${item.post?.slug}`
+    case 'category': return `/categories/${item.category?.slug}`
+    case 'tag': return `/tags/${item.tag?.slug}`
+    case 'page': return `/${item.url}` // Assuming pages are at root
+    default: return '#'
+  }
+}
+
+const isActive = (item: any) => {
+  const link = getLink(item)
+  return route.path === link
+}
+</script>
+
 <template>
   <nav :class="containerClass">
     <ul :class="listClass">
@@ -30,34 +61,3 @@
     </ul>
   </nav>
 </template>
-
-<script setup lang="ts">
-const props = defineProps<{
-  position: string
-  containerClass?: string
-  listClass?: string
-  linkClass?: string
-}>()
-
-const { fetchMenuByPosition } = useMenu()
-const route = useRoute()
-
-const { data } = await useAsyncData(`menu-${props.position}`, () => fetchMenuByPosition(props.position))
-const items = computed(() => data.value?.data?.items || [])
-
-const getLink = (item: any) => {
-  switch (item.linkType) {
-    case 'url': return item.url
-    case 'post': return `/posts/${item.post?.slug}`
-    case 'category': return `/categories/${item.category?.slug}`
-    case 'tag': return `/tags/${item.tag?.slug}`
-    case 'page': return `/${item.url}` // Assuming pages are at root
-    default: return '#'
-  }
-}
-
-const isActive = (item: any) => {
-  const link = getLink(item)
-  return route.path === link
-}
-</script>

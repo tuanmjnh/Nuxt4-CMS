@@ -15,12 +15,12 @@ export default defineEventHandler(async (event) => {
     await connectDB()
 
     const id = getRouterParam(event, 'id')
-    if (!id) throw createError({ statusCode: 400, message: 'ID required' })
+    if (!id)
+      throw createError({ statusCode: 400, message: 'ID required', statusMessage: 'error.validation' })
 
     const currentUser = event.context.user
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw createError({ statusCode: 403, message: 'Admin only' })
-    }
+    if (!currentUser || currentUser.role !== 'admin')
+      throw createError({ statusCode: 403, message: 'Admin only', statusMessage: 'error.unauthorized' })
 
     const body = await readBody(event)
     const data = updateMenuSchema.parse(body)
@@ -35,11 +35,13 @@ export default defineEventHandler(async (event) => {
 
     const menu = await Menu.findByIdAndUpdate(id, { $set: data }, { new: true })
 
-    if (!menu) throw createError({ statusCode: 404, message: 'Menu not found' })
+    if (!menu)
+      throw createError({ statusCode: 404, message: 'Menu not found', statusMessage: 'error.not_found' })
 
     return { success: true, data: { menu } }
   } catch (error: any) {
-    if (error.name === 'ZodError') throw createError({ statusCode: 400, message: error.errors })
-    throw error
+    if (error.name === 'ZodError') throw createError({ statusCode: 400, message: error.errors, statusMessage: 'error.validation' })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

@@ -20,7 +20,7 @@ export const useCloudinary = () => {
     file: File,
     folder?: string,
     onProgress?: (progress: number) => void
-  ): Promise<Cloudinary.UploadResponse> => {
+  ): Promise<Cloudinary.UploadedResponse> => {
     // Get signature
     const signatureData = await getSignature(folder)
 

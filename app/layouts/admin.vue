@@ -1,9 +1,37 @@
 <script setup lang="ts">
-import { sub } from 'date-fns'
 import type { DropdownMenuItem } from '@nuxt/ui'
+import { sub } from 'date-fns'
+// const deviceStore = useDeviceStore()
+// const { deviceType } = storeToRefs(deviceStore)
+const runtimeConfig = useRuntimeConfig()
 const { user } = useAuth()
-const { t } = useI18n()
 const route = useRoute()
+const router = useRouter()
+const { startLoading, stopLoading } = useLoading()
+const isPageLoading = ref(false)
+
+// Start loading when accessing admin layout
+startLoading()
+
+router.beforeEach((to, from, next) => {
+  if (to.path !== from.path) {
+    isPageLoading.value = true
+  }
+  next()
+})
+
+router.afterEach(() => {
+  setTimeout(() => {
+    isPageLoading.value = false
+  }, 200)
+})
+// console.log(router.getRoutes())
+onMounted(() => {
+  // Stop loading when layout is mounted
+  setTimeout(() => {
+    stopLoading()
+  }, 500) // Small delay for smooth transition
+})
 
 // Computed routes with hierarchy
 const routes = computed(() => {
@@ -55,7 +83,7 @@ const items = computed(() => routes.value.map(mapRouteToItem))
 // Breadcrumbs
 const breadcrumbItems = computed(() => {
   const pathSegments = route.path.split('/').filter(segment => segment !== '')
-  const items = [{ label: t('common.home'), to: '/' }]
+  const items = [{ label: $t('common.home'), to: '/' }]
 
   let currentPath = ''
   for (const segment of pathSegments) {
@@ -100,13 +128,13 @@ const period = ref<PeriodType>('daily')
   <UDashboardGroup>
     <UDashboardSidebar v-model:open="open" collapsible resizable class="bg-gray-50/50 dark:bg-gray-950/50">
       <template #header="{ collapsed }">
-        <TeamsMenu :collapsed="collapsed" />
+        <TeamsMenu :collapsed="collapsed" :title="$t('admin.title')" :icon="runtimeConfig.public.siteIcon" />
       </template>
 
       <template #default="{ collapsed }">
         <UDashboardSearchButton :collapsed="collapsed" />
 
-        <UNavigationMenu :collapsed="collapsed" :items="items" orientation="vertical" class="-mx-2.5" />
+        <UNavigationMenu :collapsed="collapsed" :items="items" orientation="vertical" />
       </template>
 
       <template #footer="{ collapsed }">
@@ -118,11 +146,22 @@ const period = ref<PeriodType>('daily')
 
     <UDashboardPanel>
       <template #header>
+        <!-- <div class="hidden md:block">
+          Sidebar cho PC
+        </div>
+
+        <div class="block md:hidden">
+          Menu Hamburger cho Mobile
+        </div> -->
+        <!-- <ClientOnly>
+          {{ deviceType }}
+        </ClientOnly> -->
         <UDashboardNavbar :title="$t('admin.title')">
           <template #left>
             <UBreadcrumb :items="breadcrumbItems" />
           </template>
           <template #right>
+
             <UTooltip text="Notifications" :shortcuts="['N']">
               <UButton color="neutral" variant="ghost" square @click="isNotificationsSlideoverOpen = true">
                 <UChip color="error" inset>
@@ -131,14 +170,21 @@ const period = ref<PeriodType>('daily')
               </UButton>
             </UTooltip>
 
-            <UDropdownMenu :items="notifications">
+            <!-- <UDropdownMenu :items="notifications">
               <UButton icon="i-lucide-plus" size="md" class="rounded-full" />
-            </UDropdownMenu>
+            </UDropdownMenu> -->
+            <ThemeCustomizer />
+            <UserMenu />
           </template>
         </UDashboardNavbar>
       </template>
       <template #body>
-        <slot />
+        <div v-if="isPageLoading" class="h-full flex items-center justify-center min-h-[200px]">
+          <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary-500" />
+        </div>
+        <div v-else>
+          <slot />
+        </div>
       </template>
     </UDashboardPanel>
 

@@ -4,7 +4,10 @@ definePageMeta({
   middleware: 'admin'
 })
 
+import type { TableColumn } from '@nuxt/ui'
+
 const toast = useToast()
+const { t } = useI18n()
 const { data: rolesData, pending, refresh } = await useFetch<{
   success: boolean
   data: {
@@ -55,12 +58,12 @@ const form = ref({
   isDefault: false
 })
 
-const columns: any[] = [
-  { key: 'name', label: 'Name' },
-  { key: 'description', label: 'Description' },
-  { key: 'permissions', label: 'Permissions' },
-  { key: 'actions', label: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'name', header: t('common.name') },
+  { accessorKey: 'description', header: t('common.description') },
+  { id: 'permissions', header: t('roles.permissions') },
+  { id: 'actions', header: t('common.actions') }
+] as TableColumn<Models.Role>[])
 
 const getRole = (row: any): Models.Role => row
 
@@ -84,14 +87,14 @@ const openEditModal = (role: any) => {
 }
 
 const confirmDelete = async (role: any) => {
-  if (!confirm(`Are you sure you want to delete role "${role.name}"?`)) return
+  if (!confirm(t('roles.delete_confirm', { name: role.name }))) return
 
   try {
     await $fetch(`/api/roles/${role._id}`, { method: 'DELETE' })
-    toast.add({ title: 'Role deleted' })
+    toast.add({ title: t('roles.delete_success') })
     refresh()
   } catch (error: any) {
-    toast.add({ title: 'Error', description: error.message, color: 'error' })
+    toast.add({ title: t('common.error'), description: error.message, color: 'error' })
   }
 }
 
@@ -116,18 +119,18 @@ const handleSubmit = async () => {
         method: 'PUT',
         body: payload
       })
-      toast.add({ title: 'Role updated' })
+      toast.add({ title: t('roles.update_success') })
     } else {
       await $fetch('/api/roles', {
         method: 'POST',
         body: payload
       })
-      toast.add({ title: 'Role created' })
+      toast.add({ title: t('roles.create_success') })
     }
     showModal.value = false
     refresh()
   } catch (error: any) {
-    toast.add({ title: 'Error', description: error.message, color: 'error' })
+    toast.add({ title: t('common.error'), description: error.message, color: 'error' })
   } finally {
     saving.value = false
   }
@@ -135,61 +138,63 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div>
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Roles</h1>
-      <UButton @click="openCreateModal" icon="i-lucide-plus">
-        Create Role
-      </UButton>
-    </div>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">{{ $t('roles.title') }}</h1>
+        <UButton @click="openCreateModal" icon="i-lucide-plus">
+          {{ $t('roles.create') }}
+        </UButton>
+      </div>
+    </template>
+    <UTable :rows="roles" :columns="columns" :loading="pending">
+      <template #permissions-data="{ row }">
+        <div class="max-w-xs truncate">
+          {{ getRole(row).permissions.join(', ') }}
+        </div>
+      </template>
 
-    <UCard>
-      <UTable :rows="roles" :columns="columns" :loading="pending">
-        <template #permissions-data="{ row }">
-          <div class="max-w-xs truncate">
-            {{ getRole(row).permissions.join(', ') }}
-          </div>
-        </template>
+      <template #actions-data="{ row }">
+        <div class="flex gap-2">
+          <UButton color="neutral" variant="ghost" icon="i-lucide-edit" @click="openEditModal(getRole(row))" />
+          <UButton color="error" variant="ghost" icon="i-lucide-trash" @click="confirmDelete(getRole(row))" />
+        </div>
+      </template>
+    </UTable>
+  </UCard>
 
-        <template #actions-data="{ row }">
-          <div class="flex gap-2">
-            <UButton color="gray" variant="ghost" icon="i-lucide-edit" @click="openEditModal(getRole(row))" />
-            <UButton color="red" variant="ghost" icon="i-lucide-trash" @click="confirmDelete(getRole(row))" />
-          </div>
-        </template>
-      </UTable>
-    </UCard>
-
-    <!-- Create/Edit Modal -->
-    <UModal v-model="showModal" :ui="{ width: 'sm:max-w-4xl' }">
+  <!-- Create/Edit Modal -->
+  <UModal v-model:open="showModal" :ui="{ content: 'sm:max-w-4xl' }">
+    <template #content>
       <UCard>
         <template #header>
-          <h3 class="font-bold">{{ isEditing ? 'Edit Role' : 'Create New Role' }}</h3>
+          <h3 class="font-bold">{{ isEditing ? $t('roles.edit') : $t('roles.create_new') }}</h3>
         </template>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
-          <UFormGroup label="Name" name="name" required>
+          <UFormField :label="$t('common.name')" name="name" required>
             <UInput v-model="form.name" />
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Description" name="description">
+          <UFormField :label="$t('common.description')" name="description">
             <UInput v-model="form.description" />
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Permissions" name="permissions">
+          <UFormField :label="$t('roles.permissions')" name="permissions">
             <div class="max-h-96 overflow-y-auto border rounded-lg p-4">
               <AdminRolePermissionTree :routes="routeTree" v-model="form.permissions" />
             </div>
-          </UFormGroup>
+          </UFormField>
 
-          <UCheckbox v-model="form.isDefault" label="Default Role" />
+          <UCheckbox v-model="form.isDefault" :label="$t('roles.default_role')" />
 
           <div class="flex justify-end gap-2 pt-4">
-            <UButton color="gray" variant="ghost" @click="showModal = false">Cancel</UButton>
-            <UButton type="submit" :loading="saving">{{ isEditing ? 'Update' : 'Create' }}</UButton>
+            <UButton color="neutral" variant="ghost" @click="showModal = false">{{ $t('common.cancel') }}</UButton>
+            <UButton type="submit" :loading="saving">{{ isEditing ? $t('common.update') : $t('common.create') }}
+            </UButton>
           </div>
         </form>
       </UCard>
-    </UModal>
-  </div>
+    </template>
+  </UModal>
 </template>

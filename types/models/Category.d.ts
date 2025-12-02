@@ -14,9 +14,14 @@ declare global {
       // SEO
       metaTitle?: string
       metaDescription?: string
+      keywords?: string[]
+      ogImage?: string
 
       // Stats
       postCount: number
+      sortOrder: number
+      isDeleted: boolean
+      deletedAt?: string | Date
 
       createdAt: string | Date
       updatedAt: string | Date

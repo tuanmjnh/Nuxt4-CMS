@@ -21,7 +21,7 @@
         <!-- Meta info -->
         <div class="flex items-center gap-6 text-gray-600 dark:text-gray-400 mb-8 pb-8 border-b">
           <div v-if="author" class="flex items-center gap-2">
-            <img v-if="author.avatar" :src="author.avatar" :alt="author.name" class="w-10 h-10 rounded-full" />
+            <img v-if="author.avatar" :src="author.avatar.url" :alt="author.name" class="w-10 h-10 rounded-full" />
             <span>{{ author.name }}</span>
           </div>
           <span v-if="post.publishedAt" class="flex items-center gap-1">
@@ -66,13 +66,13 @@
 </template>
 
 <script setup lang="ts">
-import type { IApiResponse, IPost } from '~/types'
+// import type { IApiResponse } from '~/types/common'
 
 const { t } = useI18n()
 const route = useRoute()
 const slug = route.params.slug as string
 
-const { data, pending } = await useFetch<IApiResponse<{ post: IPost }>>(`/api/posts/${slug}`)
+const { data, pending } = await useFetch<IApiResponse<{ post: Models.Post }>>(`/api/posts/${slug}`)
 const post = computed(() => data.value?.data?.post)
 
 const author = computed(() => {

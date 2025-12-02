@@ -8,7 +8,7 @@ export default defineNuxtModule({
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    console.info('🔌 Dynamic Config Module enabled')
+    console.info('Dynamic Config Module enabled')
 
     // In a full module, we would add the server plugin here:
     // addServerPlugin(resolver.resolve('./runtime/server/plugins/load-config'))

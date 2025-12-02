@@ -14,12 +14,8 @@ export default defineEventHandler(async (event) => {
     await connectDB()
 
     const currentUser = event.context.user
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw createError({
-        statusCode: 403,
-        message: 'Only administrators can create menus'
-      })
-    }
+    if (!currentUser || currentUser.role !== 'admin')
+      throw createError({ statusCode: 403, message: 'Admin only', statusMessage: 'error.unauthorized' })
 
     const body = await readBody(event)
     const data = createMenuSchema.parse(body)
@@ -40,16 +36,9 @@ export default defineEventHandler(async (event) => {
       data: { menu }
     }
   } catch (error: any) {
-    if (error.name === 'ZodError') {
-      throw createError({
-        statusCode: 400,
-        message: 'Validation error',
-        data: error.errors
-      })
-    }
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to create menu'
-    })
+    if (error.name === 'ZodError')
+      throw createError({ statusCode: 400, message: error.errors, statusMessage: 'error.validation' })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

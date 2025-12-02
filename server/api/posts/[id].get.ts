@@ -6,15 +6,10 @@ export default defineEventHandler(async (event) => {
 
     const id = getRouterParam(event, 'id')
 
-    if (!id) {
-      throw createError({
-        statusCode: 400,
-        message: 'Post ID is required'
-      })
-    }
+    if (!id) throw createError({ statusCode: 400, message: 'Post ID is required', statusMessage: 'error.validation' })
 
     // Build filter - try both _id and slug
-    const filter: any = {}
+    const filter: any = { isDeleted: false }
     if (id.match(/^[0-9a-fA-F]{24}$/)) {
       filter._id = id
     } else {
@@ -35,12 +30,7 @@ export default defineEventHandler(async (event) => {
       .populate('tags', 'name slug color')
       .lean()
 
-    if (!post) {
-      throw createError({
-        statusCode: 404,
-        message: 'Post not found'
-      })
-    }
+    if (!post) throw createError({ statusCode: 404, message: 'Post not found', statusMessage: 'error.not_found' })
 
     // Increment view count (only for public views)
     if (!currentUser) {
@@ -52,11 +42,8 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: { post }
     }
-  } catch (error) {
-    if ((error as any).statusCode) throw error
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch post'
-    })
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

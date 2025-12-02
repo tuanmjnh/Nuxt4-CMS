@@ -42,7 +42,7 @@ if (data.value?.data) {
     <UCard>
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-gray-500">Total Views</p>
+          <p class="text-sm text-gray-500">{{ $t('common.views') }}</p>
           <p class="text-2xl font-bold">{{ stats.views }}</p>
         </div>
         <UIcon name="i-lucide-eye" class="text-3xl text-green-500" />
@@ -52,7 +52,7 @@ if (data.value?.data) {
     <UCard>
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-gray-500">Comments</p>
+          <p class="text-sm text-gray-500">{{ $t('common.comments') }}</p>
           <p class="text-2xl font-bold">{{ stats.comments }}</p>
         </div>
         <UIcon name="i-lucide-message-square" class="text-3xl text-blue-500" />

@@ -34,7 +34,8 @@ export default defineEventHandler(async (event) => {
     if (existingUser) {
       throw createError({
         statusCode: 409,
-        message: existingUser.email === email ? 'User with this email already exists' : 'Username already taken'
+        message: existingUser.email === email ? 'User with this email already exists' : 'Username already taken',
+        statusMessage: existingUser.email === email ? 'error.exist_email' : 'error.exist_username'
       })
     }
 
@@ -65,10 +66,7 @@ export default defineEventHandler(async (event) => {
         } else {
           // If absolutely no role found, maybe throw error or create one?
           // For safety, let's throw error saying system is not initialized
-          throw createError({
-            statusCode: 500,
-            message: 'System roles not initialized'
-          })
+          throw createError({ statusCode: 500, message: 'System roles not initialized', statusMessage: 'error.server_error' })
         }
       }
     }
@@ -96,13 +94,9 @@ export default defineEventHandler(async (event) => {
       }
     }
   } catch (error: any) {
-    if (error.name === 'ZodError') {
-      throw createError({
-        statusCode: 400,
-        message: 'Validation error',
-        data: error.errors
-      })
-    }
-    throw error
+    if (error.name === 'ZodError')
+      throw createError({ statusCode: 400, message: 'Validation error', statusMessage: 'error.validation', data: error.errors })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })
   }
 })

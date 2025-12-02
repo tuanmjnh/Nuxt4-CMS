@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   try {
     const currentUser = event.context.user
     if (!currentUser) {
-      throw createError({ statusCode: 401, message: 'Not authenticated' })
+      throw createError({ statusCode: 401, message: 'Not authenticated', statusMessage: 'error.unauthorized' })
     }
 
     await connectDB()
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
     const user = await User.findById(currentUser.userId)
     if (!user) {
-      throw createError({ statusCode: 404, message: 'User not found' })
+      throw createError({ statusCode: 404, message: 'User not found', statusMessage: 'error.user_not_found' })
     }
 
     // Update basic info
@@ -33,11 +33,11 @@ export default defineEventHandler(async (event) => {
     // Update password if requested
     if (data.newPassword) {
       if (!data.currentPassword) {
-        throw createError({ statusCode: 400, message: 'Current password is required to set a new password' })
+        throw createError({ statusCode: 400, message: 'Current password is required to set a new password', statusMessage: 'error.current_password_required' })
       }
       const isMatch = await user.comparePassword(data.currentPassword)
       if (!isMatch) {
-        throw createError({ statusCode: 400, message: 'Incorrect current password' })
+        throw createError({ statusCode: 400, message: 'Incorrect current password', statusMessage: 'error.incorrect_password' })
       }
       user.password = data.newPassword
     }
@@ -59,9 +59,9 @@ export default defineEventHandler(async (event) => {
       }
     }
   } catch (error: any) {
-    if (error.name === 'ZodError') {
-      throw createError({ statusCode: 400, message: 'Validation error', data: error.errors })
-    }
-    throw error
+    if (error.name === 'ZodError')
+      throw createError({ statusCode: 400, message: 'Validation error', statusMessage: 'error.validation', data: error.errors })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })
   }
 })

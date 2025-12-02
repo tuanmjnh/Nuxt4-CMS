@@ -5,12 +5,7 @@ export default defineEventHandler(async (event) => {
     // Get user from context (set by auth middleware)
     const currentUser = event.context.user
 
-    if (!currentUser) {
-      throw createError({
-        statusCode: 401,
-        message: 'Not authenticated'
-      })
-    }
+    if (!currentUser) throw createError({ statusCode: 401, message: 'Not authenticated', statusMessage: 'error.unauthorized' })
 
     const body = await readBody(event)
     const { name, email, bio, avatar } = body
@@ -21,22 +16,12 @@ export default defineEventHandler(async (event) => {
     // Get current user
     const user = await User.findById(currentUser.userId)
 
-    if (!user || !user.isActive) {
-      throw createError({
-        statusCode: 404,
-        message: 'User not found or inactive'
-      })
-    }
+    if (!user || !user.isActive) throw createError({ statusCode: 404, message: 'User not found or inactive', statusMessage: 'error.not_found' })
 
     // Check if email is being changed and if it's already taken
     if (email && email !== user.email) {
       const existingUser = await User.findOne({ email })
-      if (existingUser) {
-        throw createError({
-          statusCode: 400,
-          message: 'Email already in use'
-        })
-      }
+      if (existingUser) throw createError({ statusCode: 400, message: 'Email already in use', statusMessage: 'error.validation' })
       user.email = email
     }
 
@@ -58,12 +43,7 @@ export default defineEventHandler(async (event) => {
         }
       })
 
-    if (!updatedUser) {
-      throw createError({
-        statusCode: 500,
-        message: 'Failed to retrieve updated user'
-      })
-    }
+    if (!updatedUser) throw createError({ statusCode: 500, message: 'Failed to retrieve updated user', statusMessage: 'error.server_error' })
 
     return {
       success: true,
@@ -79,7 +59,8 @@ export default defineEventHandler(async (event) => {
         }
       }
     }
-  } catch (error) {
-    throw error
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

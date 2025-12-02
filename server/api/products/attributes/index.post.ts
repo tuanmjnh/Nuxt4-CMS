@@ -8,9 +8,7 @@ export default defineEventHandler(async (event) => {
     const attribute = await ProductAttribute.create(body)
     return attribute
   } catch (error: any) {
-    throw createError({
-      statusCode: 500,
-      message: error.message
-    })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

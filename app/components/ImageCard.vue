@@ -2,11 +2,9 @@
 import { ref, computed } from 'vue'
 // import FilePreview from './FilePreview.vue'
 
-type FileResource = Cloudinary.IResource
-
 const props = withDefaults(
   defineProps<{
-    file: FileResource | null
+    file: Cloudinary.IFileAttach | null
     isShowSelected?: boolean
     isSelected: boolean
     size?: string | number
@@ -23,14 +21,14 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: 'upload'): void
-  (e: 'preview', file: FileResource): void
-  (e: 'edit', file: FileResource): void
-  (e: 'delete', file: FileResource): void
-  (e: 'toggle', file: FileResource): void
+  (e: 'preview', file: Cloudinary.IFileAttach): void
+  (e: 'edit', file: Cloudinary.IFileAttach): void
+  (e: 'delete', file: Cloudinary.IFileAttach): void
+  (e: 'toggle', file: Cloudinary.IFileAttach): void
 }>()
 
 const isFilePreview = ref(false)
-const selectedFile = ref<FileResource | null>(null)
+const selectedFile = ref<Cloudinary.IFileAttach | null>(null)
 
 const imageError = ref(false)
 const imageLoaded = ref(false)
@@ -48,7 +46,7 @@ const imageUrl = computed(() => {
   if (!props.file || imageError.value) {
     return 'https://via.placeholder.com/160x120?text=File+Error'
   }
-  return props.file.secure_url || props.file.url
+  return props.file.thumbnail_url || props.file.url
 })
 
 const isNoFile = computed(() => !props.file)
@@ -79,13 +77,13 @@ const cardSize = computed(() => {
   return { width: '160px', height: '120px', full: false }
 })
 
-const onPreview = (file: FileResource) => {
+const onPreview = (file: Cloudinary.IFileAttach) => {
   selectedFile.value = file
   isFilePreview.value = true
   emit('preview', file)
 }
 
-const handleCardClick = (file: FileResource | null) => {
+const handleCardClick = (file: Cloudinary.IFileAttach | null) => {
   if (!props.file) emit('upload')
   else if (file) emit('toggle', file)
 }

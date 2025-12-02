@@ -1,7 +1,6 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document, Types } from 'mongoose'
 
-
 export interface IMenuItemDocument extends Omit<Models.MenuItem, '_id' | 'createdAt' | 'updatedAt'>, Document { }
 
 const MenuItemSchema = new Schema<IMenuItemDocument>({
@@ -65,6 +64,14 @@ const MenuItemSchema = new Schema<IMenuItemDocument>({
   sortOrder: {
     type: Number,
     default: 0
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

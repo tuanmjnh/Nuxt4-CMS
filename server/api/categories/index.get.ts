@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const type = query.type as string
 
-    const filter: any = {}
+    const filter: any = { isDeleted: false }
     if (type) {
       filter.type = type
     }
@@ -21,10 +21,8 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: { categories }
     }
-  } catch (error) {
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch categories'
-    })
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })
   }
 })

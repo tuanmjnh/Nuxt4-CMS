@@ -11,7 +11,7 @@ export const usePosts = () => {
   }
 
   const fetchPost = async (id: string) => {
-    return await $fetch<Models.Response<Models.Post>>(`/api/posts/${id}`, {
+    return await $fetch<Models.Response<{ post: Models.Post }>>(`/api/posts/${id}`, {
       headers: {
         Authorization: `Bearer ${token.value}`
       }
@@ -19,7 +19,7 @@ export const usePosts = () => {
   }
 
   const createPost = async (data: Models.CreatePost) => {
-    return await $fetch<Models.Response<Models.Post>>('/api/posts', {
+    return await $fetch<Models.Response<{ post: Models.Post }>>('/api/posts', {
       method: 'POST',
       body: data,
       headers: {
@@ -29,7 +29,7 @@ export const usePosts = () => {
   }
 
   const updatePost = async (id: string, data: Models.UpdatePost) => {
-    return await $fetch<Models.Response<Models.Post>>(`/api/posts/${id}`, {
+    return await $fetch<Models.Response<{ post: Models.Post }>>(`/api/posts/${id}`, {
       method: 'PUT',
       body: data,
       headers: {

@@ -1,17 +1,34 @@
 import { UserSession } from '../../models/UserSession'
 
 export default defineEventHandler(async (event) => {
-  const currentUser = event.context.user
-  if (!currentUser) {
-    throw createError({ statusCode: 401, message: 'Not authenticated' })
-  }
+  try {
+    const currentUser = event.context.user
+    if (!currentUser)
+      throw createError({ statusCode: 401, message: 'Not authenticated', statusMessage: 'error.unauthorized' })
 
-  await connectDB()
+    await connectDB()
 
-  const sessions = await UserSession.find({ user: currentUser.userId }).sort({ lastActiveAt: -1 })
+    const query = getQuery(event)
+    const limit = Number(query.limit) || 10
+    const cursor = query.cursor as string
 
-  return {
-    success: true,
-    data: sessions
+    const dbQuery: any = { user: currentUser.userId }
+
+    if (cursor) {
+      dbQuery.lastActiveAt = { $lt: new Date(cursor) }
+    }
+
+    const sessions = await UserSession.find(dbQuery)
+      .sort({ lastActiveAt: -1 })
+      .limit(limit)
+
+    const nextCursor = sessions.length === limit ? sessions[sessions.length - 1].lastActiveAt : null
+
+    return {
+      data: sessions,
+      nextCursor
+    }
+  } catch (error: any) {
+    return { success: true }
   }
 })

@@ -20,12 +20,12 @@ export default defineEventHandler(async (event) => {
     await connectDB()
 
     const itemId = getRouterParam(event, 'itemId')
-    if (!itemId) throw createError({ statusCode: 400, message: 'Item ID required' })
+    if (!itemId)
+      throw createError({ statusCode: 400, message: 'Item ID required', statusMessage: 'error.validation' })
 
     const currentUser = event.context.user
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw createError({ statusCode: 403, message: 'Admin only' })
-    }
+    if (!currentUser || currentUser.role !== 'admin')
+      throw createError({ statusCode: 403, message: 'Admin only', statusMessage: 'error.unauthorized' })
 
     const body = await readBody(event)
     const data = updateItemSchema.parse(body)
@@ -36,11 +36,13 @@ export default defineEventHandler(async (event) => {
       { new: true }
     )
 
-    if (!item) throw createError({ statusCode: 404, message: 'Item not found' })
+    if (!item)
+      throw createError({ statusCode: 404, message: 'Item not found', statusMessage: 'error.not_found' })
 
     return { success: true, data: { item } }
   } catch (error: any) {
-    if (error.name === 'ZodError') throw createError({ statusCode: 400, message: error.errors })
-    throw error
+    if (error.name === 'ZodError') throw createError({ statusCode: 400, message: error.errors, statusMessage: 'error.validation' })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

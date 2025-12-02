@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const sort = query.sort as string || '-publishedAt'
 
     // Build filter
-    const filter: any = {}
+    const filter: any = { isDeleted: false }
 
     // Public users only see published posts
     const currentUser = event.context.user
@@ -72,10 +72,8 @@ export default defineEventHandler(async (event) => {
         }
       }
     }
-  } catch (error) {
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch posts'
-    })
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

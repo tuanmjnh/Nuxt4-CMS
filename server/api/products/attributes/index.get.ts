@@ -5,9 +5,7 @@ export default defineEventHandler(async (event) => {
     const attributes = await ProductAttribute.find({}).sort({ name: 1 })
     return attributes
   } catch (error: any) {
-    throw createError({
-      statusCode: 500,
-      message: error.message
-    })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

@@ -56,7 +56,8 @@ export default defineEventHandler(async (event: H3Event) => {
     '/api/categories',
     '/api/tags',
     '/api/menus/position',
-    '/api/seed'
+    '/api/seed',
+    '/api/_nuxt_icon'
   ]
 
   const path = event.path || ''
@@ -72,28 +73,16 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   // If not public and no valid user, throw error
-  if (!event.context.user) {
-    throw createError({
-      statusCode: 401,
-      message: 'Authentication required'
-    })
-  }
+  if (!event.context.user)
+    throw createError({ statusCode: 401, statusMessage: 'error.unauthorized', message: 'Authentication required' })
 
   // Check RBAC Permissions
   const userRole = event.context.user.role
   // If role is missing or not populated correctly (shouldn't happen if user exists), deny
-  if (!userRole || !userRole.permissions) {
-    throw createError({
-      statusCode: 403,
-      message: 'Access denied: No role assigned'
-    })
-  }
+  if (!userRole || !userRole.permissions)
+    throw createError({ statusCode: 403, message: 'Access denied: No role assigned', statusMessage: 'error.access_denied' })
 
   // Check if user has permission for this path
-  if (!hasPermission(path, userRole.permissions)) {
-    throw createError({
-      statusCode: 403,
-      message: 'Access denied: Insufficient permissions'
-    })
-  }
+  if (!hasPermission(path, userRole.permissions))
+    throw createError({ statusCode: 403, message: 'Access denied: Insufficient permissions', statusMessage: 'error.access_denied' })
 })

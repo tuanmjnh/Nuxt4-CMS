@@ -1,7 +1,6 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document } from 'mongoose'
 
-
 export interface ICategoryDocument extends Omit<Models.Category, '_id' | 'createdAt' | 'updatedAt'>, Document { }
 
 const CategorySchema = new Schema<ICategoryDocument>({
@@ -34,9 +33,15 @@ const CategorySchema = new Schema<ICategoryDocument>({
   // SEO fields
   metaTitle: String,
   metaDescription: String,
+  keywords: [String],
+  ogImage: String,
 
   // Stats
   postCount: {
+    type: Number,
+    default: 0
+  },
+  sortOrder: {
     type: Number,
     default: 0
   },
@@ -44,6 +49,14 @@ const CategorySchema = new Schema<ICategoryDocument>({
     type: String,
     enum: ['post', 'product', 'user'],
     default: 'post'
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true
@@ -57,12 +70,7 @@ CategorySchema.index({ type: 1 })
 // Auto-generate slug from name if not provided
 CategorySchema.pre('validate', function (next) {
   const doc = this as unknown as ICategoryDocument
-  if (!doc.slug && doc.name) {
-    doc.slug = doc.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-  }
+  if (!doc.slug && doc.name) doc.slug = toSlug(doc.name)
   next()
 })
 

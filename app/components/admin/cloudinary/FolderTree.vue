@@ -4,9 +4,18 @@ import { ref } from 'vue'
 interface Props {
   folders: Cloudinary.IFolder[]
   currentFolder: string
+  newFolderText?: string
+  placeholderText?: string
+  createText?: string
+  cancelText?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  newFolderText: '+ New Folder',
+  placeholderText: 'Folder name',
+  createText: 'Create',
+  cancelText: 'Cancel'
+})
 
 const emit = defineEmits<{
   (e: 'select', folder: Cloudinary.IFolder): void
@@ -59,22 +68,22 @@ const isActive = (path: string) => props.currentFolder === path
       <button v-if="!showCreateFolder"
         class="w-full px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
         @click="showCreateFolder = true">
-        + New Folder
+        {{ newFolderText }}
       </button>
 
       <div v-else class="space-y-2">
-        <input v-model="newFolderName" type="text" placeholder="Folder name"
+        <input v-model="newFolderName" type="text" :placeholder="placeholderText"
           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
           @keyup.enter="handleCreateFolder" @keyup.esc="showCreateFolder = false" />
         <div class="flex gap-2">
           <button class="flex-1 px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded"
             @click="handleCreateFolder">
-            Create
+            {{ createText }}
           </button>
           <button
             class="flex-1 px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-800"
             @click="showCreateFolder = false">
-            Cancel
+            {{ cancelText }}
           </button>
         </div>
       </div>

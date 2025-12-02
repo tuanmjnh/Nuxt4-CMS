@@ -6,19 +6,26 @@ export default defineEventHandler(async (event) => {
     await connectDB()
 
     const id = getRouterParam(event, 'id')
-    if (!id) throw createError({ statusCode: 400, message: 'ID required' })
+    if (!id)
+      throw createError({ statusCode: 400, message: 'ID required', statusMessage: 'error.validation' })
 
     const currentUser = event.context.user
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw createError({ statusCode: 403, message: 'Admin only' })
-    }
+    if (!currentUser || currentUser.role !== 'admin')
+      throw createError({ statusCode: 403, message: 'Admin only', statusMessage: 'error.unauthorized' })
 
-    // Delete menu and all its items
-    await Menu.findByIdAndDelete(id)
-    await MenuItem.deleteMany({ menu: id })
+    // Soft delete menu and all its items
+    await Menu.findByIdAndUpdate(id, {
+      isDeleted: true,
+      deletedAt: new Date()
+    })
+    await MenuItem.updateMany({ menu: id }, {
+      isDeleted: true,
+      deletedAt: new Date()
+    })
 
     return { success: true, message: 'Menu deleted' }
-  } catch (error) {
-    throw error
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

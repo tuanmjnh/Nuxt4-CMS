@@ -84,27 +84,31 @@ declare global {
       children?: MenuItemPopulated[]
     }
 
-    interface MenuWithItems extends Menu {
+    interface MenuWithItems {
+      menu: Menu
       items: MenuItemPopulated[]
     }
 
     // Create/Update types (Partial without readonly fields)
-    type CreateUser = Omit<User, '_id' | 'createdAt' | 'updatedAt'>
-    type UpdateUser = Partial<Omit<User, '_id' | 'createdAt' | 'updatedAt'>>
+    type CreateUser = Omit<User, '_id' | 'createdAt' | 'updatedAt' | 'isDeleted' | 'deletedAt'>
+    type UpdateUser = Partial<Omit<User, '_id' | 'createdAt' | 'updatedAt' | 'isDeleted' | 'deletedAt'>>
 
-    type CreatePost = Omit<Post, '_id' | 'createdAt' | 'updatedAt' | 'views' | 'likes' | 'shares' | 'comments' | 'ratingCount' | 'ratingAverage'>
+    type CreatePost = Omit<Post, '_id' | 'createdAt' | 'updatedAt' | 'views' | 'likes' | 'shares' | 'comments' | 'ratingCount' | 'ratingAverage' | 'isDeleted' | 'deletedAt'>
     type UpdatePost = Partial<CreatePost>
 
-    type CreateMenu = Omit<Menu, '_id' | 'createdAt' | 'updatedAt' | 'items'>
+    type CreateMenu = Omit<Menu, '_id' | 'createdAt' | 'updatedAt' | 'items' | 'slug' | 'sortOrder' | 'isDeleted' | 'deletedAt'> & {
+      slug?: string
+      sortOrder?: number
+    }
     type UpdateMenu = Partial<CreateMenu>
 
-    type CreateMenuItem = Omit<MenuItem, '_id' | 'createdAt' | 'updatedAt' | 'children'>
+    type CreateMenuItem = Omit<MenuItem, '_id' | 'createdAt' | 'updatedAt' | 'children' | 'isDeleted' | 'deletedAt'>
     type UpdateMenuItem = Partial<CreateMenuItem>
 
-    type CreateCategory = Omit<Category, '_id' | 'createdAt' | 'updatedAt' | 'postCount'>
+    type CreateCategory = Omit<Category, '_id' | 'createdAt' | 'updatedAt' | 'postCount' | 'isDeleted' | 'deletedAt'>
     type UpdateCategory = Partial<CreateCategory>
 
-    type CreateProduct = Omit<Product, '_id' | 'createdAt' | 'updatedAt' | 'sales' | 'views' | 'ratingCount' | 'ratingAverage'>
+    type CreateProduct = Omit<Product, '_id' | 'createdAt' | 'updatedAt' | 'sales' | 'views' | 'ratingCount' | 'ratingAverage' | 'isDeleted' | 'deletedAt'>
     type UpdateProduct = Partial<CreateProduct>
 
     // Query params types

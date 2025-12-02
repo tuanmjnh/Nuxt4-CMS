@@ -5,19 +5,18 @@ export default defineEventHandler(async (event) => {
     await connectDB()
 
     const menuId = getRouterParam(event, 'id')
-    if (!menuId) throw createError({ statusCode: 400, message: 'Menu ID required' })
+    if (!menuId)
+      throw createError({ statusCode: 400, message: 'Menu ID required', statusMessage: 'error.validation' })
 
     const currentUser = event.context.user
-    if (!currentUser || currentUser.role !== 'admin') {
-      throw createError({ statusCode: 403, message: 'Admin only' })
-    }
+    if (!currentUser || currentUser.role !== 'admin')
+      throw createError({ statusCode: 403, message: 'Admin only', statusMessage: 'error.unauthorized' })
 
     const body = await readBody(event)
     const { items } = body // Array of { id, parent, sortOrder }
 
-    if (!Array.isArray(items)) {
-      throw createError({ statusCode: 400, message: 'Invalid items array' })
-    }
+    if (!Array.isArray(items))
+      throw createError({ statusCode: 400, message: 'Invalid items array', statusMessage: 'error.validation' })
 
     // Bulk update
     const operations = items.map(item => ({
@@ -32,12 +31,12 @@ export default defineEventHandler(async (event) => {
       }
     }))
 
-    if (operations.length > 0) {
+    if (operations.length > 0)
       await MenuItem.bulkWrite(operations)
-    }
 
     return { success: true, message: 'Menu reordered' }
-  } catch (error) {
-    throw error
+  } catch (error: any) {
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })

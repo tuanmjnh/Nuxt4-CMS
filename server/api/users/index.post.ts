@@ -16,9 +16,8 @@ const createUserSchema = z.object({
 export default defineEventHandler(async (event) => {
   // Check admin permission
   const currentUser = event.context.user
-  if (!currentUser || (currentUser.role.name !== 'admin' && currentUser.role !== 'admin')) {
-    throw createError({ statusCode: 403, message: 'Access denied' })
-  }
+  if (!currentUser || (currentUser.role.name !== 'admin' && currentUser.role !== 'admin'))
+    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
 
   try {
     await connectDB()
@@ -30,7 +29,7 @@ export default defineEventHandler(async (event) => {
     if (!roleId.match(/^[0-9a-fA-F]{24}$/)) {
       const roleDoc = await Role.findOne({ name: roleId })
       if (!roleDoc) {
-        throw createError({ statusCode: 400, message: 'Invalid role' })
+        throw createError({ statusCode: 400, message: 'Invalid role', statusMessage: 'error.invalid_role' })
       }
       roleId = roleDoc._id.toString()
     }
@@ -39,9 +38,8 @@ export default defineEventHandler(async (event) => {
       $or: [{ email: data.email }, { username: data.username }]
     })
 
-    if (existingUser) {
-      throw createError({ statusCode: 400, message: 'User already exists' })
-    }
+    if (existingUser)
+      throw createError({ statusCode: 400, message: 'User already exists', statusMessage: 'error.exist' })
 
     const newUser = await User.create({
       ...data,
@@ -53,9 +51,9 @@ export default defineEventHandler(async (event) => {
       data: newUser
     }
   } catch (error: any) {
-    if (error.name === 'ZodError') {
-      throw createError({ statusCode: 400, message: 'Validation error', data: error.errors })
-    }
-    throw createError({ statusCode: 500, message: error.message })
+    if (error.name === 'ZodError')
+      throw createError({ statusCode: 400, message: 'Validation error', statusMessage: 'error.validation', data: error.errors })
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })
   }
 })
