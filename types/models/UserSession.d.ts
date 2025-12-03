@@ -10,10 +10,11 @@ declare global {
       deviceType: 'pc' | 'mobile' | 'tablet' | 'web'
       userAgent?: string
       ip?: string
-      lastActiveAt: string | Date
-      expiresAt: string | Date
-      createdAt: string | Date
-      updatedAt: string | Date
+      lastActiveAt: number
+      expiresAt: number
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
   }
 }

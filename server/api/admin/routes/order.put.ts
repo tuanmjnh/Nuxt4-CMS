@@ -2,17 +2,15 @@ import { AdminRoute } from '../../../models/AdminRoute'
 
 export default defineEventHandler(async (event) => {
   const currentUser = event.context.user
-  if (!currentUser || currentUser.role.name !== 'admin') {
+  if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')))
     throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
-  }
 
   await connectDB()
   const body = await readBody(event)
 
-  // body should be an array of { _id, parent, sortOrder }
-  if (!Array.isArray(body)) {
+  // body should be an array of { _id, parent, sort }
+  if (!Array.isArray(body))
     throw createError({ statusCode: 400, message: 'Invalid body, expected array', statusMessage: 'error.validation' })
-  }
 
   try {
     const operations = body.map((item) => {
@@ -22,7 +20,7 @@ export default defineEventHandler(async (event) => {
           update: {
             $set: {
               parent: item.parent || null,
-              sortOrder: item.sortOrder
+              sort: item.sort
             }
           }
         }
@@ -33,12 +31,9 @@ export default defineEventHandler(async (event) => {
       await AdminRoute.bulkWrite(operations)
     }
 
-    return {
-      success: true,
-      message: 'Routes updated successfully'
-    }
+    return { success: true, message: 'Routes updated successfully' }
   } catch (error: any) {
     if (error.statusCode) throw error
-    throw createError({ statusCode: 400, message: error.message, statusMessage: 'error.server_error' })
+    throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })
   }
 })

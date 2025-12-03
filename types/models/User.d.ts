@@ -7,15 +7,26 @@ declare global {
       email: string
       username: string
       name: string
-      role: Role | string
+      roles: (Role | string)[]
       category?: string
       avatar?: Cloudinary.IFileAttach
+      avatars?: Cloudinary.IFileAttach[]
       bio?: string
+      personNumber?: string
+      phoneNumber?: string
+      region?: string
+      dateBirth?: number
+      gender?: string
+      address?: string
+      salt?: string
+      lastLogin?: number
+      lastChangePass?: number
       isActive: boolean
       isDeleted: boolean
-      deletedAt?: string | Date
-      createdAt: string | Date
-      updatedAt: string | Date
+      deletedAt?: number
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
   }
 }

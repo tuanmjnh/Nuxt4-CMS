@@ -16,7 +16,8 @@ export default defineNuxtConfig({
     'motion-v/nuxt',
     '@nuxtjs/i18n',
     './modules/dynamic-config',
-    'nuxt-tiptap-editor'
+    'nuxt-tiptap-editor',
+    '@nuxtjs/sitemap'
   ],
 
   tiptap: {
@@ -45,12 +46,12 @@ export default defineNuxtConfig({
   // Runtime configuration
   runtimeConfig: {
     // Private keys (server-side only)
-    mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017',
-    mongodbName: process.env.MONGODB_NAME || 'nuxt4-cms',
-    jwtSecret: process.env.JWT_SECRET || '',
-    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '',
+    mongodb_uri: process.env.MONGODB_URI || 'mongodb://localhost:27017',
+    mongodb_name: process.env.MONGODB_NAME || 'nuxt4-cms',
+    jwt_secret: process.env.JWT_SECRET || '',
+    jwt_refresh_secret: process.env.JWT_REFRESH_SECRET || '',
     jwt_expire: process.env.JWT_EXPIRE || '1d',
-    jwt_refresh_expire: parseInt(String(process.env.JWT_REFRESH_EXPIRE)) || 2592000000, // 30 Day
+    jwt_refresh_expire: process.env.JWT_REFRESH_EXPIRE || '30d', // 30 Days
     max_devices_pc: 0, // 0 = unlimited
     max_devices_web: 0, // 0 = unlimited
     max_devices_mobile: 0, // 0 = unlimited
@@ -60,14 +61,14 @@ export default defineNuxtConfig({
     password_reset: 'Bk123456@',
     split_string: '|;*;|',
     // CLOUDINARY
-    cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
-    cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
-    cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || '',
-    cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET || 'ml_default',
+    cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
+    cloudinary_api_key: process.env.CLOUDINARY_API_KEY || '',
+    cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET || '',
+    cloudinary_upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET || 'ml_default',
     // GOOGLE
-    googleClientId: '',     // NUXT_GOOGLE_CLIENT_ID
-    googleClientSecret: '', // NUXT_GOOGLE_CLIENT_SECRET
-    googleRedirectUri: '',  // NUXT_GOOGLE_REDIRECT_URI
+    google_client_id: process.env.GOOGLE_CLIENT_ID || '',     // NUXT_GOOGLE_CLIENT_ID
+    google_client_secret: process.env.GOOGLE_CLIENT_SECRET || '', // NUXT_GOOGLE_CLIENT_SECRET
+    google_redirect_uri: process.env.GOOGLE_REDIRECT_URI || '',  // NUXT_GOOGLE_REDIRECT_URI
 
     // Public keys (client-side accessible)
     public: {

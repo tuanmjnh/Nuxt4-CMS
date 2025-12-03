@@ -1,8 +1,9 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document } from 'mongoose'
 import bcrypt from 'bcrypt'
+import { ChangeDataSchema } from './Schemas'
 
-export interface IUserDocument extends Omit<Models.User, '_id' | 'createdAt' | 'updatedAt'>, Document {
+export interface IUserDocument extends Omit<Models.User, '_id'>, Document {
   password: string
   comparePassword(candidatePassword: string): Promise<boolean>
 }
@@ -33,22 +34,34 @@ const UserSchema = new Schema<IUserDocument>({
     trim: true,
     minlength: 3
   },
-  role: {
+  roles: [{
     type: Schema.Types.ObjectId,
-    ref: 'Role',
-    required: true
-  },
+    ref: 'roles'
+  }],
   category: {
     type: Schema.Types.ObjectId,
-    ref: 'Category'
+    ref: 'categories'
   },
   avatar: {
     type: Object,// Supports both string and Cloudinary.IFileAttach
     default: null
   },
+  avatars: {
+    type: [Object],
+    default: []
+  },
   bio: {
     type: String
   },
+  personNumber: { type: String },
+  phoneNumber: { type: String },
+  region: { type: String },
+  dateBirth: { type: Number },
+  gender: { type: String },
+  address: { type: String },
+  salt: { type: String },
+  lastLogin: { type: Number },
+  lastChangePass: { type: Number },
   isActive: {
     type: Boolean,
     default: true
@@ -58,11 +71,14 @@ const UserSchema = new Schema<IUserDocument>({
     default: false
   },
   deletedAt: {
-    type: Date,
+    type: Number,
     default: null
-  }
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true
+  timestamps: { currentTime: () => Date.now() }
 })
 
 // Hash password before saving
@@ -92,4 +108,4 @@ UserSchema.methods.toJSON = function () {
   return obj
 }
 
-export const User: mongoose.Model<IUserDocument> = mongoose.models.User || mongoose.model<IUserDocument>('User', UserSchema)
+export const User: mongoose.Model<IUserDocument> = mongoose.models.users || mongoose.model<IUserDocument>('users', UserSchema)

@@ -2,8 +2,36 @@ import { Role } from '../../models/Role'
 
 export default defineEventHandler(async (event) => {
   try {
-    const roles = await Role.find({ isDeleted: false })
-    return roles
+    await connectDB()
+
+    const query = getQuery(event)
+    const limit = parseInt(query.limit as string) || 20
+    const page = parseInt(query.page as string) || 1
+    const skip = (page - 1) * limit
+
+    const filter: any = {}
+    if (query.type) filter.type = query.type
+    if (query.search) filter.$text = { $search: query.search }
+
+    const [roles, total] = await Promise.all([
+      Role.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Role.countDocuments(filter)
+    ])
+
+    return {
+      success: true,
+      data: roles,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

@@ -36,11 +36,11 @@ export default defineEventHandler(async (event: H3Event) => {
       // In Nuxt server, utils are auto-imported.
       await connectDB()
 
-      const user = await User.findById(payload.userId).populate('role')
+      const user = await User.findById(payload.userId).populate('roles')
       if (user && user.isActive) {
         event.context.user = {
           ...payload,
-          role: user.role // This is now the populated Role document
+          roles: user.roles // This is now the populated Role documents
         }
       }
     }
@@ -77,12 +77,15 @@ export default defineEventHandler(async (event: H3Event) => {
     throw createError({ statusCode: 401, statusMessage: 'error.unauthorized', message: 'Authentication required' })
 
   // Check RBAC Permissions
-  const userRole = event.context.user.role
-  // If role is missing or not populated correctly (shouldn't happen if user exists), deny
-  if (!userRole || !userRole.permissions)
-    throw createError({ statusCode: 403, message: 'Access denied: No role assigned', statusMessage: 'error.access_denied' })
+  const userRoles = event.context.user.roles
+  // If roles are missing or empty, deny
+  if (!userRoles || userRoles.length === 0)
+    throw createError({ statusCode: 403, message: 'Access denied: No roles assigned', statusMessage: 'error.access_denied' })
 
   // Check if user has permission for this path
-  if (!hasPermission(path, userRole.permissions))
+  // Check if ANY of the user's roles has the permission
+  const hasAccess = userRoles.some((role: any) => role.permissions && hasPermission(path, role.permissions))
+
+  if (!hasAccess)
     throw createError({ statusCode: 403, message: 'Access denied: Insufficient permissions', statusMessage: 'error.access_denied' })
 })

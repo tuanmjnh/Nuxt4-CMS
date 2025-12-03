@@ -6,8 +6,8 @@ export default defineEventHandler(async (event) => {
 
     // Get query parameters
     const query = getQuery(event)
-    const page = parseInt(query.page as string) || 1
     const limit = parseInt(query.limit as string) || 10
+    const cursor = query.cursor as string
     const status = query.status as string
     const category = query.category as string
     const tag = query.tag as string
@@ -44,8 +44,17 @@ export default defineEventHandler(async (event) => {
       filter.$text = { $search: search }
     }
 
-    // Calculate skip
-    const skip = (page - 1) * limit
+    // Cursor pagination
+    if (cursor) {
+      if (sort === '-publishedAt') {
+        filter.publishedAt = { $lt: new Date(cursor) }
+      } else if (sort === 'publishedAt') {
+        filter.publishedAt = { $gt: new Date(cursor) }
+      } else {
+        // Fallback to createdAt for other sorts or default
+        filter.createdAt = { $lt: new Date(cursor) }
+      }
+    }
 
     // Get posts
     const posts = await Post.find(filter)
@@ -53,25 +62,20 @@ export default defineEventHandler(async (event) => {
       .populate('categories', 'name slug')
       .populate('tags', 'name slug color')
       .sort(sort)
-      .skip(skip)
       .limit(limit)
       .lean()
 
-    // Get total count
-    const total = await Post.countDocuments(filter)
-
-    return {
-      success: true,
-      data: {
-        posts,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
+    let nextCursor = null
+    if (posts.length === limit) {
+      const lastPost = posts[posts.length - 1]
+      if (sort === '-publishedAt' || sort === 'publishedAt') {
+        nextCursor = lastPost.publishedAt
+      } else {
+        nextCursor = (lastPost as any).createdAt
       }
     }
+
+    return { success: true, data: posts, nextCursor }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

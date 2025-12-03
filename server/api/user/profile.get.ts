@@ -13,13 +13,7 @@ export default defineEventHandler(async (event) => {
     // Get full user data
     const user = await User.findById(currentUser.userId)
       .select('-password')
-      .populate({
-        path: 'role',
-        populate: {
-          path: 'allowedRoutes',
-          options: { sort: { sortOrder: 1 } }
-        }
-      })
+      .populate('roles')
 
     if (!user || !user.isActive)
       throw createError({ statusCode: 404, message: 'User not found or inactive', statusMessage: 'error.not_found' })
@@ -32,7 +26,7 @@ export default defineEventHandler(async (event) => {
           username: user.username,
           email: user.email,
           name: user.name,
-          role: user.role,
+          roles: user.roles,
           avatar: user.avatar,
           bio: user.bio
         }

@@ -4,28 +4,28 @@ export interface JWTPayload {
   userId: string
   email: string
   username: string
-  role: string | Models.Role
+  roles: (string | Models.Role)[]
   deviceType?: 'pc' | 'mobile' | 'tablet' | 'web'
 }
 
 export const generateAccessToken = (payload: JWTPayload): string => {
   const config = useRuntimeConfig()
-  return jwt.sign(payload, config.jwtSecret, {
-    expiresIn: '15m' // 15 minutes
-  })
+  return jwt.sign(payload, config.jwt_secret as jwt.Secret, {
+    expiresIn: (config.jwt_expire || '1d') as string | number
+  } as jwt.SignOptions)
 }
 
 export const generateRefreshToken = (payload: JWTPayload): string => {
   const config = useRuntimeConfig()
-  return jwt.sign(payload, config.jwtRefreshSecret, {
-    expiresIn: '7d' // 7 days
-  })
+  return jwt.sign(payload, config.jwt_refresh_secret as jwt.Secret, {
+    expiresIn: (config.jwt_refresh_expire || '7d') as string | number
+  } as jwt.SignOptions)
 }
 
 export const verifyAccessToken = (token: string): JWTPayload | null => {
   try {
     const config = useRuntimeConfig()
-    return jwt.verify(token, config.jwtSecret) as JWTPayload
+    return jwt.verify(token, config.jwt_secret) as JWTPayload
   } catch (error) {
     return null
   }
@@ -34,7 +34,7 @@ export const verifyAccessToken = (token: string): JWTPayload | null => {
 export const verifyRefreshToken = (token: string): JWTPayload | null => {
   try {
     const config = useRuntimeConfig()
-    return jwt.verify(token, config.jwtRefreshSecret) as JWTPayload
+    return jwt.verify(token, config.jwt_refresh_secret) as JWTPayload
   } catch (error) {
     return null
   }

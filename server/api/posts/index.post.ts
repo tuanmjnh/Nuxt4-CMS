@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import { Post } from '../../models/Post'
+import { Attribute } from '../../models/Attribute'
+import { syncTags, syncKeywords } from '../../utils/taxonomy'
 
 const localizedString = z.object({
   en: z.string().min(1, 'English content is required'),
@@ -39,48 +41,24 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const data = createPostSchema.parse(body)
 
-    // Process tags
-    let processedTags: any[] = []
-    if (data.tags && data.tags.length > 0) {
-      const { Tag } = await import('../../models/Tag')
-      const tagIds = []
-      for (const tagInput of data.tags) {
-        // Check if it's a valid ObjectId
-        if (tagInput.match(/^[0-9a-fA-F]{24}$/)) {
-          const exists = await Tag.findById(tagInput)
-          if (exists) {
-            tagIds.push(exists._id)
-            continue
-          }
-        }
+    // Process tags and keywords
+    if (data.tags && data.tags.length > 0)
+      data.tags = await syncTags(data.tags)
 
-        // Treat as name
-        const slug = tagInput.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-        let tag = await Tag.findOne({ $or: [{ name: tagInput }, { slug: slug }] })
-
-        if (!tag) {
-          try {
-            tag = await Tag.create({ name: tagInput })
-          } catch (e) {
-            tag = await Tag.findOne({ name: tagInput })
-          }
-        }
-        if (tag) tagIds.push(tag._id)
-      }
-      processedTags = tagIds
-    }
+    if (data.keywords && data.keywords.length > 0)
+      await syncKeywords(data.keywords)
 
     // Process attributes (save to global registry)
+    // Process attributes (save to global registry)
     if (data.attributes && data.attributes.length > 0) {
-      const { PostAttribute } = await import('../../models/PostAttribute')
       for (const attr of data.attributes) {
         if (!attr.name || !attr.value) continue
-        let attrDef = await PostAttribute.findOne({ name: attr.name })
+        let attrDef = await Attribute.findOne({ name: attr.name, type: 'post' })
         if (!attrDef) {
           try {
-            attrDef = await PostAttribute.create({ name: attr.name, values: [attr.value] })
+            attrDef = await Attribute.create({ name: attr.name, type: 'post', values: [attr.value] })
           } catch (e) {
-            attrDef = await PostAttribute.findOne({ name: attr.name })
+            attrDef = await Attribute.findOne({ name: attr.name, type: 'post' })
           }
         }
         if (attrDef && !attrDef.values.includes(attr.value)) {
@@ -93,7 +71,7 @@ export default defineEventHandler(async (event) => {
     // Create post
     const post = await Post.create({
       ...data,
-      tags: processedTags,
+      tags: data.tags,
       author: currentUser.userId,
       publishedAt: data.status === 'published' ? new Date() : data.publishedAt
     })
@@ -103,10 +81,7 @@ export default defineEventHandler(async (event) => {
     await post.populate('categories', 'name slug')
     await post.populate('tags', 'name slug color')
 
-    return {
-      success: true,
-      data: { post }
-    }
+    return { success: true, data: post }
   } catch (error: any) {
     if (error.name === 'ZodError') throw createError({ statusCode: 400, message: error.errors, statusMessage: 'error.validation' })
     if (error.statusCode) throw error

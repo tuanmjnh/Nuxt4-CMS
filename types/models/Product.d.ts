@@ -2,16 +2,7 @@ export { }
 
 declare global {
   namespace Models {
-    interface ProductAttribute {
-      _id: string
-      name: string
-      slug: string
-      values: string[]
-      isDeleted: boolean
-      deletedAt?: string | Date
-      createdAt: string | Date
-      updatedAt: string | Date
-    }
+
 
     interface ProductVariant {
       sku: string
@@ -44,7 +35,7 @@ declare global {
       isUnlimitedStock?: boolean
 
       categories: (Category | string)[]
-      tags: (Tag | string)[]
+      tags: (Taxonomy | string)[]
 
       type: 'simple' | 'variable'
       status: 'draft' | 'published' | 'archived'
@@ -70,10 +61,11 @@ declare global {
       ratingCount: number
       ratingAverage: number
       isDeleted: boolean
-      deletedAt?: string | Date
+      deletedAt?: number
 
-      createdAt: string | Date
-      updatedAt: string | Date
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
   }
 }

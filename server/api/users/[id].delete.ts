@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   // Check admin permission
   const currentUser = event.context.user
-  if (!currentUser || (currentUser.role.name !== 'admin' && currentUser.role !== 'admin'))
+  if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')))
     throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
 
   try {

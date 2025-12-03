@@ -20,10 +20,7 @@ export default defineEventHandler(async (event) => {
       })
     )
 
-    return {
-      success: true,
-      data: { menus: menusWithCounts }
-    }
+    return { success: true, data: menusWithCounts }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

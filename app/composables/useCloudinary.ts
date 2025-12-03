@@ -7,9 +7,7 @@ export const useCloudinary = () => {
   const getSignature = async (folder?: string): Promise<Cloudinary.IResponseSignature> => {
     return await $fetch('/api/cloudinary/signature', {
       params: { folder },
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      }
+      headers: { Authorization: `Bearer ${token.value}` }
     })
   }
 
@@ -30,12 +28,8 @@ export const useCloudinary = () => {
     formData.append('api_key', signatureData.apiKey)
     formData.append('timestamp', String(signatureData.timestamp))
     formData.append('signature', signatureData.signature)
-    if (signatureData.preset) {
-      formData.append('upload_preset', signatureData.preset)
-    }
-    if (folder || signatureData.folder) {
-      formData.append('folder', folder || signatureData.folder!)
-    }
+    if (signatureData.preset) formData.append('upload_preset', signatureData.preset)
+    if (folder || signatureData.folder) formData.append('folder', folder || signatureData.folder!)
 
     // Upload to Cloudinary
     return new Promise((resolve, reject) => {

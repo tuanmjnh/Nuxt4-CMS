@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
       deletedAt: new Date()
     })
     if (!role) throw createError({ statusCode: 404, message: 'Role not found', statusMessage: 'error.not_found' })
-    return { message: 'Role deleted successfully' }
+    return { success: true, message: 'Role deleted successfully' }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

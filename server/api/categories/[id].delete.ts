@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   // Check admin permission
   const currentUser = event.context.user
-  if (!currentUser || (currentUser.role.name !== 'admin' && currentUser.role !== 'admin'))
+  if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')))
     throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
 
   try {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     if (!category)
       throw createError({ statusCode: 404, message: 'Category not found', statusMessage: 'error.not_found' })
 
-    return { message: 'Category deleted successfully' }
+    return { success: true, message: 'Category deleted successfully' }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })

@@ -26,13 +26,7 @@ export default defineEventHandler(async (event) => {
         { username: usernameOrEmail.toLowerCase() }
       ],
       isActive: true
-    }).populate({
-      path: 'role',
-      populate: {
-        path: 'allowedRoutes',
-        options: { sort: { sortOrder: 1 } }
-      }
-    })
+    }).populate('roles')
 
     if (!user)
       throw createError({ statusCode: 401, message: 'Invalid email or password', statusMessage: 'error.invalid_credentials' })
@@ -50,7 +44,7 @@ export default defineEventHandler(async (event) => {
       userId: user._id.toString(),
       email: user.email,
       username: user.username,
-      role: user.role,
+      roles: user.roles,
       deviceType
     }
 
@@ -66,8 +60,8 @@ export default defineEventHandler(async (event) => {
       session.deviceType = deviceType
       session.userAgent = getRequestHeader(event, 'user-agent')
       session.ip = getRequestIP(event)
-      session.lastActiveAt = new Date()
-      session.expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      session.lastActiveAt = Date.now()
+      session.expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000
       await session.save()
     } else {
       await UserSession.create({
@@ -77,7 +71,7 @@ export default defineEventHandler(async (event) => {
         deviceType,
         userAgent: getRequestHeader(event, 'user-agent'),
         ip: getRequestIP(event),
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
       })
     }
 
@@ -90,7 +84,7 @@ export default defineEventHandler(async (event) => {
           email: user.email,
           username: user.username,
           name: user.name,
-          role: user.role,
+          roles: user.roles,
           avatar: user.avatar
         },
         accessToken,

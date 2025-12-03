@@ -15,16 +15,17 @@ declare global {
       metaTitle?: string
       metaDescription?: string
       keywords?: string[]
+      tags?: (Taxonomy | string)[]
       ogImage?: string
 
       // Stats
       postCount: number
       sortOrder: number
       isDeleted: boolean
-      deletedAt?: string | Date
-
-      createdAt: string | Date
-      updatedAt: string | Date
+      deletedAt?: number
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
   }
 }

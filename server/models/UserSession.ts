@@ -1,13 +1,14 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document, Types } from 'mongoose'
+import { ChangeDataSchema } from './Schemas'
 
 
-export interface IUserSessionDocument extends Omit<Models.UserSession, '_id' | 'createdAt' | 'updatedAt'>, Document { }
+export interface IUserSessionDocument extends Omit<Models.UserSession, '_id'>, Document { }
 
 const UserSessionSchema = new Schema<IUserSessionDocument>({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'users',
     required: true
   },
   refreshToken: {
@@ -28,16 +29,20 @@ const UserSessionSchema = new Schema<IUserSessionDocument>({
   userAgent: String,
   ip: String,
   lastActiveAt: {
-    type: Date,
+    type: Number,
     default: Date.now
   },
   expiresAt: {
-    type: Date,
+    type: Number,
     required: true,
     index: { expires: 0 } // Auto-delete when expired
-  }
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true
+  timestamps: { currentTime: () => Date.now() }
 })
 
-export const UserSession: mongoose.Model<IUserSessionDocument> = mongoose.models.UserSession || mongoose.model<IUserSessionDocument>('UserSession', UserSessionSchema)
+export const UserSession: mongoose.Model<IUserSessionDocument> =
+  mongoose.models.user_sessions || mongoose.model<IUserSessionDocument>('user_sessions', UserSessionSchema)

@@ -1,7 +1,8 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document, Types } from 'mongoose'
+import { ChangeDataSchema } from './Schemas'
 
-export interface IProductDocument extends Omit<Models.Product, '_id' | 'createdAt' | 'updatedAt'>, Document { }
+export interface IProductDocument extends Omit<Models.Product, '_id'>, Document { }
 
 const VariantSchema = new Schema({
   sku: String,
@@ -66,11 +67,11 @@ const ProductSchema = new Schema<IProductDocument>({
 
   categories: [{
     type: Schema.Types.ObjectId,
-    ref: 'Category'
+    ref: 'categories'
   }],
   tags: [{
     type: Schema.Types.ObjectId,
-    ref: 'Tag'
+    ref: 'taxonomies'
   }],
 
   attributes: [{
@@ -96,17 +97,21 @@ const ProductSchema = new Schema<IProductDocument>({
     default: false
   },
   deletedAt: {
-    type: Date,
+    type: Number,
     default: null
-  }
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true
+  timestamps: { currentTime: () => Date.now() }
 })
 
 // Indexes
 ProductSchema.index({ name: 'text', description: 'text' })
 ProductSchema.index({ categories: 1 })
 ProductSchema.index({ tags: 1 })
+ProductSchema.index({ keywords: 1 })
 ProductSchema.index({ status: 1 })
 ProductSchema.index({ price: 1 })
 
@@ -117,4 +122,5 @@ ProductSchema.pre('validate', function (next) {
   next()
 })
 
-export const Product: mongoose.Model<IProductDocument> = mongoose.models.Product || mongoose.model<IProductDocument>('Product', ProductSchema)
+export const Product: mongoose.Model<IProductDocument> =
+  mongoose.models.products || mongoose.model<IProductDocument>('products', ProductSchema)

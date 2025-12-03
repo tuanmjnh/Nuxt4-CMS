@@ -38,10 +38,7 @@ export default defineEventHandler(async (event) => {
       await Post.findByIdAndUpdate(postData._id, { $inc: { views: 1 } })
     }
 
-    return {
-      success: true,
-      data: { post }
-    }
+    return { success: true, data: post }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

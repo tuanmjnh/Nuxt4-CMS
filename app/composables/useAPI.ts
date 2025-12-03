@@ -16,8 +16,8 @@ export function useAPI<T>(url: string | (() => string), options: UseFetchOptions
     defaults.headers = { ...defaults.headers, ...options.headers }
   }
 
-  return useFetch(url, {
+  return useFetch<T>(url, {
     ...defaults,
     ...options
-  })
+  } as any)
 }

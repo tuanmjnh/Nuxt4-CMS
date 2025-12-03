@@ -6,17 +6,30 @@ export default defineEventHandler(async (event) => {
 
     // Check admin permission
     const currentUser = event.context.user
-    if (!currentUser || (currentUser.role.name !== 'admin' && currentUser.role !== 'admin')) {
+    if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin'))) {
       throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
     }
 
     await connectDB()
 
-    const sessions = await UserSession.find({ user: userId }).sort({ lastActiveAt: -1 })
+    const query = getQuery(event)
+    const limit = Number(query.limit) || 10
+    const cursor = query.cursor as string
+
+    const dbQuery: any = { user: userId }
+
+    if (cursor) dbQuery.lastActiveAt = { $lt: new Date(cursor) }
+
+    const sessions = await UserSession.find(dbQuery)
+      .sort({ lastActiveAt: -1 })
+      .limit(limit)
+
+    const nextCursor = sessions.length === limit ? sessions[sessions.length - 1].lastActiveAt : null
 
     return {
       success: true,
-      data: sessions
+      data: sessions,
+      nextCursor
     }
   } catch (error: any) {
     // throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })

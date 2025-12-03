@@ -14,24 +14,37 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   }
 
   // Check if user has admin access
-  const roleName = typeof user.value.role === 'string' ? user.value.role : user.value.role?.name
-  if (!['admin', 'editor', 'author'].includes(roleName)) {
+  const userRoles = user.value.roles || []
+  const hasAccess = userRoles.some((role: any) => {
+    const name = typeof role === 'string' ? role : role.name
+    return ['admin', 'editor', 'author'].includes(name)
+  })
+
+  if (!hasAccess) {
     return navigateTo('/')
   }
 
   // Check dynamic route permissions
-  if (user.value.role?.allowedRoutes?.length) {
+  // Aggregate all allowed routes from all roles
+  const allAllowedRoutes = userRoles.reduce((acc: any[], role: any) => {
+    if (typeof role !== 'string' && role.allowedRoutes) {
+      return [...acc, ...role.allowedRoutes]
+    }
+    return acc
+  }, [])
+
+  if (allAllowedRoutes.length > 0) {
     const targetPath = to.path
     // Always allow dashboard and profile/settings if needed
     if (targetPath === '/admin' || targetPath === '/admin/') return
 
-    const hasPermission = user.value.role.allowedRoutes.some((route: any) =>
+    const hasPermission = allAllowedRoutes.some((route: any) =>
       targetPath.startsWith(route.path)
     )
 
     if (!hasPermission) {
       // Redirect to first allowed route or dashboard
-      const firstRoute = user.value.role.allowedRoutes[0]
+      const firstRoute = allAllowedRoutes[0]
       return navigateTo(firstRoute ? firstRoute.path : '/admin')
     }
   }

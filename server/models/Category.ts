@@ -1,7 +1,8 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document } from 'mongoose'
+import { ChangeDataSchema } from './Schemas'
 
-export interface ICategoryDocument extends Omit<Models.Category, '_id' | 'createdAt' | 'updatedAt'>, Document { }
+export interface ICategoryDocument extends Omit<Models.Category, '_id'>, Document { }
 
 const CategorySchema = new Schema<ICategoryDocument>({
   name: {
@@ -26,7 +27,7 @@ const CategorySchema = new Schema<ICategoryDocument>({
   },
   parent: {
     type: Schema.Types.ObjectId,
-    ref: 'Category',
+    ref: 'categories',
     default: null
   },
 
@@ -34,6 +35,10 @@ const CategorySchema = new Schema<ICategoryDocument>({
   metaTitle: String,
   metaDescription: String,
   keywords: [String],
+  tags: [{
+    type: Schema.Types.ObjectId,
+    ref: 'taxonomies'
+  }],
   ogImage: String,
 
   // Stats
@@ -55,16 +60,21 @@ const CategorySchema = new Schema<ICategoryDocument>({
     default: false
   },
   deletedAt: {
-    type: Date,
+    type: Number,
     default: null
-  }
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true
+  timestamps: { currentTime: () => Date.now() }
 })
 
 // Indexes
 CategorySchema.index({ parent: 1 })
 CategorySchema.index({ type: 1 })
+CategorySchema.index({ tags: 1 })
+CategorySchema.index({ keywords: 1 })
 
 // Auto-generate slug from name if not provided
 // Auto-generate slug from name if not provided
@@ -74,4 +84,5 @@ CategorySchema.pre('validate', function (next) {
   next()
 })
 
-export const Category: mongoose.Model<ICategoryDocument> = mongoose.models.Category || mongoose.model<ICategoryDocument>('Category', CategorySchema)
+export const Category: mongoose.Model<ICategoryDocument> =
+  mongoose.models.categories || mongoose.model<ICategoryDocument>('categories', CategorySchema)

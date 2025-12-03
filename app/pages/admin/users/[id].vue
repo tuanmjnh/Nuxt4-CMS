@@ -7,17 +7,25 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
-const { t } = useI18n()
 
 const userId = route.params.id as string
 const loading = ref(false)
+const showRevokeModal = ref(false)
+const sessionToRevoke = ref<string | null>(null)
+
 const form = ref({
   name: '',
   username: '',
   email: '',
-  role: '',
+  roles: [] as string[],
   category: '',
   bio: '',
+  personNumber: '',
+  region: '',
+  dateBirth: undefined as number | undefined,
+  gender: 'other',
+  address: '',
+  avatar: undefined as any,
   isActive: true
 })
 
@@ -26,13 +34,16 @@ const categories = ref<Models.Category[]>([])
 const sessions = ref<Models.UserSession[]>([])
 
 const roleOptions = computed(() => roles.value)
-const categoryOptions = computed(() => categories.value)
+const categoryOptions = computed(() => categories.value.map(c => {
+  const { type, ...rest } = c
+  return rest
+}))
 
 const sessionColumns = computed(() => [
-  { accessorKey: 'deviceType', header: t('settings.device') },
-  { accessorKey: 'ip', header: t('settings.ip_address') },
-  { accessorKey: 'lastActiveAt', header: t('settings.last_active') },
-  { id: 'actions', header: t('common.actions') }
+  { accessorKey: 'deviceType', header: $t('settings.device') },
+  { accessorKey: 'ip', header: $t('settings.ip_address') },
+  { accessorKey: 'lastActiveAt', header: $t('settings.last_active') },
+  { id: 'actions', header: $t('common.actions') }
 ] as TableColumn<Models.UserSession>[])
 
 const fetchData = async () => {
@@ -44,14 +55,20 @@ const fetchData = async () => {
       useAPI<any>(`/api/users/${userId}/sessions`)
     ])
 
-    const user = userRes.data.value
+    const user = userRes.data.value?.data || userRes.data.value
     form.value = {
       name: user.name,
       username: user.username,
       email: user.email,
-      role: (user.role as any)?._id || user.role,
+      roles: user.roles?.map((r: any) => r._id || r) || [],
       category: (user.category as any)?._id || user.category,
       bio: user.bio,
+      personNumber: user.personNumber,
+      region: user.region,
+      dateBirth: user.dateBirth,
+      gender: user.gender,
+      address: user.address,
+      avatar: user.avatar,
       isActive: user.isActive
     }
 
@@ -60,7 +77,7 @@ const fetchData = async () => {
     sessions.value = sessionsRes.data.value?.data || sessionsRes.data.value || []
 
   } catch (error: any) {
-    toast.add({ title: t('common.error_fetching_data'), description: error.message, color: 'error' })
+    toast.add({ title: $t('common.error_fetching_data'), description: error.message, color: 'error' })
     router.push('/admin/users')
   }
 }
@@ -72,28 +89,36 @@ const updateUser = async () => {
       method: 'PUT',
       body: form.value
     })
-    toast.add({ title: t('users.update_success') })
+    toast.add({ title: $t('users.update_success') })
   } catch (error: any) {
-    toast.add({ title: t('users.update_error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('users.update_error'), description: error.message, color: 'error' })
   } finally {
     loading.value = false
   }
 }
 
-const revokeSession = async (sessionId: string) => {
-  if (!confirm(t('settings.revoke_confirm'))) return
+const confirmRevoke = (sessionId: string) => {
+  sessionToRevoke.value = sessionId
+  showRevokeModal.value = true
+}
+
+const handleRevoke = async () => {
+  if (!sessionToRevoke.value) return
 
   try {
     await useAPI(`/api/users/${userId}/sessions`, {
       method: 'DELETE',
-      body: { sessionId }
+      body: { sessionId: sessionToRevoke.value }
     })
     // Refresh sessions
     const { data } = await useAPI<any>(`/api/users/${userId}/sessions`)
     sessions.value = data.value?.data || []
-    toast.add({ title: t('settings.session_revoked') })
+    toast.add({ title: $t('settings.session_revoked') })
   } catch (error: any) {
-    toast.add({ title: t('settings.revoke_error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('settings.revoke_error'), description: error.message, color: 'error' })
+  } finally {
+    showRevokeModal.value = false
+    sessionToRevoke.value = null
   }
 }
 
@@ -116,26 +141,55 @@ onMounted(() => {
       </template>
 
       <form @submit.prevent="updateUser" class="space-y-4">
-        <UFormField :label="$t('common.name')" name="name" required>
-          <UInput v-model="form.name" />
-        </UFormField>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <UFormField :label="$t('common.name')" name="name" required>
+            <UInput v-model="form.name" />
+          </UFormField>
 
-        <UFormField :label="$t('auth.username')" name="username" required>
-          <UInput v-model="form.username" />
-        </UFormField>
+          <UFormField :label="$t('auth.username')" name="username" required>
+            <UInput v-model="form.username" />
+          </UFormField>
 
-        <UFormField :label="$t('auth.email')" name="email" required>
-          <UInput v-model="form.email" type="email" />
-        </UFormField>
+          <UFormField :label="$t('auth.email')" name="email" required>
+            <UInput v-model="form.email" type="email" />
+          </UFormField>
 
-        <UFormField :label="$t('users.role')" name="role" required>
-          <USelect v-model="form.role" :options="roleOptions" option-attribute="name" value-attribute="_id" />
-        </UFormField>
+          <UFormField :label="$t('users.role')" name="roles" required>
+            <USelectMenu v-model="form.roles" :items="roleOptions" label-key="name" value-key="_id" multiple />
+          </UFormField>
 
-        <UFormField :label="$t('common.category')" name="category">
-          <USelect v-model="form.category" :options="categoryOptions" option-attribute="name" value-attribute="_id"
-            :placeholder="$t('common.select_category')" />
-        </UFormField>
+          <UFormField :label="$t('common.category')" name="category">
+            <USelect v-model="form.category" :items="categoryOptions" label-key="name" value-key="_id"
+              :placeholder="$t('common.select_category')" />
+          </UFormField>
+
+          <UFormField :label="$t('users.person_number')" name="personNumber">
+            <UInput v-model="form.personNumber" />
+          </UFormField>
+
+          <UFormField :label="$t('users.region')" name="region">
+            <UInput v-model="form.region" />
+          </UFormField>
+
+          <UFormField :label="$t('users.date_birth')" name="dateBirth">
+            <UInput type="date"
+              :model-value="form.dateBirth ? new Date(form.dateBirth).toISOString().split('T')[0] : ''"
+              @update:model-value="val => form.dateBirth = val ? new Date(val).getTime() : undefined" />
+          </UFormField>
+
+          <UFormField :label="$t('users.gender')" name="gender">
+            <USelect v-model="form.gender"
+              :items="[{ label: $t('users.gender_male'), value: 'male' }, { label: $t('users.gender_female'), value: 'female' }, { label: $t('users.gender_other'), value: 'other' }]" />
+          </UFormField>
+
+          <UFormField :label="$t('users.address')" name="address" class="col-span-full">
+            <UTextarea v-model="form.address" />
+          </UFormField>
+
+          <UFormField :label="$t('users.avatar')" name="avatar" class="col-span-full">
+            <AdminMediaGallery v-model="form.avatar" :max="1" />
+          </UFormField>
+        </div>
 
         <UFormField :label="$t('users.bio')" name="bio">
           <UTextarea v-model="form.bio" />
@@ -163,9 +217,12 @@ onMounted(() => {
         </template>
         <template #actions-cell="{ row }">
           <UButton color="error" variant="ghost" icon="i-lucide-trash-2" size="xs"
-            @click="revokeSession(row.original?._id || '')" />
+            @click="confirmRevoke(row.original?._id || '')" />
         </template>
       </UTable>
     </UCard>
+
+    <ConfirmModal v-model="showRevokeModal" :title="$t('settings.revoke')" :description="$t('settings.revoke_confirm')"
+      color="error" @confirm="handleRevoke" @cancel="showRevokeModal = false" />
   </div>
 </template>

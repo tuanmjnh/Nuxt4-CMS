@@ -1,5 +1,6 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document, Types } from 'mongoose'
+import { ChangeDataSchema } from './Schemas'
 
 export interface IPostMediaData {
   type: 'video' | 'audio' | 'iframe' | 'embed'
@@ -10,17 +11,7 @@ export interface IPostMediaData {
   title?: string // Media title
 }
 
-export interface IPostDocument extends Omit<Models.Post, '_id' | 'createdAt' | 'updatedAt'>, Document {
-  gallery?: string[]
-  media?: IPostMediaData[]
-  quoteText?: string
-  quoteAuthor?: string
-  linkUrl?: string
-  attributes?: {
-    name: string
-    value: string
-  }[]
-}
+export interface IPostDocument extends Omit<Models.Post, '_id'>, Document { }
 
 const PostSchema = new Schema<IPostDocument>({
   title: {
@@ -80,16 +71,16 @@ const PostSchema = new Schema<IPostDocument>({
   },
   author: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'users',
     required: true
   },
   categories: [{
     type: Schema.Types.ObjectId,
-    ref: 'Category'
+    ref: 'categories'
   }],
   tags: [{
     type: Schema.Types.ObjectId,
-    ref: 'Tag'
+    ref: 'taxonomies'
   }],
   status: {
     type: String,
@@ -146,18 +137,22 @@ const PostSchema = new Schema<IPostDocument>({
   },
 
   // Publishing
-  publishedAt: Date,
-  scheduledAt: Date,
+  // Publishing
+  publishedAt: Number,
+  scheduledAt: Number,
   isDeleted: {
     type: Boolean,
     default: false
   },
   deletedAt: {
-    type: Date,
+    type: Number,
     default: null
-  }
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true
+  timestamps: { currentTime: () => Date.now() }
 })
 
 // Indexes for search and filtering
@@ -173,6 +168,7 @@ PostSchema.index({ status: 1, publishedAt: -1 })
 PostSchema.index({ author: 1 })
 PostSchema.index({ categories: 1 })
 PostSchema.index({ tags: 1 })
+PostSchema.index({ keywords: 1 })
 
 // Auto-generate slug from title (English) if not provided
 PostSchema.pre('save', function (next) {
@@ -181,4 +177,4 @@ PostSchema.pre('save', function (next) {
   next()
 })
 
-export const Post: mongoose.Model<IPostDocument> = mongoose.models.Post || mongoose.model<IPostDocument>('Post', PostSchema)
+export const Post: mongoose.Model<IPostDocument> = mongoose.models.posts || mongoose.model<IPostDocument>('posts', PostSchema)

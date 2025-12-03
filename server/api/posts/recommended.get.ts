@@ -38,10 +38,7 @@ export default defineEventHandler(async (event) => {
       .limit(limit)
       .lean()
 
-    return {
-      success: true,
-      data: { posts }
-    }
+    return { success: true, data: posts }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

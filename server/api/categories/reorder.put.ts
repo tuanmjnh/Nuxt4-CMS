@@ -20,14 +20,10 @@ export default defineEventHandler(async (event) => {
       }
     }))
 
-    if (bulkOps.length > 0) {
+    if (bulkOps.length > 0)
       await Category.bulkWrite(bulkOps)
-    }
 
-    return {
-      success: true,
-      message: 'Categories reordered successfully'
-    }
+    return { success: true, message: 'Categories reordered successfully' }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, message: error.message || 'Failed to reorder categories', statusMessage: 'error.server_error' })

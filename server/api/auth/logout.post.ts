@@ -10,13 +10,9 @@ export default defineEventHandler(async (event) => {
       await UserSession.deleteOne({ refreshToken })
     }
 
-    return {
-      success: true
-    }
+    return { success: true, message: 'Logout successfully' }
   } catch (error) {
     // Ignore errors during logout
-    return {
-      success: true
-    }
+    return { success: true, message: 'Logout successfully' }
   }
 })

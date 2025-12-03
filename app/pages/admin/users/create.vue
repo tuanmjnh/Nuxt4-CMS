@@ -5,7 +5,6 @@ definePageMeta({
 })
 const router = useRouter()
 const toast = useToast()
-const { t } = useI18n()
 
 const loading = ref(false)
 const form = ref({
@@ -13,9 +12,15 @@ const form = ref({
   username: '',
   email: '',
   password: '',
-  role: '',
+  roles: [] as string[],
   category: '',
   bio: '',
+  personNumber: '',
+  region: '',
+  dateBirth: undefined as number | undefined,
+  gender: 'other',
+  address: '',
+  avatar: undefined as any,
   isActive: true
 })
 
@@ -35,10 +40,10 @@ const fetchData = async () => {
     categories.value = categoriesData.data.value?.data || categoriesData.data.value || []
 
     // Set default role if available
-    if (roles.value.length > 0 && !form.value.role) {
+    if (roles.value.length > 0 && form.value.roles.length === 0) {
       const defaultRole = roles.value.find((r: any) => r.isDefault) || roles.value[0]
       if (defaultRole) {
-        form.value.role = defaultRole._id
+        form.value.roles = [defaultRole._id]
       }
     }
   } catch (error) {
@@ -53,10 +58,10 @@ const createUser = async () => {
       method: 'POST',
       body: form.value
     })
-    toast.add({ title: t('users.create_success') })
+    toast.add({ title: $t('users.create_success') })
     router.push('/admin/users')
   } catch (error: any) {
-    toast.add({ title: t('users.create_error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('users.create_error'), description: error.message, color: 'error' })
   } finally {
     loading.value = false
   }
@@ -77,30 +82,58 @@ onMounted(() => {
       </div>
     </template>
     <form @submit.prevent="createUser" class="space-y-4">
-      <UFormField :label="$t('common.name')" name="name" required>
-        <UInput v-model="form.name" />
-      </UFormField>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <UFormField :label="$t('common.name')" name="name" required>
+          <UInput v-model="form.name" />
+        </UFormField>
 
-      <UFormField :label="$t('auth.username')" name="username" required>
-        <UInput v-model="form.username" />
-      </UFormField>
+        <UFormField :label="$t('auth.username')" name="username" required>
+          <UInput v-model="form.username" />
+        </UFormField>
 
-      <UFormField :label="$t('auth.email')" name="email" required>
-        <UInput v-model="form.email" type="email" />
-      </UFormField>
+        <UFormField :label="$t('auth.email')" name="email" required>
+          <UInput v-model="form.email" type="email" />
+        </UFormField>
 
-      <UFormField :label="$t('auth.password')" name="password" required>
-        <UInput v-model="form.password" type="password" />
-      </UFormField>
+        <UFormField :label="$t('auth.password')" name="password" required>
+          <UInput v-model="form.password" type="password" />
+        </UFormField>
 
-      <UFormField :label="$t('users.role')" name="role" required>
-        <USelect v-model="form.role" :options="roleOptions" option-attribute="name" value-attribute="_id" />
-      </UFormField>
+        <UFormField :label="$t('users.role')" name="roles" required>
+          <USelectMenu v-model="form.roles" :items="roleOptions" label-key="name" value-key="_id" multiple />
+        </UFormField>
 
-      <UFormField :label="$t('common.category')" name="category">
-        <USelect v-model="form.category" :options="categoryOptions" option-attribute="name" value-attribute="_id"
-          :placeholder="$t('common.select_category')" />
-      </UFormField>
+        <UFormField :label="$t('common.category')" name="category">
+          <USelect v-model="form.category" :items="categoryOptions" label-key="name" value-key="_id"
+            :placeholder="$t('common.select_category')" />
+        </UFormField>
+
+        <UFormField :label="$t('users.person_number')" name="personNumber">
+          <UInput v-model="form.personNumber" />
+        </UFormField>
+
+        <UFormField :label="$t('users.region')" name="region">
+          <UInput v-model="form.region" />
+        </UFormField>
+
+        <UFormField :label="$t('users.date_birth')" name="dateBirth">
+          <UInput type="date" :model-value="form.dateBirth ? new Date(form.dateBirth).toISOString().split('T')[0] : ''"
+            @update:model-value="val => form.dateBirth = val ? new Date(val).getTime() : undefined" />
+        </UFormField>
+
+        <UFormField :label="$t('users.gender')" name="gender">
+          <USelect v-model="form.gender"
+            :items="[{ label: $t('users.gender_male'), value: 'male' }, { label: $t('users.gender_female'), value: 'female' }, { label: $t('users.gender_other'), value: 'other' }]" />
+        </UFormField>
+
+        <UFormField :label="$t('users.address')" name="address" class="col-span-full">
+          <UTextarea v-model="form.address" />
+        </UFormField>
+
+        <UFormField :label="$t('users.avatar')" name="avatar" class="col-span-full">
+          <AdminMediaGallery v-model="form.avatar" :max="1" />
+        </UFormField>
+      </div>
 
       <UFormField :label="$t('users.bio')" name="bio">
         <UTextarea v-model="form.bio" />

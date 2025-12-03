@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import { useInfiniteScroll } from '@vueuse/core'
+import type { TableColumn } from '@nuxt/ui'
+
 definePageMeta({
   layout: 'admin',
   middleware: 'admin'
 })
 
-import type { TableColumn } from '@nuxt/ui'
-
 const toast = useToast()
-const { t } = useI18n()
-const { data: rolesData, pending, refresh } = await useFetch<{
-  success: boolean
-  data: {
-    roles: Models.Role[]
-  }
-}>('/api/roles')
+
+const roles = ref<Models.Role[]>([])
+const cursor = ref<string | number | Date | null>(null)
+const canLoadMore = ref(true)
+const container = useTemplateRef('container')
+const search = ref('')
 
 const { data: routesData } = await useFetch<any>('/api/admin/routes')
 
@@ -28,8 +28,9 @@ const routeTree = computed(() => {
   })
 
   routes.forEach((route: any) => {
-    if (route.parent && map[route.parent]) {
-      map[route.parent].children.push(map[route._id])
+    const parentId = typeof route.parent === 'object' ? route.parent?._id : route.parent
+    if (parentId && map[parentId]) {
+      map[parentId].children.push(map[route._id])
     } else {
       roots.push(map[route._id])
     }
@@ -44,12 +45,51 @@ const routeTree = computed(() => {
   return roots
 })
 
-const roles = computed(() => rolesData.value?.data?.roles || [])
+const { data, status, refresh } = await useAPI<ApiResponse<Models.Role[]>>('/api/roles/items', {
+  method: 'POST',
+  body: computed(() => ({
+    cursor: cursor.value,
+    limit: 20,
+    search: search.value
+  })),
+  lazy: true,
+  immediate: false
+})
+
+watch(data, (newData) => {
+  if (!newData?.data) return
+
+  if (!cursor.value) {
+    roles.value = newData.data
+  } else {
+    roles.value.push(...newData.data)
+  }
+
+  canLoadMore.value = !!newData.nextCursor
+})
+
+// Initial load
+refresh()
+
+onMounted(() => {
+  useInfiniteScroll(container, () => {
+    if (data.value?.nextCursor) {
+      cursor.value = data.value.nextCursor
+    }
+  }, {
+    distance: 50,
+    canLoadMore: () => {
+      return status.value !== 'pending' && canLoadMore.value
+    }
+  })
+})
 
 const showModal = ref(false)
+const showDeleteModal = ref(false)
 const saving = ref(false)
 const isEditing = ref(false)
 const editingId = ref('')
+const roleToDelete = ref<Models.Role | null>(null)
 
 const form = ref({
   name: '',
@@ -59,13 +99,12 @@ const form = ref({
 })
 
 const columns = computed(() => [
-  { accessorKey: 'name', header: t('common.name') },
-  { accessorKey: 'description', header: t('common.description') },
-  { id: 'permissions', header: t('roles.permissions') },
-  { id: 'actions', header: t('common.actions') }
+  { accessorKey: 'name', header: $t('common.name') },
+  { accessorKey: 'description', header: $t('common.description') },
+  { id: 'permissions', header: $t('roles.permissions') },
+  { id: 'actions', header: $t('common.actions') }
 ] as TableColumn<Models.Role>[])
 
-const getRole = (row: any): Models.Role => row
 
 const openCreateModal = () => {
   isEditing.value = false
@@ -86,15 +125,24 @@ const openEditModal = (role: any) => {
   showModal.value = true
 }
 
-const confirmDelete = async (role: any) => {
-  if (!confirm(t('roles.delete_confirm', { name: role.name }))) return
+const confirmDelete = (role: any) => {
+  roleToDelete.value = role
+  showDeleteModal.value = true
+}
+
+const handleDelete = async () => {
+  if (!roleToDelete.value) return
 
   try {
-    await $fetch(`/api/roles/${role._id}`, { method: 'DELETE' })
-    toast.add({ title: t('roles.delete_success') })
-    refresh()
+    await $fetch(`/api/roles/${roleToDelete.value._id}`, { method: 'DELETE' })
+    toast.add({ title: $t('roles.delete_success') })
+    // Remove from list directly
+    roles.value = roles.value.filter(r => r._id !== roleToDelete.value?._id)
   } catch (error: any) {
-    toast.add({ title: t('common.error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('common.error'), description: error.message, color: 'error' })
+  } finally {
+    showDeleteModal.value = false
+    roleToDelete.value = null
   }
 }
 
@@ -119,18 +167,25 @@ const handleSubmit = async () => {
         method: 'PUT',
         body: payload
       })
-      toast.add({ title: t('roles.update_success') })
+      toast.add({ title: $t('roles.update_success') })
+      // Update local item
+      const index = roles.value.findIndex(r => r._id === editingId.value)
+      if (index !== -1) {
+        const existingRole = roles.value[index]
+        if (existingRole) roles.value[index] = { ...existingRole, ...payload }
+      }
     } else {
       await $fetch('/api/roles', {
         method: 'POST',
         body: payload
       })
-      toast.add({ title: t('roles.create_success') })
+      toast.add({ title: $t('roles.create_success') })
+      cursor.value = null
+      refresh()
     }
     showModal.value = false
-    refresh()
   } catch (error: any) {
-    toast.add({ title: t('common.error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('common.error'), description: error.message, color: 'error' })
   } finally {
     saving.value = false
   }
@@ -147,20 +202,41 @@ const handleSubmit = async () => {
         </UButton>
       </div>
     </template>
-    <UTable :rows="roles" :columns="columns" :loading="pending">
-      <template #permissions-data="{ row }">
-        <div class="max-w-xs truncate">
-          {{ getRole(row).permissions.join(', ') }}
-        </div>
-      </template>
 
-      <template #actions-data="{ row }">
-        <div class="flex gap-2">
-          <UButton color="neutral" variant="ghost" icon="i-lucide-edit" @click="openEditModal(getRole(row))" />
-          <UButton color="error" variant="ghost" icon="i-lucide-trash" @click="confirmDelete(getRole(row))" />
-        </div>
-      </template>
-    </UTable>
+    <div ref="container" class="flex-1 overflow-y-auto" style="height: calc(100vh - 300px);">
+      <UTable :rows="roles" :columns="columns" :loading="status === 'pending'" sticky>
+        <template #permissions-cell="{ row }">
+          <div class="max-w-xs truncate">
+            {{ row.original.permissions.join(', ') }}
+          </div>
+        </template>
+
+        <template #actions-cell="{ row }">
+          <div class="flex gap-2">
+            <UButton color="neutral" variant="ghost" icon="i-lucide-edit" @click="openEditModal(row.original)" />
+            <UButton color="error" variant="ghost" icon="i-lucide-trash" @click="confirmDelete(row.original)" />
+          </div>
+        </template>
+        <template #empty>
+          <UEmpty size="xl" icon="i-lucide-shield" :title="$t('common.no_data')"
+            :description="$t('common.no_data_desc')" :actions="[
+              {
+                icon: 'i-lucide-refresh-cw',
+                label: $t('common.refresh'),
+                color: 'neutral',
+                variant: 'subtle',
+                onClick: () => {
+                  cursor = null
+                  refresh()
+                }
+              }
+            ]" />
+        </template>
+      </UTable>
+      <div v-if="!canLoadMore && roles.length > 0" class="text-center p-4 text-gray-500 dark:text-gray-400 text-sm">
+        {{ $t('common.no_more_data') }}
+      </div>
+    </div>
   </UCard>
 
   <!-- Create/Edit Modal -->
@@ -171,30 +247,14 @@ const handleSubmit = async () => {
           <h3 class="font-bold">{{ isEditing ? $t('roles.edit') : $t('roles.create_new') }}</h3>
         </template>
 
-        <form @submit.prevent="handleSubmit" class="space-y-4">
-          <UFormField :label="$t('common.name')" name="name" required>
-            <UInput v-model="form.name" />
-          </UFormField>
-
-          <UFormField :label="$t('common.description')" name="description">
-            <UInput v-model="form.description" />
-          </UFormField>
-
-          <UFormField :label="$t('roles.permissions')" name="permissions">
-            <div class="max-h-96 overflow-y-auto border rounded-lg p-4">
-              <AdminRolePermissionTree :routes="routeTree" v-model="form.permissions" />
-            </div>
-          </UFormField>
-
-          <UCheckbox v-model="form.isDefault" :label="$t('roles.default_role')" />
-
-          <div class="flex justify-end gap-2 pt-4">
-            <UButton color="neutral" variant="ghost" @click="showModal = false">{{ $t('common.cancel') }}</UButton>
-            <UButton type="submit" :loading="saving">{{ isEditing ? $t('common.update') : $t('common.create') }}
-            </UButton>
-          </div>
-        </form>
+        <AdminRolesRoleForm v-model="form" :loading="saving" :is-editing="isEditing" :route-tree="routeTree"
+          @submit="handleSubmit" @cancel="showModal = false" />
       </UCard>
     </template>
   </UModal>
+
+  <!-- Delete Confirmation -->
+  <ConfirmModal v-model="showDeleteModal" :title="$t('roles.title')"
+    :description="$t('roles.delete_confirm', { name: roleToDelete?.name })" color="error" @confirm="handleDelete"
+    @cancel="showDeleteModal = false" />
 </template>

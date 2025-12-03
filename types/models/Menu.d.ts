@@ -10,10 +10,11 @@ declare global {
       isActive: boolean
       sortOrder: number
       isDeleted: boolean
-      deletedAt?: string | Date
+      deletedAt?: number
       items?: MenuItem[] // Virtual populated
-      createdAt: string | Date
-      updatedAt: string | Date
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
 
     interface MenuItem {
@@ -33,10 +34,11 @@ declare global {
       isVisible: boolean
       sortOrder: number
       isDeleted: boolean
-      deletedAt?: string | Date
+      deletedAt?: number
       children?: MenuItem[] // Virtual populated
-      createdAt: string | Date
-      updatedAt: string | Date
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
   }
 }

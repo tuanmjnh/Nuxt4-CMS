@@ -11,16 +11,7 @@ declare global {
       title?: string // Media title
     }
 
-    interface PostAttribute {
-      _id: string
-      name: string
-      slug: string
-      values: string[]
-      isDeleted: boolean
-      deletedAt?: string | Date
-      createdAt: string | Date
-      updatedAt: string | Date
-    }
+
 
     interface Post {
       _id: string
@@ -45,7 +36,7 @@ declare global {
 
       author: User | string
       categories: (Category | string)[]
-      tags: (Tag | string)[]
+      tags: (Taxonomy | string)[]
       status: 'draft' | 'published' | 'scheduled' | 'archived'
       format: 'standard' | 'gallery' | 'video' | 'audio' | 'quote' | 'link'
       type: 'post' | 'page' | 'product' | 'project' | 'service'
@@ -64,12 +55,12 @@ declare global {
       ratingCount: number
       ratingAverage: number
       isDeleted: boolean
-      deletedAt?: string | Date
-
-      publishedAt?: string | Date
-      scheduledAt?: string | Date
-      createdAt: string | Date
-      updatedAt: string | Date
+      deletedAt?: number
+      publishedAt?: number
+      scheduledAt?: number
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
   }
 }

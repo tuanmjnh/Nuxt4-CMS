@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     if (!existingPost) throw createError({ statusCode: 404, message: 'Post not found', statusMessage: 'error.not_found' })
 
     // Check authorization (admin, or author of the post)
-    if (currentUser.role !== 'admin' && existingPost.author.toString() !== currentUser.userId)
+    if (!currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')) && existingPost.author.toString() !== currentUser.userId)
       throw createError({ statusCode: 403, message: 'Not authorized to delete this post', statusMessage: 'error.unauthorized' })
 
     // Soft delete post
@@ -27,10 +27,7 @@ export default defineEventHandler(async (event) => {
       deletedAt: new Date()
     })
 
-    return {
-      success: true,
-      message: 'Post deleted successfully'
-    }
+    return { success: true, message: 'Post deleted successfully' }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

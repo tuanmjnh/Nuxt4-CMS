@@ -23,27 +23,21 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const skip = (page - 1) * limit
+    const cursor = query.cursor as string
 
-    const [products, total] = await Promise.all([
-      Product.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .populate('categories', 'name slug')
-        .populate('tags', 'name slug'),
-      Product.countDocuments(filter)
-    ])
-
-    return {
-      data: products,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
+    if (cursor) {
+      filter.createdAt = { $lt: new Date(cursor) }
     }
+
+    const products = await Product.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .populate('categories', 'name slug')
+      .populate('tags', 'name slug')
+
+    const nextCursor = products.length === limit ? (products[products.length - 1] as any).createdAt : null
+
+    return { success: true, data: products, nextCursor }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

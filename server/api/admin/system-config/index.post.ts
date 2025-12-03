@@ -6,9 +6,8 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { key, value, isPublic, type, description } = body
 
-  if (!key) {
+  if (!key)
     throw createError({ statusCode: 400, message: 'error.validation', statusMessage: 'error.validation' })
-  }
 
   try {
     const config = await SystemConfig.findOneAndUpdate(
@@ -34,10 +33,7 @@ export default defineEventHandler(async (event) => {
       runtimeConfig[key] = config.value
     }
 
-    return {
-      success: true,
-      data: config
-    }
+    return { success: true, data: config }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })

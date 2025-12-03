@@ -9,8 +9,9 @@ declare global {
       type: 'string' | 'number' | 'boolean' | 'json'
       isPublic: boolean
       description?: string
-      createdAt: string | Date
-      updatedAt: string | Date
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
   }
 }

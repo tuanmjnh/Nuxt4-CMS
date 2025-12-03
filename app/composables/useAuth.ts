@@ -1,16 +1,12 @@
 export const useAuth = () => {
-  const user = useState<Models.UserWithRole | null>('user', () => null)
+  const user = useState<Models.UserWithRoles | null>('user', () => null)
   const token = useCookie('token')
   const refreshToken = useCookie('refreshToken')
   const router = useRouter()
 
   const getDeviceId = () => {
-    const deviceId = useCookie('deviceId', {
-      maxAge: 60 * 60 * 24 * 365 * 10 // 10 years
-    })
-    if (!deviceId.value) {
-      deviceId.value = crypto.randomUUID()
-    }
+    const deviceId = useCookie('deviceId', { maxAge: 60 * 60 * 24 * 365 * 10 }) // 10 years
+    if (!deviceId.value) deviceId.value = crypto.randomUUID()
     return deviceId.value
   }
 

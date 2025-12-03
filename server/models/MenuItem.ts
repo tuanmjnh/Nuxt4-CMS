@@ -1,17 +1,18 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document, Types } from 'mongoose'
+import { ChangeDataSchema } from './Schemas'
 
-export interface IMenuItemDocument extends Omit<Models.MenuItem, '_id' | 'createdAt' | 'updatedAt'>, Document { }
+export interface IMenuItemDocument extends Omit<Models.MenuItem, '_id'>, Document { }
 
 const MenuItemSchema = new Schema<IMenuItemDocument>({
   menu: {
     type: Schema.Types.ObjectId,
-    ref: 'Menu',
+    ref: 'menus',
     required: true
   },
   parent: {
     type: Schema.Types.ObjectId,
-    ref: 'MenuItem',
+    ref: 'menu_items',
     default: null
   },
 
@@ -30,19 +31,19 @@ const MenuItemSchema = new Schema<IMenuItemDocument>({
   url: String,
   post: {
     type: Schema.Types.ObjectId,
-    ref: 'Post'
+    ref: 'posts'
   },
   product: {
     type: Schema.Types.ObjectId,
-    ref: 'Product'
+    ref: 'products'
   },
   category: {
     type: Schema.Types.ObjectId,
-    ref: 'Category'
+    ref: 'categories'
   },
   tag: {
     type: Schema.Types.ObjectId,
-    ref: 'Tag'
+    ref: 'taxonomies'
   },
 
   // Display options
@@ -70,15 +71,19 @@ const MenuItemSchema = new Schema<IMenuItemDocument>({
     default: false
   },
   deletedAt: {
-    type: Date,
+    type: Number,
     default: null
-  }
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true
+  timestamps: { currentTime: () => Date.now() }
 })
 
 // Indexes
 MenuItemSchema.index({ menu: 1, sortOrder: 1 })
 MenuItemSchema.index({ parent: 1, sortOrder: 1 })
 
-export const MenuItem: mongoose.Model<IMenuItemDocument> = mongoose.models.MenuItem || mongoose.model<IMenuItemDocument>('MenuItem', MenuItemSchema)
+export const MenuItem: mongoose.Model<IMenuItemDocument> =
+  mongoose.models.menu_items || mongoose.model<IMenuItemDocument>('menu_items', MenuItemSchema)

@@ -9,8 +9,7 @@ definePageMeta({
 })
 
 const toast = useToast()
-const { t } = useI18n()
-const { data: routesData, refresh } = await useFetch<any>('/api/admin/routes')
+const { data: routesData, refresh } = await useAPI<any>('/api/admin/routes')
 
 // Transform flat routes to tree
 const buildTree = (routes: any[]) => {
@@ -22,16 +21,17 @@ const buildTree = (routes: any[]) => {
   })
 
   routes.forEach((route: any) => {
-    if (route.parent && map[route.parent]) {
-      map[route.parent].children.push(map[route._id])
+    const parentId = typeof route.parent === 'object' ? route.parent?._id : route.parent
+    if (parentId && map[parentId]) {
+      map[parentId].children.push(map[route._id])
     } else {
       roots.push(map[route._id])
     }
   })
 
-  // Sort by sortOrder
+  // Sort by sort
   const sortRoutes = (list: any[]) => {
-    list.sort((a, b) => a.sortOrder - b.sortOrder)
+    list.sort((a, b) => a.sort - b.sort)
     list.forEach(item => sortRoutes(item.children))
   }
   sortRoutes(roots)
@@ -97,7 +97,7 @@ const saveOrder = async (tree: any[]) => {
     updates.push({
       _id: node._id,
       parent: parentId,
-      sortOrder: index + 1
+      sort: index + 1
     })
     if (node.children) {
       node.children.forEach((child: any, i: number) => processNode(child, node._id, i))
@@ -111,10 +111,10 @@ const saveOrder = async (tree: any[]) => {
       method: 'PUT',
       body: updates
     })
-    toast.add({ title: t('settings.order_updated') })
+    toast.add({ title: $t('settings.order_updated') })
     // Don't refresh here to avoid resetting the tree state while dragging
   } catch (error: any) {
-    toast.add({ title: t('settings.order_error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('settings.order_error'), description: error.message, color: 'error' })
     refresh() // Revert on error
   }
 }
@@ -124,10 +124,10 @@ const isEditing = ref(false)
 const editingId = ref('')
 
 const schema = z.object({
-  name: z.string().min(1, t('validation.name_min')),
-  path: z.string().min(1, 'Path is required'),
+  name: z.string().min(1, $t('error.min_chars', { min: 1 })),
+  path: z.string().min(1, $t('error.min_chars', { min: 1 })),
   icon: z.string().optional(),
-  sortOrder: z.number().default(0),
+  sort: z.number().default(0),
   isVisible: z.boolean().default(true),
   parent: z.string().optional() // Add parent field
 })
@@ -138,7 +138,7 @@ const state = reactive<Partial<Schema>>({
   name: undefined,
   path: undefined,
   icon: undefined,
-  sortOrder: 0,
+  sort: 0,
   isVisible: true,
   parent: undefined
 })
@@ -147,7 +147,7 @@ const resetForm = () => {
   state.name = undefined
   state.path = undefined
   state.icon = undefined
-  state.sortOrder = 0
+  state.sort = 0
   state.isVisible = true
   state.parent = undefined
   isEditing.value = false
@@ -158,7 +158,7 @@ const onEdit = (row: any) => {
   state.name = row.name
   state.path = row.path
   state.icon = row.icon
-  state.sortOrder = row.sortOrder
+  state.sort = row.sort
   state.isVisible = row.isVisible
   state.parent = row.parent
   editingId.value = row._id
@@ -168,17 +168,17 @@ const onEdit = (row: any) => {
 
 const toggleVisibility = async (row: any) => {
   const action = row.isVisible ? 'hide' : 'show'
-  if (!confirm(t('settings.toggle_confirm', { action, name: row.name }))) return
+  if (!confirm($t('settings.toggle_confirm', { action, name: row.name }))) return
 
   try {
     await $fetch(`/api/admin/routes/${row._id}`, {
       method: 'PUT',
       body: { ...row, isVisible: !row.isVisible }
     })
-    toast.add({ title: t('settings.toggle_success') })
+    toast.add({ title: $t('settings.toggle_success') })
     refresh()
   } catch (error: any) {
-    toast.add({ title: t('settings.route_error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('settings.route_error'), description: error.message, color: 'error' })
   }
 }
 
@@ -189,19 +189,19 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
         method: 'PUT',
         body: event.data
       })
-      toast.add({ title: t('settings.route_updated') })
+      toast.add({ title: $t('settings.route_updated') })
     } else {
       await $fetch('/api/admin/routes', {
         method: 'POST',
         body: event.data
       })
-      toast.add({ title: t('settings.route_created') })
+      toast.add({ title: $t('settings.route_created') })
     }
     isOpen.value = false
     refresh()
     resetForm()
   } catch (error: any) {
-    toast.add({ title: t('settings.route_error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('settings.route_error'), description: error.message, color: 'error' })
   }
 }
 
@@ -220,7 +220,7 @@ const flatRoutes = computed(() => routesData.value?.data || [])
     <div v-if="routeTree.length === 0" class="text-center py-8 text-gray-500">
       {{ $t('settings.no_routes') }}
     </div>
-    <UTree v-else ref="tree" :items="routeTree" :nested="false" :unmount-on-hide="false" :ui="{
+    <UTree v-else ref="tree" :items="routeTree" :ui="{
       item: 'block w-full'
     }">
       <template #item-label="{ item }">
@@ -273,8 +273,8 @@ const flatRoutes = computed(() => routesData.value?.data || [])
               :placeholder="$t('settings.select_parent')" searchable />
           </UFormField>
 
-          <UFormField :label="$t('common.sort_order')" name="sortOrder">
-            <UInput v-model="state.sortOrder" type="number" />
+          <UFormField :label="$t('common.sort_order')" name="sort">
+            <UInput v-model="state.sort" type="number" />
           </UFormField>
 
           <UFormField name="isVisible">

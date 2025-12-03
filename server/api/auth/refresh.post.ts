@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 401, message: 'Invalid session', statusMessage: 'error.invalid_session' })
 
     // Update session activity
-    session.lastActiveAt = new Date()
+    session.lastActiveAt = Date.now()
     await session.save()
 
     // Verify user still exists and is active
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
       userId: user._id.toString(),
       email: user.email,
       username: user.username,
-      role: user.role.toString(),
+      roles: user.roles,
       deviceType: session.deviceType
     }
 

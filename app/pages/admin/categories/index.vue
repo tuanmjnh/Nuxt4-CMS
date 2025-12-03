@@ -7,11 +7,9 @@ definePageMeta({
 })
 
 const toast = useToast()
-const { t } = useI18n()
 const { token } = useAuth()
 
 const showModal = ref(false)
-const showMediaManager = ref(false)
 const showDeleteModal = ref(false)
 const editingCategory = ref<any>(null)
 const categoryToDelete = ref<any>(null)
@@ -20,8 +18,8 @@ const deleting = ref(false)
 const currentType = ref('post')
 
 const tabs = computed(() => [
-  { label: t('categories.post_categories'), slot: 'post', content: 'post' },
-  { label: t('categories.product_categories'), slot: 'product', content: 'product' }
+  { label: $t('categories.post_categories'), slot: 'post', content: 'post' },
+  { label: $t('categories.product_categories'), slot: 'product', content: 'product' }
 ])
 
 const form = ref({
@@ -39,7 +37,7 @@ const { data, pending, refresh } = await useFetch('/api/categories', {
   query: { type: currentType }
 })
 
-const categories = computed(() => data.value?.data?.categories || [])
+const categories = computed(() => data.value?.data || [])
 
 const parentOptions = computed(() => {
   // Flatten tree or just use the categories list (which is flat from API)
@@ -163,9 +161,9 @@ const saveOrder = async (tree: any[]) => {
       body: { items: flatItems },
       headers: { Authorization: `Bearer ${token.value}` }
     })
-    toast.add({ title: t('categories.order_updated') })
+    toast.add({ title: $t('categories.order_updated') })
   } catch (error: any) {
-    toast.add({ title: t('categories.order_error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('categories.order_error'), description: error.message, color: 'error' })
     refresh() // Revert on error
   }
 }
@@ -208,13 +206,6 @@ const editCategory = (category: any) => {
   showModal.value = true
 }
 
-const handleImageSelect = (files: any[]) => {
-  if (files.length > 0) {
-    form.value.ogImage = files[0].secure_url
-  }
-  showMediaManager.value = false
-}
-
 const handleSubmit = async () => {
   saving.value = true
   try {
@@ -230,11 +221,11 @@ const handleSubmit = async () => {
       headers: { Authorization: `Bearer ${token.value}` }
     })
 
-    toast.add({ title: t('categories.save_success'), color: 'success' })
+    toast.add({ title: $t('categories.save_success'), color: 'success' })
     showModal.value = false
     refresh()
   } catch (error: any) {
-    toast.add({ title: error.message || t('categories.save_error'), color: 'error' })
+    toast.add({ title: error.message || $t('categories.save_error'), color: 'error' })
   } finally {
     saving.value = false
   }
@@ -255,11 +246,11 @@ const handleDelete = async () => {
       headers: { Authorization: `Bearer ${token.value}` }
     })
 
-    toast.add({ title: t('categories.delete_success'), color: 'success' })
+    toast.add({ title: $t('categories.delete_success'), color: 'success' })
     showDeleteModal.value = false
     refresh()
   } catch (error: any) {
-    toast.add({ title: t('categories.delete_error'), color: 'error' })
+    toast.add({ title: $t('categories.delete_error'), color: 'error' })
   } finally {
     deleting.value = false
   }
@@ -327,80 +318,14 @@ const handleDelete = async () => {
           <h3 class="font-bold">{{ editingCategory ? $t('categories.edit') : $t('categories.create') }}</h3>
         </template>
 
-        <form @submit.prevent="handleSubmit" class="space-y-4">
-          <UFormField :label="$t('categories.type')" name="type">
-            <USelect v-model="form.type" :options="['post', 'product']" disabled />
-          </UFormField>
-
-          <UFormField :label="$t('categories.name')" name="name" required>
-            <UInput v-model="form.name" />
-          </UFormField>
-
-          <UFormField :label="$t('categories.description')" name="description">
-            <UTextarea v-model="form.description" />
-          </UFormField>
-
-          <UFormField :label="$t('categories.parent')" name="parent">
-            <USelect v-model="form.parent" :options="parentOptions" option-attribute="name" value-attribute="_id"
-              :placeholder="$t('categories.none')" />
-          </UFormField>
-
-          <Divider :label="$t('categories.seo_settings')" class="my-6" />
-
-          <UFormField :label="$t('categories.meta_title')" name="metaTitle">
-            <UInput v-model="form.metaTitle" :placeholder="$t('categories.meta_title')" />
-          </UFormField>
-
-          <UFormField :label="$t('categories.meta_description')" name="metaDescription">
-            <UTextarea v-model="form.metaDescription" :rows="2" :placeholder="$t('categories.meta_description')" />
-          </UFormField>
-
-          <UFormField :label="$t('categories.keywords')" name="keywords">
-            <UInputMenu v-model="form.keywords" multiple creatable :placeholder="$t('categories.add_keywords')" />
-          </UFormField>
-
-          <UFormField :label="$t('categories.og_image')" name="ogImage">
-            <div v-if="form.ogImage"
-              class="relative w-full h-48 mb-2 rounded-lg overflow-hidden group border border-gray-200 dark:border-gray-700">
-              <img :src="form.ogImage" class="w-full h-full object-cover" />
-              <UButton icon="i-lucide-trash" color="error" variant="solid" size="xs"
-                class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                @click="form.ogImage = ''" />
-            </div>
-            <UButton v-else icon="i-lucide-image" color="neutral" @click="showMediaManager = true">
-              {{ $t('categories.select_image') }}
-            </UButton>
-          </UFormField>
-
-          <div class="flex justify-end gap-2 pt-4">
-            <UButton color="neutral" variant="ghost" @click="showModal = false">{{ $t('common.cancel') }}</UButton>
-            <UButton type="submit" :loading="saving">{{ $t('common.save') }}</UButton>
-          </div>
-        </form>
+        <AdminCategoriesCategoryForm v-model="form" :loading="saving" :is-editing="!!editingCategory"
+          :parent-options="parentOptions" @submit="handleSubmit" @cancel="showModal = false" />
       </UCard>
     </template>
   </UModal>
-
-  <!-- Cloudinary Manager Modal -->
-  <AdminCloudinaryManager v-if="showMediaManager" mode="modal" :multiple="false" @close="showMediaManager = false"
-    @selected-files="handleImageSelect" />
 
   <!-- Delete Confirmation -->
-  <UModal v-model:open="showDeleteModal">
-    <template #content>
-      <UCard>
-        <template #header>
-          <h3 class="font-bold">{{ $t('categories.delete') }}</h3>
-        </template>
-        <p>{{ $t('categories.delete_confirm') }}</p>
-        <template #footer>
-          <div class="flex justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="showDeleteModal = false">{{ $t('common.cancel') }}
-            </UButton>
-            <UButton color="error" @click="handleDelete" :loading="deleting">{{ $t('common.delete') }}</UButton>
-          </div>
-        </template>
-      </UCard>
-    </template>
-  </UModal>
+  <ConfirmModal v-model="showDeleteModal" :title="$t('categories.delete')"
+    :description="$t('categories.delete_confirm')" color="error" @confirm="handleDelete"
+    @cancel="showDeleteModal = false" />
 </template>

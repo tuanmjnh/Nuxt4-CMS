@@ -8,7 +8,6 @@ const router = useRouter()
 const { createPost } = usePosts()
 const toast = useToast()
 const { user } = useAuth()
-const { t } = useI18n()
 
 interface PostForm {
   title: string
@@ -45,7 +44,7 @@ const form = ref<PostForm>({
 
 const handleSubmit = async () => {
   if (!form.value.title || !form.value.content) {
-    toast.add({ title: t('error.title_content_required'), color: 'error' })
+    toast.add({ title: $t('error.title_content_required'), color: 'error' })
     return
   }
 
@@ -53,13 +52,14 @@ const handleSubmit = async () => {
   try {
     const postData: Models.CreatePost = {
       ...form.value,
+      scheduledAt: form.value.scheduledAt ? new Date(form.value.scheduledAt).getTime() : undefined,
       author: user.value?._id || ''
     }
     await createPost(postData)
-    toast.add({ title: t('posts.create_success'), color: 'success' })
+    toast.add({ title: $t('posts.create_success'), color: 'success' })
     router.push('/admin/posts')
   } catch (error: any) {
-    toast.add({ title: error.message || t('posts.create_error'), color: 'error' })
+    toast.add({ title: error.message || $t('posts.create_error'), color: 'error' })
   } finally {
     loading.value = false
   }

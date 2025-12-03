@@ -7,16 +7,24 @@ const createUserSchema = z.object({
   username: z.string().min(3),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.string(), // Role ID or Name
+  roles: z.array(z.string()).min(1), // Role IDs or Names
   category: z.string().optional(),
   bio: z.string().optional(),
+  avatar: z.any().optional(),
+  personNumber: z.string().optional(),
+  region: z.string().optional(),
+  dateBirth: z.number().optional(),
+  gender: z.string().optional(),
+  address: z.string().optional(),
   isActive: z.boolean().optional()
 })
 
 export default defineEventHandler(async (event) => {
   // Check admin permission
   const currentUser = event.context.user
-  if (!currentUser || (currentUser.role.name !== 'admin' && currentUser.role !== 'admin'))
+  // Check if user has admin role (assuming roles is populated)
+  const isAdmin = currentUser && currentUser.roles && currentUser.roles.some((r: any) => r.name === 'admin' || r === 'admin')
+  if (!isAdmin)
     throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
 
   try {
@@ -24,14 +32,19 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const data = createUserSchema.parse(body)
 
-    // Resolve role if name is provided
-    let roleId = data.role
-    if (!roleId.match(/^[0-9a-fA-F]{24}$/)) {
-      const roleDoc = await Role.findOne({ name: roleId })
-      if (!roleDoc) {
-        throw createError({ statusCode: 400, message: 'Invalid role', statusMessage: 'error.invalid_role' })
+    // Resolve roles if names are provided
+    const roleIds = []
+    for (const roleInput of data.roles) {
+      if (roleInput.match(/^[0-9a-fA-F]{24}$/)) {
+        roleIds.push(roleInput)
+      } else {
+        const roleDoc = await Role.findOne({ name: roleInput })
+        if (roleDoc) {
+          roleIds.push(roleDoc._id.toString())
+        } else {
+          throw createError({ statusCode: 400, message: `Invalid role: ${roleInput}`, statusMessage: 'error.invalid_role' })
+        }
       }
-      roleId = roleDoc._id.toString()
     }
 
     const existingUser = await User.findOne({
@@ -43,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
     const newUser = await User.create({
       ...data,
-      role: roleId
+      roles: roleIds
     })
 
     return {

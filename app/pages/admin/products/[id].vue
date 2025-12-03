@@ -4,8 +4,6 @@ definePageMeta({
   middleware: 'admin'
 })
 
-const { t } = useI18n()
-
 interface ProductAttributeForm {
   name: string
   options: string[]
@@ -123,10 +121,10 @@ const saveProduct = async () => {
       method: 'PUT' as any,
       body: payload
     })
-    toast.add({ title: t('products.save_success') })
+    toast.add({ title: $t('products.save_success') })
     refresh()
   } catch (error: any) {
-    toast.add({ title: t('common.error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('common.error'), description: error.message, color: 'error' })
   } finally {
     saving.value = false
   }

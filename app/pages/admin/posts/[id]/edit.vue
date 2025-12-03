@@ -8,7 +8,6 @@ const route = useRoute()
 const router = useRouter()
 const { fetchPost, updatePost } = usePosts()
 const toast = useToast()
-const { t } = useI18n()
 
 const postId = route.params.id as string
 const saving = ref(false)
@@ -63,9 +62,9 @@ const handleSubmit = async () => {
   saving.value = true
   try {
     await updatePost(postId, form.value)
-    toast.add({ title: t('posts.update_success'), color: 'success' })
+    toast.add({ title: $t('posts.update_success'), color: 'success' })
   } catch (error: any) {
-    toast.add({ title: error.message || t('posts.update_error'), color: 'error' })
+    toast.add({ title: error.message || $t('posts.update_error'), color: 'error' })
   } finally {
     saving.value = false
   }

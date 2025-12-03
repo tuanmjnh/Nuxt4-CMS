@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import { Post } from '../../models/Post'
+import { Attribute } from '../../models/Attribute'
+import { syncTags, syncKeywords } from '../../utils/taxonomy'
 
 const localizedString = z.object({
   en: z.string().min(1).optional(),
@@ -45,7 +47,7 @@ export default defineEventHandler(async (event) => {
     if (!existingPost) throw createError({ statusCode: 404, message: 'Post not found', statusMessage: 'error.not_found' })
 
     // Check authorization (admin, or author of the post)
-    if (currentUser.role !== 'admin' && existingPost.author.toString() !== currentUser.userId)
+    if (!currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')) && existingPost.author.toString() !== currentUser.userId)
       throw createError({ statusCode: 403, message: 'Not authorized to update this post', statusMessage: 'error.unauthorized' })
 
     // Parse and validate request body
@@ -60,43 +62,26 @@ export default defineEventHandler(async (event) => {
 
     const updateData: any = { ...data }
 
-    // Process tags
+    // Process tags and keywords
     if (data.tags) {
-      const { Tag } = await import('../../models/Tag')
-      const tagIds = []
-      for (const tagInput of data.tags) {
-        if (tagInput.match(/^[0-9a-fA-F]{24}$/)) {
-          const exists = await Tag.findById(tagInput)
-          if (exists) {
-            tagIds.push(exists._id)
-            continue
-          }
-        }
-        const slug = tagInput.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-        let tag = await Tag.findOne({ $or: [{ name: tagInput }, { slug: slug }] })
-        if (!tag) {
-          try {
-            tag = await Tag.create({ name: tagInput })
-          } catch (e) {
-            tag = await Tag.findOne({ name: tagInput })
-          }
-        }
-        if (tag) tagIds.push(tag._id)
-      }
-      updateData.tags = tagIds
+      updateData.tags = await syncTags(data.tags)
+    }
+
+    if (data.keywords) {
+      await syncKeywords(data.keywords)
     }
 
     // Process attributes
+    // Process attributes
     if (data.attributes) {
-      const { PostAttribute } = await import('../../models/PostAttribute')
       for (const attr of data.attributes) {
         if (!attr.name || !attr.value) continue
-        let attrDef = await PostAttribute.findOne({ name: attr.name })
+        let attrDef = await Attribute.findOne({ name: attr.name, type: 'post' })
         if (!attrDef) {
           try {
-            attrDef = await PostAttribute.create({ name: attr.name, values: [attr.value] })
+            attrDef = await Attribute.create({ name: attr.name, type: 'post', values: [attr.value] })
           } catch (e) {
-            attrDef = await PostAttribute.findOne({ name: attr.name })
+            attrDef = await Attribute.findOne({ name: attr.name, type: 'post' })
           }
         }
         if (attrDef && !attrDef.values.includes(attr.value)) {
@@ -116,10 +101,7 @@ export default defineEventHandler(async (event) => {
       .populate('categories', 'name slug')
       .populate('tags', 'name slug color')
 
-    return {
-      success: true,
-      data: { post }
-    }
+    return { success: true, data: post }
   } catch (error: any) {
     if (error.name === 'ZodError') throw createError({ statusCode: 400, message: error.errors, statusMessage: 'error.validation' })
     if (error.statusCode) throw error

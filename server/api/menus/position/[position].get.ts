@@ -51,13 +51,7 @@ export default defineEventHandler(async (event) => {
 
     const tree = buildTree(items)
 
-    return {
-      success: true,
-      data: {
-        menu,
-        items: tree
-      }
-    }
+    return { success: true, data: { menu, items: tree } }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

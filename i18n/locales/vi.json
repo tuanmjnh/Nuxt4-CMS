@@ -5,6 +5,8 @@
     "site_description": "Hệ thống quản lý nội dung hiện đại xây dựng với Nuxt 4",
     "home": "Trang chủ",
     "dashboard": "Bảng điều khiển",
+    "view": "Xem",
+    "list": "Danh sách",
     "create": "Tạo mới",
     "edit": "Chỉnh sửa",
     "delete": "Xóa",
@@ -60,6 +62,7 @@
     "sort_order": "Thứ tự sắp xếp",
     "category": "Danh mục",
     "select_category": "Chọn danh mục (tùy chọn)",
+    "select_date": "Chọn ngày",
     "error_fetching_data": "Lỗi khi tải dữ liệu",
     "comments": "Bình luận",
     "select": "Chọn",
@@ -100,6 +103,7 @@
   },
   "products": {
     "title": "Sản phẩm",
+    "sales": "Doanh số",
     "create": "Tạo sản phẩm",
     "edit": "Chỉnh sửa sản phẩm",
     "add": "Thêm sản phẩm",
@@ -123,7 +127,17 @@
     "save_success": "Đã lưu sản phẩm",
     "create_success": "Đã tạo sản phẩm",
     "delete_success": "Đã xóa sản phẩm",
-    "delete_confirm": "Bạn có chắc chắn muốn xóa sản phẩm \"{name}\" không?"
+    "delete_confirm": "Bạn có chắc chắn muốn xóa sản phẩm \"{name}\" không?",
+    "attributes_title": "Thuộc tính sản phẩm",
+    "create_attribute": "Tạo thuộc tính",
+    "edit_attribute": "Chỉnh sửa thuộc tính",
+    "create_new_attribute": "Tạo thuộc tính mới",
+    "values_placeholder": "S, M, L, XL",
+    "values_help": "Nhập các giá trị phân cách bằng dấu phẩy",
+    "attribute_deleted": "Đã xóa thuộc tính",
+    "attribute_updated": "Đã cập nhật thuộc tính",
+    "attribute_created": "Đã tạo thuộc tính",
+    "delete_attribute_confirm": "Bạn có chắc chắn muốn xóa thuộc tính \"{name}\" không?"
   },
   "categories": {
     "title": "Danh mục",
@@ -242,7 +256,16 @@
     "update_error": "Lỗi khi cập nhật người dùng",
     "create": "Tạo người dùng",
     "create_success": "Tạo người dùng thành công",
-    "create_error": "Lỗi khi tạo người dùng"
+    "create_error": "Lỗi khi tạo người dùng",
+    "person_number": "Số căn cước",
+    "phone_number": "Số điện thoại",
+    "region": "Khu vực",
+    "date_birth": "Ngày sinh",
+    "gender": "Giới tính",
+    "gender_male": "Nam",
+    "gender_female": "Nữ",
+    "gender_other": "Khác",
+    "address": "Địa chỉ"
   },
   "auth": {
     "logout": "Đăng xuất",
@@ -355,7 +378,8 @@
     "revoke": "Thu hồi"
   },
   "admin": {
-    "title": "Quản trị CMS"
+    "title": "Quản trị CMS",
+    "growth_30_days": "Tăng trưởng (30 ngày qua)"
   },
   "date_range": {
     "last_7_days": "7 ngày qua",
@@ -432,6 +456,7 @@
     "min_max_chars": "Phải có ít nhất {min} ký tự và tối đa {max} ký tự.",
     "current_password_required": "Mật khẩu hiện tại là bắt buộc",
     "incorrect_password": "Mật khẩu không chính xác",
+    "email": "Email không hợp lệ",
     "validation": "Lỗi xác thực",
     "token_required": "Mã thông báo là bắt buộc",
     "token_expired": "Mã thông báo đã hết hạn",

@@ -2,17 +2,18 @@ export { }
 
 declare global {
   namespace Models {
-    interface Tag {
+    interface Taxonomy {
       _id: string
       name: string
       slug: string
+      type: 'tag' | 'keyword'
       description?: string
       color?: string
-      postCount: number
+      count: number
       isDeleted: boolean
-      deletedAt?: string | Date
-      createdAt: string | Date
-      updatedAt: string | Date
+      deletedAt?: number
+      createdAt: number
+      updatedAt: number
     }
   }
 }

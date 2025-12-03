@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { sub } from 'date-fns'
-// const deviceStore = useDeviceStore()
-// const { deviceType } = storeToRefs(deviceStore)
+
 const runtimeConfig = useRuntimeConfig()
 const { user } = useAuth()
 const route = useRoute()
@@ -25,47 +24,52 @@ router.afterEach(() => {
     isPageLoading.value = false
   }, 200)
 })
-// console.log(router.getRoutes())
+
 onMounted(() => {
   // Stop loading when layout is mounted
   setTimeout(() => {
     stopLoading()
-  }, 500) // Small delay for smooth transition
-})
-
-// Computed routes with hierarchy
-const routes = computed(() => {
-  if (!user.value?.role?.allowedRoutes) return []
-
-  const allRoutes = user.value.role.allowedRoutes as Models.AdminRoute[]
-
-  // Filter visible routes and sort by sortOrder
-  const visibleRoutes = allRoutes
-    .filter(r => r.isVisible)
-    .sort((a, b) => a.sortOrder - b.sortOrder)
-
-  // Build hierarchy
-  const parentRoutes = visibleRoutes.filter(r => !r.parent)
-  const childRoutes = visibleRoutes.filter(r => r.parent)
-
-  // Attach children to parents
-  return parentRoutes.map(parent => ({
-    ...parent,
-    children: childRoutes
-      .filter(child => {
-        const parentId = typeof child.parent === 'string'
-          ? child.parent
-          : child.parent?._id
-        return parentId === parent._id
-      })
-      .sort((a, b) => a.sortOrder - b.sortOrder)
-  }))
+  }, 500)
 })
 
 // Check if route is active
 const isActiveRoute = (routePath: string) => {
   return route.path === routePath || route.path.startsWith(routePath + '/')
 }
+
+// Fetch admin routes
+const { data: adminRoutes } = await useAPI<{ success: boolean, data: Models.AdminRoute[] }>('/api/admin/routes', {
+  key: 'admin-routes'
+})
+
+// Computed routes with hierarchy
+const routes = computed(() => {
+  if (!adminRoutes.value?.data || adminRoutes.value.data.length === 0) return []
+
+  const allRoutes = adminRoutes.value.data
+
+  // Filter visible routes and sort by sort
+  const visibleRoutes = allRoutes
+    .filter((r: any) => r.isVisible)
+    .sort((a: any, b: any) => a.sort - b.sort)
+
+  // Build hierarchy
+  const parentRoutes = visibleRoutes.filter((r: any) => !r.parent)
+  const childRoutes = visibleRoutes.filter((r: any) => r.parent)
+
+  // Attach children to parents
+  return parentRoutes.map((parent: any) => ({
+    ...parent,
+    children: childRoutes
+      .filter((child: any) => {
+        const parentId = typeof child.parent === 'string'
+          ? child.parent
+          : child.parent?._id
+        return parentId === parent._id
+      })
+      .sort((a: any, b: any) => a.sort - b.sort)
+  }))
+})
 
 // Map routes to NavigationMenu items
 const mapRouteToItem = (route: any): any => {
@@ -99,7 +103,7 @@ const open = ref(false)
 const groups = computed(() => [{
   id: 'links',
   label: 'Navigation',
-  items: items.value.flatMap(item => [
+  items: items.value.flatMap((item: any) => [
     { ...item, to: item.to, onSelect: () => { open.value = false } },
     ...(item.children || []).map((child: any) => ({ ...child, to: child.to, onSelect: () => { open.value = false } }))
   ])

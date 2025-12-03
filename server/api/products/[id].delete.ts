@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
       deletedAt: new Date()
     })
     if (!product) throw createError({ statusCode: 404, message: 'Product not found', statusMessage: 'error.not_found' })
-    return { message: 'Product deleted successfully' }
+    return { success: true, message: 'Product deleted successfully' }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

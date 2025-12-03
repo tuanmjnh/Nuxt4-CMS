@@ -9,13 +9,11 @@ export const connectDB = async () => {
     const config = useRuntimeConfig()
     // console.log(config)
 
-    if (!config.mongodbUri) {
+    if (!config.mongodb_uri) {
       throw new Error('MONGODB_URI is not defined in environment variables')
     }
 
-    await mongoose.connect(config.mongodbUri, {
-      dbName: config.mongodbName,
-    })
+    await mongoose.connect(config.mongodb_uri, { dbName: config.mongodb_name })
     isConnected = true
     console.log('MongoDB connected successfully')
   } catch (error) {

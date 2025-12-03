@@ -1,0 +1,16 @@
+{
+  "error": true,
+  "url": "http://localhost:3000/api/admin/routes",
+  "statusCode": 401,
+  "statusMessage": "error.unauthorized",
+  "message": "Authentication required",
+  "stack": [
+    "Authentication required",
+    "at createError (D:/Applications/website-template/Nuxt4-CMS/node_modules/.pnpm/h3@1.15.4/node_modules/h3/dist/index.mjs:71:15)",
+    "at Object.handler (D:/Applications/website-template/Nuxt4-CMS/.nuxt/dev/index.mjs:4723:11)",
+    "at D:/Applications/website-template/Nuxt4-CMS/node_modules/.pnpm/h3@1.15.4/node_modules/h3/dist/index.mjs:2004:31)",
+    "at process.processTicksAndRejections (node:internal/process/task_queues:95:5)",
+    "at async Object.callAsync (D:/Applications/website-template/Nuxt4-CMS/node_modules/.pnpm/unctx@2.4.1/node_modules/unctx/dist/index.mjs:72:16)",
+    "at async Server.toNodeHandle (D:/Applications/website-template/Nuxt4-CMS/node_modules/.pnpm/h3@1.15.4/node_modules/h3/dist/index.mjs:2296:7)"
+  ]
+}

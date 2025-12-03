@@ -1,7 +1,8 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document } from 'mongoose'
+import { ChangeDataSchema } from './Schemas'
 
-export interface IMenuDocument extends Omit<Models.Menu, '_id' | 'createdAt' | 'updatedAt'>, Document { }
+export interface IMenuDocument extends Omit<Models.Menu, '_id'>, Document { }
 
 const MenuSchema = new Schema<IMenuDocument>({
   name: {
@@ -34,11 +35,14 @@ const MenuSchema = new Schema<IMenuDocument>({
     default: false
   },
   deletedAt: {
-    type: Date,
+    type: Number,
     default: null
-  }
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true
+  timestamps: { currentTime: () => Date.now() }
 })
 
 // Indexes
@@ -55,4 +59,5 @@ MenuSchema.pre('validate', function (next) {
   next()
 })
 
-export const Menu: mongoose.Model<IMenuDocument> = mongoose.models.Menu || mongoose.model<IMenuDocument>('Menu', MenuSchema)
+export const Menu: mongoose.Model<IMenuDocument> =
+  mongoose.models.menus || mongoose.model<IMenuDocument>('menus', MenuSchema)

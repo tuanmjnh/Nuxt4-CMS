@@ -6,7 +6,6 @@ definePageMeta({
 
 const router = useRouter()
 const toast = useToast()
-const { t } = useI18n()
 const saving = ref(false)
 
 const form = ref({
@@ -27,10 +26,10 @@ const handleSubmit = async () => {
       method: 'POST',
       body: form.value
     })
-    toast.add({ title: t('products.create_success') })
+    toast.add({ title: $t('products.create_success') })
     router.push(`/admin/products/${product._id}`)
   } catch (error: any) {
-    toast.add({ title: t('common.error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('common.error'), description: error.message, color: 'error' })
   } finally {
     saving.value = false
   }

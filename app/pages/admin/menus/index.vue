@@ -6,7 +6,6 @@ definePageMeta({
 
 const { fetchMenus, createMenu, updateMenu, deleteMenu } = useMenu()
 const toast = useToast()
-const { t } = useI18n()
 
 const showModal = ref(false)
 const showDeleteModal = ref(false)
@@ -49,15 +48,15 @@ const handleSubmit = async () => {
   try {
     if (editingMenu.value) {
       await updateMenu(editingMenu.value._id, form.value)
-      toast.add({ title: t('menus.updated_success'), color: 'success' })
+      toast.add({ title: $t('menus.updated_success'), color: 'success' })
     } else {
       await createMenu(form.value)
-      toast.add({ title: t('menus.created_success'), color: 'success' })
+      toast.add({ title: $t('menus.created_success'), color: 'success' })
     }
     showModal.value = false
     refresh()
   } catch (error: any) {
-    toast.add({ title: error.message || t('common.error'), color: 'error' })
+    toast.add({ title: error.message || $t('common.error'), color: 'error' })
   } finally {
     saving.value = false
   }
@@ -76,9 +75,9 @@ const handleDelete = async () => {
     await deleteMenu(menuToDelete.value._id)
     showDeleteModal.value = false
     refresh()
-    toast.add({ title: t('menus.deleted_success'), color: 'success' })
+    toast.add({ title: $t('menus.deleted_success'), color: 'success' })
   } catch (error) {
-    toast.add({ title: t('menus.save_failed'), color: 'error' })
+    toast.add({ title: $t('menus.save_failed'), color: 'error' })
   } finally {
     deleting.value = false
   }
@@ -131,42 +130,13 @@ const handleDelete = async () => {
           <h3 class="font-bold">{{ editingMenu ? $t('menus.edit') : $t('menus.create') }}</h3>
         </template>
 
-        <form @submit.prevent="handleSubmit" class="space-y-4">
-          <UFormField :label="$t('menus.name')" name="name" required>
-            <UInput v-model="form.name" />
-          </UFormField>
-
-          <UFormField :label="$t('menus.position')" name="position" required>
-            <USelect v-model="form.position" :options="['header', 'footer', 'sidebar', 'mobile', 'custom']" />
-          </UFormField>
-
-          <UCheckbox v-model="form.isActive" :label="$t('menus.active')" />
-
-          <div class="flex justify-end gap-2 pt-4">
-            <UButton color="neutral" variant="ghost" @click="showModal = false">{{ $t('common.cancel') }}</UButton>
-            <UButton type="submit" :loading="saving">{{ $t('common.save') }}</UButton>
-          </div>
-        </form>
+        <AdminMenusMenuForm v-model="form" :loading="saving" :is-editing="!!editingMenu" @submit="handleSubmit"
+          @cancel="showModal = false" />
       </UCard>
     </template>
   </UModal>
 
   <!-- Delete Confirmation -->
-  <UModal v-model:open="showDeleteModal">
-    <template #content>
-      <UCard>
-        <template #header>
-          <h3 class="font-bold">{{ $t('menus.delete') }}</h3>
-        </template>
-        <p>{{ $t('menus.delete_confirm') }}</p>
-        <template #footer>
-          <div class="flex justify-end gap-2">
-            <UButton color="neutral" variant="ghost" @click="showDeleteModal = false">{{ $t('common.cancel') }}
-            </UButton>
-            <UButton color="error" @click="handleDelete" :loading="deleting">{{ $t('common.delete') }}</UButton>
-          </div>
-        </template>
-      </UCard>
-    </template>
-  </UModal>
+  <ConfirmModal v-model="showDeleteModal" :title="$t('menus.delete')" :description="$t('menus.delete_confirm')"
+    color="error" @confirm="handleDelete" @cancel="showDeleteModal = false" />
 </template>

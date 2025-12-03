@@ -7,12 +7,13 @@ declare global {
       name: string
       description?: string
       permissions: string[]
-      allowedRoutes: (AdminRoute | string)[]
+      // allowedRoutes: (AdminRoute | string)[]
       isDefault: boolean
       isDeleted: boolean
-      deletedAt?: string | Date
-      createdAt: string | Date
-      updatedAt: string | Date
+      deletedAt?: number
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
   }
 }

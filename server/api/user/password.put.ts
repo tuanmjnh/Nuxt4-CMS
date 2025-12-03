@@ -37,10 +37,7 @@ export default defineEventHandler(async (event) => {
 
     await user.save()
 
-    return {
-      success: true,
-      message: 'Password updated successfully'
-    }
+    return { success: true, message: 'Password updated successfully' }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

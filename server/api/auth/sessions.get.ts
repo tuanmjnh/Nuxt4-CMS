@@ -14,9 +14,7 @@ export default defineEventHandler(async (event) => {
 
     const dbQuery: any = { user: currentUser.userId }
 
-    if (cursor) {
-      dbQuery.lastActiveAt = { $lt: new Date(cursor) }
-    }
+    if (cursor) dbQuery.lastActiveAt = { $lt: new Date(cursor) }
 
     const sessions = await UserSession.find(dbQuery)
       .sort({ lastActiveAt: -1 })
@@ -25,10 +23,12 @@ export default defineEventHandler(async (event) => {
     const nextCursor = sessions.length === limit ? sessions[sessions.length - 1].lastActiveAt : null
 
     return {
+      success: true,
       data: sessions,
       nextCursor
     }
   } catch (error: any) {
-    return { success: true }
+    if (error.statusCode) throw error
+    throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })
   }
 })

@@ -15,6 +15,12 @@ declare global {
       message?: string
     }
 
+    interface IChangeData {
+      at: number
+      by: string
+      ip: string | null
+    }
+
     interface Pagination {
       page: number
       limit: number
@@ -40,7 +46,7 @@ declare global {
     interface AuthResponse {
       success: boolean
       data: {
-        user: UserWithRole
+        user: UserWithRoles
         accessToken: string
         refreshToken: string
       }
@@ -50,22 +56,22 @@ declare global {
     interface UserResponse {
       success: boolean
       data: {
-        user: UserWithRole
+        user: UserWithRoles
       }
       message?: string
     }
 
     // Helper types for populated fields
-    interface UserWithRole extends Omit<User, 'role'> {
-      role: Role
+    interface UserWithRoles extends Omit<User, 'roles'> {
+      roles: Role[]
     }
 
     interface RoleWithRoutes extends Omit<Role, 'allowedRoutes'> {
       allowedRoutes: AdminRoute[]
     }
 
-    interface UserWithRoleAndRoutes extends Omit<User, 'role'> {
-      role: RoleWithRoutes
+    interface UserWithRoleAndRoutes extends Omit<User, 'roles'> {
+      roles: RoleWithRoutes[]
     }
 
     interface PostPopulated extends Omit<Post, 'author' | 'categories' | 'tags'> {
@@ -93,16 +99,16 @@ declare global {
     type CreateUser = Omit<User, '_id' | 'createdAt' | 'updatedAt' | 'isDeleted' | 'deletedAt'>
     type UpdateUser = Partial<Omit<User, '_id' | 'createdAt' | 'updatedAt' | 'isDeleted' | 'deletedAt'>>
 
-    type CreatePost = Omit<Post, '_id' | 'createdAt' | 'updatedAt' | 'views' | 'likes' | 'shares' | 'comments' | 'ratingCount' | 'ratingAverage' | 'isDeleted' | 'deletedAt'>
+    type CreatePost = Omit<Post, '_id' | 'createdAt' | 'updatedAt' | 'views' | 'likes' | 'shares' | 'comments' | 'ratingCount' | 'ratingAverage' | 'isDeleted' | 'deletedAt' | 'history'>
     type UpdatePost = Partial<CreatePost>
 
-    type CreateMenu = Omit<Menu, '_id' | 'createdAt' | 'updatedAt' | 'items' | 'slug' | 'sortOrder' | 'isDeleted' | 'deletedAt'> & {
+    type CreateMenu = Omit<Menu, '_id' | 'createdAt' | 'updatedAt' | 'items' | 'slug' | 'sortOrder' | 'isDeleted' | 'deletedAt' | 'history'> & {
       slug?: string
       sortOrder?: number
     }
     type UpdateMenu = Partial<CreateMenu>
 
-    type CreateMenuItem = Omit<MenuItem, '_id' | 'createdAt' | 'updatedAt' | 'children' | 'isDeleted' | 'deletedAt'>
+    type CreateMenuItem = Omit<MenuItem, '_id' | 'createdAt' | 'updatedAt' | 'children' | 'isDeleted' | 'deletedAt' | 'history'>
     type UpdateMenuItem = Partial<CreateMenuItem>
 
     type CreateCategory = Omit<Category, '_id' | 'createdAt' | 'updatedAt' | 'postCount' | 'isDeleted' | 'deletedAt'>

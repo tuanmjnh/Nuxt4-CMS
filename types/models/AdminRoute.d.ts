@@ -7,12 +7,13 @@ declare global {
       path: string
       name: string
       icon?: string
-      sortOrder: number
+      sort: number
       isVisible: boolean
       parent?: AdminRoute | string
       children?: AdminRoute[]
-      createdAt: string | Date
-      updatedAt: string | Date
+      createdAt: number
+      updatedAt: number
+      history: IChangeData | null
     }
   }
 }

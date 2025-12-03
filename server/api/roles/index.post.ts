@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const role = await Role.create(body)
-    return role
+    return { success: true, data: role }
   } catch (error: any) {
     if (error.statusCode) throw error
     throw createError({ statusCode: 500, statusMessage: 'error.server_error', message: error.message })

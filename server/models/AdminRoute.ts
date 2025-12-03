@@ -1,13 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose'
+import { ChangeDataSchema } from './Schemas'
 
-export interface IAdminRouteDocument extends Document {
-  path: string
-  name: string
-  icon?: string
-  sortOrder: number
-  isVisible: boolean
-  parent?: mongoose.Types.ObjectId
-}
+export interface IAdminRouteDocument extends Omit<Models.AdminRoute, '_id'>, Document { }
 
 const AdminRouteSchema = new Schema<IAdminRouteDocument>({
   path: {
@@ -25,7 +19,7 @@ const AdminRouteSchema = new Schema<IAdminRouteDocument>({
     type: String,
     trim: true
   },
-  sortOrder: {
+  sort: {
     type: Number,
     default: 0
   },
@@ -35,10 +29,13 @@ const AdminRouteSchema = new Schema<IAdminRouteDocument>({
   },
   parent: {
     type: Schema.Types.ObjectId,
-    ref: 'AdminRoute'
-  }
+    ref: 'admin_routes'
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true
+  timestamps: { currentTime: () => Date.now() }
 })
 
-export const AdminRoute = mongoose.models.AdminRoute || mongoose.model<IAdminRouteDocument>('AdminRoute', AdminRouteSchema)
+export const AdminRoute = mongoose.models.admin_routes || mongoose.model<IAdminRouteDocument>('admin_routes', AdminRouteSchema)

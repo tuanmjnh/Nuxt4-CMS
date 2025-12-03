@@ -23,11 +23,12 @@ const passwordState = reactive<Partial<PasswordSchema>>({
   confirmPassword: ''
 })
 
-const loadingPassword = ref(false)
+const loading = ref(false)
+const formRef = ref()
 
 // Methods
-const onPasswordSubmit = async (event: FormSubmitEvent<PasswordSchema>) => {
-  loadingPassword.value = true
+const onSubmit = async (event: FormSubmitEvent<PasswordSchema>) => {
+  loading.value = true
 
   try {
     const response = await $fetch<any>('/api/user/password', {
@@ -49,42 +50,39 @@ const onPasswordSubmit = async (event: FormSubmitEvent<PasswordSchema>) => {
   } catch (e: any) {
     toast.add({ title: $t('common.error'), description: e.data?.message || $t('auth.password_error'), color: 'error' })
   } finally {
-    loadingPassword.value = false
+    loading.value = false
   }
 }
 </script>
 
 <template>
-  <UCard>
+  <UCard :ui="{ body: 'flex justify-center' }">
     <template #header>
-      <h2 class="text-xl font-bold">{{ $t('auth.change_password') }}</h2>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">{{ $t('auth.change_password') }}</h1>
+        <UButton type="submit" variant="soft" :loading="loading" @click="formRef?.submit()">
+          {{ $t('auth.update_password') }}
+        </UButton>
+      </div>
     </template>
-
-    <UForm :schema="passwordSchema" :state="passwordState" class="space-y-6" @submit="onPasswordSubmit">
+    <UForm ref="formRef" :schema="passwordSchema" :state="passwordState" class="space-y-6" @submit="onSubmit">
       <!-- Current Password -->
       <UFormField :label="$t('auth.current_password')" name="currentPassword" required>
-        <UInput v-model="passwordState.currentPassword" type="password"
+        <UInput v-model="passwordState.currentPassword" type="password" class="w-full"
           :placeholder="$t('auth.current_password_placeholder')" />
       </UFormField>
 
       <!-- New Password -->
       <UFormField :label="$t('auth.new_password')" name="newPassword" required>
-        <UInput v-model="passwordState.newPassword" type="password"
+        <UInput v-model="passwordState.newPassword" type="password" class="w-full"
           :placeholder="$t('auth.new_password_placeholder')" />
       </UFormField>
 
       <!-- Confirm Password -->
       <UFormField :label="$t('auth.confirm_new_password')" name="confirmPassword" required>
-        <UInput v-model="passwordState.confirmPassword" type="password"
+        <UInput v-model="passwordState.confirmPassword" type="password" class="w-full"
           :placeholder="$t('auth.confirm_new_password_placeholder')" />
       </UFormField>
-
-      <!-- Submit Button -->
-      <div class="flex justify-end">
-        <UButton type="submit" :loading="loadingPassword" color="primary">
-          {{ $t('auth.update_password') }}
-        </UButton>
-      </div>
     </UForm>
   </UCard>
 </template>

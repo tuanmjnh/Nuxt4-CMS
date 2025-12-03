@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
     // Check if user is authenticated and is admin
     const currentUser = event.context.user
-    const isAdmin = currentUser && currentUser.role === 'admin' // Note: This assumes token has 'admin' string or we fetch user. We'll rely on token for now or update later.
+    const isAdmin = currentUser && currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')) // Note: This assumes token has 'admin' string or we fetch user. We'll rely on token for now or update later.
     // Actually, with new Role model, we should probably check if the role name is 'admin' or has permission.
     // For now, let's allow public registration with default role, and admin creation with specific role.
 
@@ -27,9 +27,7 @@ export default defineEventHandler(async (event) => {
     const { email, username, password, name, role: requestedRole } = registerSchema.parse(body)
 
     // Check if user already exists (email or username)
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
-    })
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] })
 
     if (existingUser) {
       throw createError({
@@ -89,7 +87,7 @@ export default defineEventHandler(async (event) => {
           email: newUser.email,
           username: newUser.username,
           name: newUser.name,
-          role: newUser.role
+          roles: newUser.roles
         }
       }
     }

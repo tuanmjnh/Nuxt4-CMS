@@ -12,18 +12,16 @@ const profileSchema = z.object({
 export default defineEventHandler(async (event) => {
   try {
     const currentUser = event.context.user
-    if (!currentUser) {
+    if (!currentUser)
       throw createError({ statusCode: 401, message: 'Not authenticated', statusMessage: 'error.unauthorized' })
-    }
 
     await connectDB()
     const body = await readBody(event)
     const data = profileSchema.parse(body)
 
     const user = await User.findById(currentUser.userId)
-    if (!user) {
+    if (!user)
       throw createError({ statusCode: 404, message: 'User not found', statusMessage: 'error.user_not_found' })
-    }
 
     // Update basic info
     if (data.name) user.name = data.name
@@ -52,7 +50,7 @@ export default defineEventHandler(async (event) => {
           email: user.email,
           username: user.username,
           name: user.name,
-          role: user.role,
+          roles: user.roles,
           avatar: user.avatar,
           bio: user.bio
         }

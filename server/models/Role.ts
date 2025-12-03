@@ -1,8 +1,9 @@
 /// <reference path="../../types/index.d.ts" />
 import mongoose, { Schema, Document } from 'mongoose'
+import { ChangeDataSchema } from './Schemas'
 
 
-export interface IRoleDocument extends Omit<Models.Role, '_id' | 'createdAt' | 'updatedAt'>, Document { }
+export interface IRoleDocument extends Omit<Models.Role, '_id'>, Document { }
 
 const RoleSchema = new Schema<IRoleDocument>({
   name: {
@@ -19,10 +20,7 @@ const RoleSchema = new Schema<IRoleDocument>({
     type: String,
     trim: true
   }],
-  allowedRoutes: [{
-    type: Schema.Types.ObjectId,
-    ref: 'AdminRoute'
-  }],
+
   isDefault: {
     type: Boolean,
     default: false
@@ -32,11 +30,14 @@ const RoleSchema = new Schema<IRoleDocument>({
     default: false
   },
   deletedAt: {
-    type: Date,
+    type: Number,
     default: null
-  }
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true
+  timestamps: { currentTime: () => Date.now() }
 })
 
-export const Role: mongoose.Model<IRoleDocument> = mongoose.models.Role || mongoose.model<IRoleDocument>('Role', RoleSchema)
+export const Role: mongoose.Model<IRoleDocument> = mongoose.models.roles || mongoose.model<IRoleDocument>('roles', RoleSchema)

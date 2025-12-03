@@ -1,4 +1,5 @@
-import mongoose from 'mongoose'
+import mongoose, { Document } from 'mongoose'
+import { ChangeDataSchema } from './Schemas'
 
 const systemConfigSchema = new mongoose.Schema({
   key: {
@@ -23,10 +24,14 @@ const systemConfigSchema = new mongoose.Schema({
   description: {
     type: String,
     default: ''
-  }
+  },
+  history: { type: ChangeDataSchema, default: null },
+  createdAt: { type: Number },
+  updatedAt: { type: Number }
 }, {
-  timestamps: true,
-  collection: 'system_configs'
+  timestamps: { currentTime: () => Date.now() }
 })
 
-export const SystemConfig = mongoose.models.SystemConfig || mongoose.model<Models.SystemConfig>('SystemConfig', systemConfigSchema)
+export interface ISystemConfigDocument extends Omit<Models.SystemConfig, '_id'>, Document { }
+
+export const SystemConfig = mongoose.models.system_configs || mongoose.model<ISystemConfigDocument>('system_configs', systemConfigSchema)

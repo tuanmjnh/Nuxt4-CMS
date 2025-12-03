@@ -14,8 +14,8 @@ const handleLocaleChange = (newLocale: string) => {
 const colors = [
   { label: 'Default', value: 'blue', color: 'bg-blue-500' },
   { label: 'Green', value: 'green', color: 'bg-green-500' },
-  { label: 'Red', value: 'red', color: 'bg-red-500' },
-  { label: 'Rose', value: 'rose', color: 'bg-rose-500' },
+  { label: 'Red', value: 'red', color: 'bg-red-800' },
+  { label: 'Rose', value: 'rose', color: 'bg-pink-400' },
   { label: 'Violet', value: 'violet', color: 'bg-violet-500' },
   { label: 'Orange', value: 'orange', color: 'bg-orange-500' },
   { label: 'Yellow', value: 'yellow', color: 'bg-yellow-500' },

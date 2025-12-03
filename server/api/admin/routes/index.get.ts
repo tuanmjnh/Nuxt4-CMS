@@ -8,14 +8,11 @@ export default defineEventHandler(async (event) => {
 
     await connectDB()
 
-    const routes = await AdminRoute.find().sort({ sortOrder: 1 })
+    const routes = await AdminRoute.find().sort({ sort: 1 })
 
-    return {
-      success: true,
-      data: routes
-    }
+    return { success: true, data: routes }
   } catch (error: any) {
     if (error.statusCode) throw error
-    throw createError({ statusCode: 400, message: error.message, statusMessage: 'error.server_error' })
+    throw createError({ statusCode: 500, message: error.message, statusMessage: 'error.server_error' })
   }
 })

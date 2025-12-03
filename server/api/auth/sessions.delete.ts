@@ -10,12 +10,11 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { sessionId } = body
 
-    if (sessionId) {
+    if (sessionId)
       await UserSession.deleteOne({ _id: sessionId, user: currentUser.userId })
-    }
 
-    return { success: true }
+    return { success: true, message: 'Session deleted successfully' }
   } catch (error: any) {
-    return { success: true }
+    return { success: true, message: 'Session deleted successfully' }
   }
 })
