@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { user, logout } = useAuth()
-const { t } = useI18n()
 
 const items = computed(() => [
   [
@@ -17,19 +16,24 @@ const items = computed(() => [
   ],
   [
     {
-      label: 'Profile',
+      label: $t('settings.profile'),
       icon: 'i-lucide-user',
       to: '/admin/settings/profile'
     },
-    {
-      label: t('settings.title'),
-      icon: 'i-lucide-settings',
-      to: '/admin/settings/routes'
-    }
+    // {
+    //   label: $t('system.routes'),
+    //   icon: 'i-lucide-settings',
+    //   to: '/admin/system/routes'
+    // },
+    // {
+    //   label: $t('system.config'),
+    //   icon: 'i-lucide-settings',
+    //   to: '/admin/system/config'
+    // }
   ],
   [
     {
-      label: t('auth.logout'),
+      label: $t('auth.logout'),
       icon: 'i-lucide-log-out',
       onSelect: () => logout()
     }

@@ -3,16 +3,12 @@ import { User } from '../../models/User'
 export default defineEventHandler(async (event) => {
   const id = event.context.params?.id
 
-  // Check admin permission
-  const currentUser = event.context.user
-  if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')))
-    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
-
   try {
     await connectDB()
 
+    const currentUser = event.context.user
     // Prevent deleting self
-    if (id === currentUser.userId)
+    if (currentUser && id === currentUser.userId)
       throw createError({ statusCode: 400, message: 'Cannot delete your own account', statusMessage: 'error.cannot_delete_self' })
 
     const user = await User.findByIdAndUpdate(id, {

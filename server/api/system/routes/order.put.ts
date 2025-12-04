@@ -1,10 +1,6 @@
-import { AdminRoute } from '../../../models/AdminRoute'
+import { SystemRoute } from '../../../models/SystemRoute'
 
 export default defineEventHandler(async (event) => {
-  const currentUser = event.context.user
-  if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')))
-    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
-
   await connectDB()
   const body = await readBody(event)
 
@@ -28,7 +24,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (operations.length > 0) {
-      await AdminRoute.bulkWrite(operations)
+      await SystemRoute.bulkWrite(operations)
     }
 
     return { success: true, message: 'Routes updated successfully' }

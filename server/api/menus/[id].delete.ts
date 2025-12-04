@@ -9,10 +9,6 @@ export default defineEventHandler(async (event) => {
     if (!id)
       throw createError({ statusCode: 400, message: 'ID required', statusMessage: 'error.validation' })
 
-    const currentUser = event.context.user
-    if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')))
-      throw createError({ statusCode: 403, message: 'Admin only', statusMessage: 'error.unauthorized' })
-
     // Soft delete menu and all its items
     await Menu.findByIdAndUpdate(id, {
       isDeleted: true,

@@ -18,10 +18,6 @@ export default defineEventHandler(async (event) => {
   try {
     await connectDB()
 
-    const currentUser = event.context.user
-    if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')))
-      throw createError({ statusCode: 403, message: 'Only administrators can create categories', statusMessage: 'error.unauthorized' })
-
     const body = await readBody(event)
     const data = createCategorySchema.parse(body)
 

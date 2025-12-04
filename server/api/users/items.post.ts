@@ -1,13 +1,6 @@
 import { User } from '../../models/User'
 
 export default defineEventHandler(async (event) => {
-  // Check admin permission
-  // Check admin permission
-  const currentUser = event.context.user
-  const isAdmin = currentUser && currentUser.roles && currentUser.roles.some((r: any) => r.name === 'admin' || r === 'admin')
-  if (!isAdmin)
-    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
-
   try {
     const body = await readBody(event)
     const limit = parseInt(body.limit as string) || 10

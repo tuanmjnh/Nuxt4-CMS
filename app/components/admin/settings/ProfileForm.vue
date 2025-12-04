@@ -106,7 +106,7 @@ const onSubmit = async (event: FormSubmitEvent<ProfileSchema>) => {
       await fetchUser()
     }
   } catch (e: any) {
-    toast.add({ title: $t('common.error'), description: e.data?.message || $t('settings.profile_error'), color: 'error' })
+    toast.add({ title: $t('common.error'), description: $t(e.statusMessage) || $t('settings.profile_error'), color: 'error' })
   } finally {
     loading.value = false
   }
@@ -143,11 +143,6 @@ const handleAvatarSelected = (files: Cloudinary.IFileAttach[]) => {
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Name -->
-        <UFormField :label="$t('common.name')" name="name" required>
-          <UInput v-model="profileState.name" :placeholder="$t('settings.name_placeholder')" class="w-full" />
-        </UFormField>
-
         <!-- Username -->
         <UFormField :label="$t('auth.username')" name="username" required>
           <UInput v-model="profileState.username" class="w-full" />
@@ -157,6 +152,10 @@ const handleAvatarSelected = (files: Cloudinary.IFileAttach[]) => {
         <UFormField :label="$t('auth.email')" name="email" required>
           <UInput v-model="profileState.email" type="email" :placeholder="$t('settings.email_placeholder')"
             class="w-full" />
+        </UFormField>
+        <!-- Name -->
+        <UFormField :label="$t('common.name')" name="name" required>
+          <UInput v-model="profileState.name" :placeholder="$t('settings.name_placeholder')" class="w-full" />
         </UFormField>
 
         <!-- Phone Number -->

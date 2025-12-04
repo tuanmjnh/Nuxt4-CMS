@@ -38,13 +38,14 @@ export default defineEventHandler(async (event) => {
     if (!isPasswordValid)
       throw createError({ statusCode: 401, message: 'Invalid email or password', statusMessage: 'error.invalid_credentials' })
 
-
+    const permissions = [...new Set(user.roles.flatMap((role: any) => role.permissions))];
     // Generate tokens
     const payload: JWTPayload = {
       userId: user._id.toString(),
       email: user.email,
       username: user.username,
-      roles: user.roles,
+      roles: user.roles.map((role: any) => role._id.toString()),
+      permissions: permissions,
       deviceType
     }
 

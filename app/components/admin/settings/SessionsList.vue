@@ -76,7 +76,7 @@ const confirmRevoke = async () => {
     removeById(sessions.value, sessionToRevoke.value)
     toast.add({ title: $t('settings.session_revoked'), color: 'success' })
   } catch (error: any) {
-    toast.add({ title: $t('settings.revoke_error'), description: error.message, color: 'error' })
+    toast.add({ title: $t('settings.revoke_error'), description: $t(error.statusMessage), color: 'error' })
   } finally {
     showRevokeModal.value = false
     sessionToRevoke.value = null

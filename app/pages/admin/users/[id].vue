@@ -85,7 +85,7 @@ const fetchData = async () => {
 const updateUser = async () => {
   loading.value = true
   try {
-    await useAPI(`/api/users/${userId}`, {
+    await $api(`/api/users/${userId}`, {
       method: 'PUT',
       body: form.value
     })
@@ -106,7 +106,7 @@ const handleRevoke = async () => {
   if (!sessionToRevoke.value) return
 
   try {
-    await useAPI(`/api/users/${userId}/sessions`, {
+    await $api(`/api/users/${userId}/sessions`, {
       method: 'DELETE',
       body: { sessionId: sessionToRevoke.value }
     })

@@ -4,12 +4,6 @@ export default defineEventHandler(async (event) => {
   try {
     const userId = event.context.params?.id
 
-    // Check admin permission
-    const currentUser = event.context.user
-    if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin'))) {
-      throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
-    }
-
     await connectDB()
     const body = await readBody(event)
     const { sessionId } = body

@@ -1,17 +1,12 @@
-import { AdminRoute } from '../../../models/AdminRoute'
+import { SystemRoute } from '../../../models/SystemRoute'
 
 export default defineEventHandler(async (event) => {
-  const currentUser = event.context.user
-  if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin'))) {
-    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
-  }
-
   await connectDB()
   const id = event.context.params?.id
   const body = await readBody(event)
 
   try {
-    const route = await AdminRoute.findByIdAndUpdate(id, body, { new: true })
+    const route = await SystemRoute.findByIdAndUpdate(id, body, { new: true })
     if (!route)
       throw createError({ statusCode: 404, message: 'Route not found', statusMessage: 'error.not_found' })
     return { success: true, message: 'Route updated successfully', data: route }

@@ -51,11 +51,9 @@
 <script setup lang="ts">
 import type { IApiResponse, IPost } from '~/types'
 
-const { t } = useI18n()
-
 useSeoMeta({
-  title: t('common.home'),
-  description: t('common.site_description')
+  title: $t('common.home'),
+  description: $t('common.site_description')
 })
 
 const { data, pending } = await useFetch<IApiResponse<{ posts: IPost[] }>>('/api/posts', {

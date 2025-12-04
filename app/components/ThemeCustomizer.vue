@@ -2,10 +2,10 @@
 import { en, vi } from '@nuxt/ui/locale'
 
 const { locale, setLocale } = useI18n()
-const appConfig = useAppConfig()
-const colorMode = useColorMode()
+const settings = useSettingsStore()
 const isOpen = ref(false)
-const side = ref<'left' | 'right' | 'top' | 'bottom'>('right')
+
+const side = computed(() => settings.direction === 'RTL' ? 'left' : 'right')
 
 const handleLocaleChange = (newLocale: string) => {
   setLocale(newLocale as 'en' | 'vi')
@@ -22,28 +22,12 @@ const colors = [
   { label: 'Teal', value: 'teal', color: 'bg-teal-500' }
 ]
 
-const primaryColor = computed({
-  get: () => appConfig.ui.colors.primary,
-  set: (val) => { appConfig.ui.colors.primary = val }
-})
-
 // Grays (Type)
 const grays = [
   { label: 'Default', value: 'cool' },
   { label: 'Scaled', value: 'zinc' },
   { label: 'Mono', value: 'neutral' }
 ]
-
-const grayColor = computed({
-  get: () => appConfig.ui.colors.gray,
-  set: (val) => { appConfig.ui.colors.gray = val }
-})
-
-// Theme
-const theme = computed({
-  get: () => colorMode.preference,
-  set: (val) => { colorMode.preference = val }
-})
 
 const themes = [
   { label: 'Light', value: 'light', icon: 'i-ph-sun' },
@@ -52,18 +36,8 @@ const themes = [
 ]
 
 // Layout (Mock)
-const navbarType = ref('Sidebar')
 const navbarTypes = ['Sidebar', 'Floating', 'Inset']
-
-const direction = ref('LTR')
 const directions = ['LTR', 'RTL']
-
-watch(direction, (val) => {
-  if (import.meta.client)
-    document.documentElement.dir = val.toLowerCase()
-  if (val == 'RTL') side.value = 'left'
-  else side.value = 'right'
-})
 </script>
 
 <template>
@@ -98,10 +72,10 @@ watch(direction, (val) => {
           <div class="grid grid-cols-3 gap-2">
             <button v-for="color in colors" :key="color.value"
               class="flex items-center gap-2 px-3 py-2 rounded-md border text-sm transition-colors" :class="[
-                primaryColor === color.value
+                settings.primary === color.value
                   ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-200'
                   : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
-              ]" @click="primaryColor = color.value">
+              ]" @click="settings.primary = color.value">
               <span class="w-2 h-2 rounded-full" :class="color.color" />
               {{ $t('setting.colors.' + color.value) }}
             </button>
@@ -114,10 +88,10 @@ watch(direction, (val) => {
           <div class="grid grid-cols-3 gap-2">
             <button v-for="gray in grays" :key="gray.value"
               class="px-3 py-2 rounded-md border text-sm transition-colors text-center" :class="[
-                grayColor === gray.value
+                settings.gray === gray.value
                   ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-200'
                   : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
-              ]" @click="grayColor = gray.value">
+              ]" @click="settings.gray = gray.value">
               {{ $t('setting.grays.' + gray.label.toLowerCase()) }}
             </button>
           </div>
@@ -152,10 +126,10 @@ watch(direction, (val) => {
           <div class="grid grid-cols-3 gap-2">
             <button v-for="type in navbarTypes" :key="type"
               class="px-3 py-2 rounded-md border text-sm transition-colors text-center" :class="[
-                navbarType === type
+                settings.navbarType === type
                   ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-200'
                   : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
-              ]" @click="navbarType = type">
+              ]" @click="settings.navbarType = type">
               {{ $t('setting.navbars.' + type.toLowerCase()) }}
             </button>
           </div>
@@ -168,10 +142,10 @@ watch(direction, (val) => {
           <div class="grid grid-cols-2 gap-2">
             <button v-for="dir in directions" :key="dir"
               class="px-3 py-2 rounded-md border text-sm transition-colors text-center" :class="[
-                direction === dir
+                settings.direction === dir
                   ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-200'
                   : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
-              ]" @click="direction = dir">
+              ]" @click="settings.direction = dir">
               {{ $t('setting.directions.' + dir.toLowerCase()) }}
             </button>
           </div>

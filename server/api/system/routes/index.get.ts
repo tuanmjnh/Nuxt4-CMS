@@ -1,4 +1,4 @@
-import { AdminRoute } from '../../../models/AdminRoute'
+import { SystemRoute } from '../../../models/SystemRoute'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
     await connectDB()
 
-    const routes = await AdminRoute.find().sort({ sort: 1 })
+    const routes = await SystemRoute.find().sort({ sort: 1 })
 
     return { success: true, data: routes }
   } catch (error: any) {

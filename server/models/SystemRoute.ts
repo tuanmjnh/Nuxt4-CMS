@@ -1,9 +1,9 @@
 import mongoose, { Schema, Document } from 'mongoose'
 import { ChangeDataSchema } from './Schemas'
 
-export interface IAdminRouteDocument extends Omit<Models.AdminRoute, '_id'>, Document { }
+export interface ISystemRouteDocument extends Omit<Models.SystemRoute, '_id'>, Document { }
 
-const AdminRouteSchema = new Schema<IAdminRouteDocument>({
+const SystemRouteSchema = new Schema<ISystemRouteDocument>({
   path: {
     type: String,
     required: true,
@@ -29,7 +29,7 @@ const AdminRouteSchema = new Schema<IAdminRouteDocument>({
   },
   parent: {
     type: Schema.Types.ObjectId,
-    ref: 'admin_routes'
+    ref: 'system_routes'
   },
   history: { type: ChangeDataSchema, default: null },
   createdAt: { type: Number },
@@ -38,4 +38,4 @@ const AdminRouteSchema = new Schema<IAdminRouteDocument>({
   timestamps: { currentTime: () => Date.now() }
 })
 
-export const AdminRoute = mongoose.models.admin_routes || mongoose.model<IAdminRouteDocument>('admin_routes', AdminRouteSchema)
+export const SystemRoute = mongoose.models.system_routes || mongoose.model<ISystemRouteDocument>('system_routes', SystemRouteSchema)

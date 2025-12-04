@@ -8,6 +8,33 @@ declare global {
     end: Date
   }
 
+  namespace Common {
+    export interface IFileAttach extends Cloudinary.IFileAttach { }
+
+    export interface ISocialData {
+      facebook?: string
+      twitter?: string
+      instagram?: string
+      linkedin?: string
+      youtube?: string
+      tiktok?: string
+      zalo?: string
+    }
+
+    export interface ISeoData {
+      title?: string
+      description?: string
+      keywords?: string[]
+      image?: IFileAttach
+    }
+
+    export interface IChangeData {
+      at: number
+      by: string
+      ip: string | null
+    }
+  }
+
   namespace Models {
     interface Response<T> {
       success: boolean

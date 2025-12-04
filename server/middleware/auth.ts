@@ -1,91 +1,93 @@
 import { H3Event } from 'h3'
 import { User } from '../models/User'
-import { Role } from '../models/Role'
-
-// Helper to check permission
-function hasPermission(path: string, permissions: string[]): boolean {
-  return permissions.some(permission => {
-    // Simple wildcard matching
-    // If permission ends with *, it matches any path starting with the prefix
-    if (permission === '*') return true
-    if (permission.endsWith('*')) {
-      const prefix = permission.slice(0, -1)
-      return path.startsWith(prefix)
-    }
-    return path === permission
-  })
-}
+import { hasPermission } from '../utils/permissions'
 
 export default defineEventHandler(async (event: H3Event) => {
-  // Only check auth for API routes
-  if (!event.path.startsWith('/api')) {
-    return
-  }
-
-  // Extract token from Authorization header
-  const authHeader = getHeader(event, 'authorization')
-  const token = extractTokenFromHeader(authHeader)
-
-  if (token) {
-    const payload = verifyAccessToken(token)
-    if (payload) {
-      // Fetch full user with role
-      // We need to connect to DB first? Middleware runs before API handlers which usually connect DB.
-      // But we might need to ensure DB connection here if it's not established.
-      // Assuming connectDB() is a global util or we need to import it.
-      // In Nuxt server, utils are auto-imported.
-      await connectDB()
-
-      const user = await User.findById(payload.userId).populate('roles')
-      if (user && user.isActive) {
-        event.context.user = {
-          ...payload,
-          roles: user.roles // This is now the populated Role documents
-        }
-      }
-    }
-  }
-
-  // Skip strict auth check for public routes
-  const publicRoutes = [
-    '/api/auth/login',
-    '/api/auth/register',
-    '/api/auth/refresh',
-    '/api/auth/logout',
-    '/api/posts', // Public GET is handled by method check below or inside handler
-    '/api/categories',
-    '/api/tags',
-    '/api/menus/position',
-    '/api/seed',
-    '/api/_nuxt_icon'
-  ]
+  // 1. Ignore non-API requests 
+  if (!event.path.startsWith('/api')) return
 
   const path = event.path || ''
 
-  // Check if route is public
-  const isPublicRoute = publicRoutes.some(route => path.startsWith(route))
+  // 2. HARD PUBLIC ROUTES CHECK (Login/Register...) 
+  // These routes DO NOT NEED to check token, nor do they NEED to check isActive 
+  const strictlyPublicRoutes = [
+    '/api/auth/login',
+    '/api/auth/register',
+    '/api/auth/refresh',
+    '/api/seed',
+    '/api/_nuxt_icon'
+  ]
+  if (strictlyPublicRoutes.some(route => path.startsWith(route))) return
 
-  // Specific check for GET requests on posts which are public
-  const isPublicGet = path.startsWith('/api/posts') && event.method === 'GET'
+  // 3. TOKEN HANDLING AND CHECK ACTIVE
+  const authHeader = getHeader(event, 'authorization')
+  const token = extractTokenFromHeader(authHeader)
 
-  if (isPublicRoute || isPublicGet) {
-    return
+  // Default is not logged in
+  event.context.user = null
+
+  if (token) {
+    try {
+      const payload = verifyAccessToken(token)
+      if (payload) {
+        // --- IMPORTANT: CHECK ACTIVE STATUS ---
+
+        // Connect DB if not yet (mongoose mechanism usually handles connection pooling,
+        // but if you use serverless function then this line is needed)
+        // await connectDB()
+
+        // Optimum query: Only get _id and isActive. Use .lean() to return pure JS object (faster)
+        const userStatus = await User.findById(payload.userId)
+          .select('isActive') // Can get more roles if want to update permissions immediately
+          .lean()
+
+        // Logic: There is a user in DB AND User is active
+        if (userStatus && userStatus.isActive === true) {
+          // Valid user -> Assign context
+          // Tip: Combine payload (with available basic info) and latest data from DB (rights/active)
+          event.context.user = {
+            ...payload,
+            // If you want the rights (roles/permissions) to always be the latest, get from DB and overwrite the payload
+            // roles: userStatus.roles
+            isActive: userStatus.isActive
+          }
+        } else {
+          throw createError({ statusCode: 401, statusMessage: 'error.account_locked', message: 'Account inactive' })
+          // Case: Token is in correct format, but User has been deleted or locked (isActive: false)
+          // We leave event.context.user = null (like not logged in)
+          // Let's wait a bit, the logic to check permissions will block.
+        }
+      }
+    } catch (e) {
+      // Token error/expired -> Consider as a guest (user = null)
+      throw createError({ statusCode: 401, statusMessage: 'error.access_token_expired', message: 'Access token expired' })
+    }
   }
 
-  // If not public and no valid user, throw error
+  // 4. CHECK ACCESS RIGHTS (Authorization)
+
+  // Route "Half-fat half-lean" (Optional Public)
+  // Example: View post.
+  // - If user active -> View as user (assigned above).
+  // - If user is locked (user = null) -> View as guest.
+  const isOptionalPublic =
+    (path.startsWith('/api/posts') && event.method === 'GET') ||
+    path.startsWith('/api/categories') ||
+    path.startsWith('/api/tags') ||
+    path.startsWith('/api/menus/position')
+
+  if (isOptionalPublic) return
+
+  // --- PRIVATE ROUTES --- 
+
+  // If you come here without a user (because there is no token OR isActive: false) 
   if (!event.context.user)
     throw createError({ statusCode: 401, statusMessage: 'error.unauthorized', message: 'Authentication required' })
 
-  // Check RBAC Permissions
-  const userRoles = event.context.user.roles
-  // If roles are missing or empty, deny
-  if (!userRoles || userRoles.length === 0)
-    throw createError({ statusCode: 403, message: 'Access denied: No roles assigned', statusMessage: 'error.access_denied' })
-
-  // Check if user has permission for this path
-  // Check if ANY of the user's roles has the permission
-  const hasAccess = userRoles.some((role: any) => role.permissions && hasPermission(path, role.permissions))
+  // Check Permissions as before 
+  const userPermissions = event.context.user.permissions || []
+  const hasAccess = hasPermission(path, userPermissions)
 
   if (!hasAccess)
-    throw createError({ statusCode: 403, message: 'Access denied: Insufficient permissions', statusMessage: 'error.access_denied' })
+    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.access_denied' })
 })

@@ -6,7 +6,7 @@ definePageMeta({
 })
 
 const toast = useToast()
-const { data, pending, refresh } = await useFetch<ApiResponse<Models.ProductAttribute[]>>('/api/products/attributes')
+const { data, pending, refresh } = await useFetch<ApiResponse<Models.Attribute[]>>('/api/products/attributes')
 
 const attributes = computed(() => data.value?.data || [])
 
@@ -15,7 +15,7 @@ const showDeleteModal = ref(false)
 const saving = ref(false)
 const isEditing = ref(false)
 const editingId = ref('')
-const itemToDelete = ref<Models.ProductAttribute | null>(null)
+const itemToDelete = ref<Models.Attribute | null>(null)
 
 const form = ref({
   name: '',
@@ -27,7 +27,7 @@ const columns = computed(() => [
   { id: 'slug', header: $t('common.slug') },
   { id: 'values', header: $t('products.attributes') },
   { id: 'actions', header: $t('common.actions') }
-] as TableColumn<Models.ProductAttribute>[])
+] as TableColumn<Models.Attribute>[])
 
 const openCreateModal = () => {
   isEditing.value = false
@@ -36,7 +36,7 @@ const openCreateModal = () => {
   showModal.value = true
 }
 
-const openEditModal = (attr: Models.ProductAttribute) => {
+const openEditModal = (attr: Models.Attribute) => {
   isEditing.value = true
   editingId.value = attr._id
   form.value = {
@@ -46,7 +46,7 @@ const openEditModal = (attr: Models.ProductAttribute) => {
   showModal.value = true
 }
 
-const confirmDelete = (attr: Models.ProductAttribute) => {
+const confirmDelete = (attr: Models.Attribute) => {
   itemToDelete.value = attr
   showDeleteModal.value = true
 }

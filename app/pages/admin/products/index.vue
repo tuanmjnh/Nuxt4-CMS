@@ -188,7 +188,7 @@ const handleDelete = async () => {
   </UCard>
 
   <!-- Delete Confirmation Modal -->
-  <ConfirmModal v-model="showDeleteModal" :title="$t('products.delete_confirm_title')"
+  <ConfirmModal v-model="showDeleteModal" :title="$t('message.delete_confirm_title')"
     :description="$t('products.delete_confirm', { name: productToDelete?.name })" color="error" @confirm="handleDelete"
     @cancel="showDeleteModal = false" />
 </template>

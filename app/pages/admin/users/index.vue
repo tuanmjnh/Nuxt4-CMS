@@ -9,7 +9,7 @@ definePageMeta({
 
 const toast = useToast()
 const users = ref<Models.User[]>([])
-const cursor = ref<string | number | null>(null)
+const cursor = ref<string | number | Date | null>(null)
 const canLoadMore = ref(true)
 const container = useTemplateRef('container')
 const showDeleteModal = ref(false)
@@ -24,7 +24,7 @@ const columns = computed(() => [
   { id: 'actions', header: $t('common.actions') }
 ] as TableColumn<Models.User>[])
 
-const { data, status, refresh } = await useAPI<any>('/api/users/items', {
+const { data, status, refresh } = await useAPI<ApiResponse<Models.User[]>>('/api/users/items', {
   method: 'POST',
   body: computed(() => ({
     cursor: cursor.value,

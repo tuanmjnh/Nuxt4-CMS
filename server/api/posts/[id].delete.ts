@@ -1,4 +1,5 @@
 import { Post } from '../../models/Post'
+import { hasPermission } from '../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -18,7 +19,8 @@ export default defineEventHandler(async (event) => {
     if (!existingPost) throw createError({ statusCode: 404, message: 'Post not found', statusMessage: 'error.not_found' })
 
     // Check authorization (admin, or author of the post)
-    if (!currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')) && existingPost.author.toString() !== currentUser.userId)
+    const isAdmin = hasPermission('*', currentUser.permissions)
+    if (!isAdmin && existingPost.author.toString() !== currentUser.userId)
       throw createError({ statusCode: 403, message: 'Not authorized to delete this post', statusMessage: 'error.unauthorized' })
 
     // Soft delete post

@@ -38,7 +38,7 @@ const isActiveRoute = (routePath: string) => {
 }
 
 // Fetch admin routes
-const { data: adminRoutes } = await useAPI<{ success: boolean, data: Models.AdminRoute[] }>('/api/admin/routes', {
+const { data: adminRoutes } = await useAPI<{ success: boolean, data: Models.SystemRoute[] }>('/api/system/routes', {
   key: 'admin-routes'
 })
 
@@ -74,7 +74,7 @@ const routes = computed(() => {
 // Map routes to NavigationMenu items
 const mapRouteToItem = (route: any): any => {
   return {
-    label: route.name,
+    label: $t(`route.${route.name}`), //route.name,
     icon: route.icon || 'i-lucide-circle',
     to: route.children?.length ? undefined : route.path,
     children: route.children?.length ? route.children.map(mapRouteToItem) : undefined,
@@ -93,7 +93,7 @@ const breadcrumbItems = computed(() => {
   for (const segment of pathSegments) {
     currentPath += `/${segment}`
     const routeName = segment.charAt(0).toUpperCase() + segment.slice(1) // Simple capitalization
-    items.push({ label: routeName, to: currentPath })
+    items.push({ label: $t(`route.${segment}`), to: currentPath }) // $t(`route.${route.name}`)
   }
   return items
 })

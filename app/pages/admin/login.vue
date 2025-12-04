@@ -103,7 +103,8 @@ useSeoMeta({
   <div class="flex flex-col items-center justify-center gap-4 p-4">
     <UPageCard class="w-full max-w-md">
       <UAuthForm :schema="schema" :title="$t('auth.login')" :description="$t('auth.login_description')"
-        :loading="loading" icon="i-lucide-user" :fields="fields" @submit.prevent="onSubmit" />
+        :loading="loading" icon="i-lucide-user" :fields="fields" :submit="{ label: $t('auth.login'), variant: 'soft' }"
+        @submit.prevent="onSubmit" />
     </UPageCard>
   </div>
 </template>

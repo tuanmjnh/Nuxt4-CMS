@@ -20,13 +20,6 @@ const createUserSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  // Check admin permission
-  const currentUser = event.context.user
-  // Check if user has admin role (assuming roles is populated)
-  const isAdmin = currentUser && currentUser.roles && currentUser.roles.some((r: any) => r.name === 'admin' || r === 'admin')
-  if (!isAdmin)
-    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
-
   try {
     await connectDB()
     const body = await readBody(event)

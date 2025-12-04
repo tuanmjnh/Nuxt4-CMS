@@ -54,7 +54,7 @@ const fetchData = async () => {
 const createUser = async () => {
   loading.value = true
   try {
-    await useAPI('/api/users', {
+    await $api('/api/users', {
       method: 'POST',
       body: form.value
     })

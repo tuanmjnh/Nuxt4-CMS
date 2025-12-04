@@ -50,6 +50,16 @@ const ProductSchema = new Schema<IProductDocument>({
     type: Number,
     default: 0
   },
+  warehouseStock: [{
+    warehouse: {
+      type: Schema.Types.ObjectId,
+      ref: 'warehouses'
+    },
+    quantity: {
+      type: Number,
+      default: 0
+    }
+  }],
   manageStock: {
     type: Boolean,
     default: true

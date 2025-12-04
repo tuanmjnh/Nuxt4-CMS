@@ -8,7 +8,7 @@ definePageMeta({
 })
 
 // Fetch stats
-const { data: statsData, status } = await useAPI<any>('/api/admin/stats')
+const { data: statsData, status } = await useAPI<any>('/api/report/stats')
 
 const stats = computed(() => statsData.value?.stats || {
   posts: 0,
@@ -122,13 +122,13 @@ const tooltipTriggers = {
         <h3 class="font-bold">{{ $t('common.actions') }}</h3>
       </template>
       <div class="grid gap-4 md:grid-cols-3">
-        <UButton to="/admin/posts/create" icon="i-lucide-plus" block>
-          {{ $t('common.create') }} {{ $t('posts.single') }}
+        <UButton to="/admin/posts/create" icon="i-lucide-plus" variant="soft" block>
+          {{ $t('common.create') }} {{ $t('posts.single').toLowerCase() }}
         </UButton>
-        <UButton to="/admin/products/create" icon="i-lucide-plus" block color="success">
-          {{ $t('common.create') }} {{ $t('products.title') }}
+        <UButton to="/admin/products/create" icon="i-lucide-plus" variant="soft" block color="success">
+          {{ $t('common.create') }} {{ $t('products.title').toLowerCase() }}
         </UButton>
-        <UButton to="/admin/users/create" icon="i-lucide-user-plus" block color="warning">
+        <UButton to="/admin/users/create" icon="i-lucide-user-plus" variant="soft" block color="warning">
           {{ $t('users.create') }}
         </UButton>
       </div>

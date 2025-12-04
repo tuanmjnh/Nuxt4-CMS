@@ -23,10 +23,6 @@ export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
     if (!id) throw createError({ statusCode: 400, message: 'Category ID is required', statusMessage: 'error.validation' })
 
-    const currentUser = event.context.user
-    if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')))
-      throw createError({ statusCode: 403, message: 'Only administrators can update categories', statusMessage: 'error.unauthorized' })
-
     const body = await readBody(event)
     const data = updateCategorySchema.parse(body)
 

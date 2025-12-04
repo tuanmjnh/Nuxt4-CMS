@@ -18,10 +18,6 @@ export default defineEventHandler(async (event) => {
     if (!id)
       throw createError({ statusCode: 400, message: 'ID required', statusMessage: 'error.validation' })
 
-    const currentUser = event.context.user
-    if (!currentUser || !currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')))
-      throw createError({ statusCode: 403, message: 'Admin only', statusMessage: 'error.unauthorized' })
-
     const body = await readBody(event)
     const data = updateMenuSchema.parse(body)
 

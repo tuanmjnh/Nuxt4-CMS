@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { User } from '../../models/User'
 import { Role } from '../../models/Role'
+import { hasPermission } from '../../utils/permissions'
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     // Check if user is authenticated and is admin
     const currentUser = event.context.user
-    const isAdmin = currentUser && currentUser.roles.some((r: any) => (r.name === 'admin' || r === 'admin')) // Note: This assumes token has 'admin' string or we fetch user. We'll rely on token for now or update later.
+    const isAdmin = currentUser && hasPermission('*', currentUser.permissions)
     // Actually, with new Role model, we should probably check if the role name is 'admin' or has permission.
     // For now, let's allow public registration with default role, and admin creation with specific role.
 

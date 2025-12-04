@@ -6,9 +6,9 @@ const toast = useToast()
 
 // Password form schema
 const passwordSchema = z.object({
-  currentPassword: z.string().min(8, $t('validation.password_min')),
-  newPassword: z.string().min(8, $t('validation.password_min')),
-  confirmPassword: z.string().min(8, $t('validation.password_min'))
+  currentPassword: z.string().min(8, $t('error.min_chars', { min: 8 })),
+  newPassword: z.string().min(8, $t('error.min_chars', { min: 8 })),
+  confirmPassword: z.string().min(8, $t('error.min_chars', { min: 8 }))
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: $t('validation.passwords_mismatch'),
   path: ["confirmPassword"],
@@ -48,7 +48,7 @@ const onSubmit = async (event: FormSubmitEvent<PasswordSchema>) => {
       passwordState.confirmPassword = ''
     }
   } catch (e: any) {
-    toast.add({ title: $t('common.error'), description: e.data?.message || $t('auth.password_error'), color: 'error' })
+    toast.add({ title: $t('common.error'), description: $t(e.statusMessage) || $t('auth.password_error'), color: 'error' })
   } finally {
     loading.value = false
   }

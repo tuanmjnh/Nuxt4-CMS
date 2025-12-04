@@ -4,17 +4,12 @@ export function useAPI<T>(url: string | (() => string), options: UseFetchOptions
   const { token } = useAuth()
   const { locale } = useI18n()
 
-  const defaults: UseFetchOptions<T> = {
-    headers: {
-      Authorization: token.value ? `Bearer ${token.value}` : '',
-      'Accept-Language': locale.value
-    }
-  }
+  const headers: any = { 'Accept-Language': locale.value }
+  if (token.value) headers.Authorization = `Bearer ${token.value}`
+  const defaults: UseFetchOptions<T> = { headers }
 
   // Merge headers
-  if (options.headers) {
-    defaults.headers = { ...defaults.headers, ...options.headers }
-  }
+  if (options.headers) defaults.headers = { ...defaults.headers, ...options.headers }
 
   return useFetch<T>(url, {
     ...defaults,

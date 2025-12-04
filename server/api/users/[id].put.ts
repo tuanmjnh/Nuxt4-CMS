@@ -5,12 +5,6 @@ export default defineEventHandler(async (event) => {
   const id = event.context.params?.id
   const body = await readBody(event)
 
-  // Check admin permission
-  const currentUser = event.context.user
-  const isAdmin = currentUser && currentUser.roles && currentUser.roles.some((r: any) => r.name === 'admin' || r === 'admin')
-  if (!isAdmin)
-    throw createError({ statusCode: 403, message: 'Access denied', statusMessage: 'error.unauthorized' })
-
   try {
     const user = await User.findById(id)
     if (!user)

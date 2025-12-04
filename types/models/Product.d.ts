@@ -33,6 +33,10 @@ declare global {
       manageStock: boolean
       lowStockThreshold?: number
       isUnlimitedStock?: boolean
+      warehouseStock?: {
+        warehouse: string | Warehouse
+        quantity: number
+      }[]
 
       categories: (Category | string)[]
       tags: (Taxonomy | string)[]
