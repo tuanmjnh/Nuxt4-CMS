@@ -115,9 +115,9 @@ const handleDelete = async () => {
     showDeleteModal.value = false
     // Remove from list directly
     posts.value = posts.value.filter(p => p._id !== postToDelete.value._id)
-    toast.add({ title: $t('posts.delete_success'), color: 'success' })
-  } catch (error) {
-    toast.add({ title: $t('posts.delete_error'), color: 'error' })
+    toast.add({ title: $t('success.delete'), color: 'success' })
+  } catch (error: any) {
+    toast.add({ title: $t(error.statusMessage) || $t('error.delete'), color: 'error' })
   } finally {
     deleting.value = false
   }
@@ -128,9 +128,9 @@ const handleDelete = async () => {
   <UCard>
     <template #header>
       <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold">{{ $t('posts.title') }}</h1>
+        <h1 class="text-2xl font-bold">{{ $t('content.pages') }}</h1>
         <UButton to="/admin/posts/create" icon="i-lucide-plus">
-          {{ $t('common.create') }} {{ $t('posts.single') }}
+          {{ $t('common.create') }} {{ $t('content.pages') }}
         </UButton>
       </div>
     </template>
@@ -165,10 +165,10 @@ const handleDelete = async () => {
 
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-2">
-            <UButton icon="i-lucide-eye" color="neutral" variant="ghost" size="xs" :to="`/posts/${row.original.slug}`"
+            <UButton icon="i-lucide-eye" color="neutral" variant="ghost" size="xs" :to="`/pages/${row.original.slug}`"
               target="_blank" />
             <UButton icon="i-lucide-edit" color="info" variant="ghost" size="xs"
-              :to="`/admin/posts/${row.original._id}/edit`" />
+              :to="`/admin/content/pages/${row.original._id}/edit`" />
             <UButton icon="i-lucide-trash" color="error" variant="ghost" size="xs"
               @click="confirmDelete(row.original)" />
           </div>
@@ -196,7 +196,7 @@ const handleDelete = async () => {
   </UCard>
 
   <!-- Delete Confirmation Modal -->
-  <ConfirmModal v-model="showDeleteModal" :title="$t('common.delete') + ' ' + $t('posts.single')"
-    :description="$t('common.confirm_delete')" color="error" @confirm="handleDelete"
+  <ConfirmModal v-model="showDeleteModal" :title="$t('common.delete') + ' ' + $t('content.pages')"
+    :description="$t('message.delete_confirm_desc')" color="error" @confirm="handleDelete"
     @cancel="showDeleteModal = false" />
 </template>

@@ -58,7 +58,6 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
-    "@iconify-json/ph": "^1.2.2",
     "@nuxt/eslint": "^1.10.0",
     "@types/bcrypt": "^5.0.2",
     "@types/formidable": "^3.4.6",

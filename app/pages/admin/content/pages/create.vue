@@ -56,10 +56,10 @@ const handleSubmit = async () => {
       author: user.value?._id || ''
     }
     await createPost(postData)
-    toast.add({ title: $t('posts.create_success'), color: 'success' })
+    toast.add({ title: $t('success.create'), color: 'success' })
     router.push('/admin/posts')
   } catch (error: any) {
-    toast.add({ title: error.message || $t('posts.create_error'), color: 'error' })
+    toast.add({ title: $t(error.statusMessage) || $t('error.operation_failed'), color: 'error' })
   } finally {
     loading.value = false
   }
@@ -70,9 +70,9 @@ const handleSubmit = async () => {
   <UCard>
     <template #header>
       <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold">{{ $t('posts.create') }}</h1>
+        <h1 class="text-2xl font-bold">{{ $t('common.create') }}</h1>
         <UButton to="/admin/posts" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
-          {{ $t('posts.back') }}
+          {{ $t('common.back') }}
         </UButton>
       </div>
     </template>
@@ -81,7 +81,7 @@ const handleSubmit = async () => {
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
           <UFormField :label="$t('common.title')" name="title" required>
-            <UInput v-model="form.title" :placeholder="$t('posts.title_placeholder')" />
+            <UInput v-model="form.title" :placeholder="$t('content.title_placeholder')" />
           </UFormField>
 
           <UFormField :label="$t('common.content')" name="content" required>
@@ -89,7 +89,7 @@ const handleSubmit = async () => {
           </UFormField>
 
           <UFormField :label="$t('common.excerpt')" name="excerpt">
-            <UTextarea v-model="form.excerpt" :rows="3" :placeholder="$t('posts.excerpt_placeholder')" />
+            <UTextarea v-model="form.excerpt" :rows="3" :placeholder="$t('content.excerpt_placeholder')" />
           </UFormField>
         </div>
 
@@ -97,7 +97,7 @@ const handleSubmit = async () => {
         <div class="space-y-6">
           <UCard>
             <template #header>
-              <h3 class="font-bold">{{ $t('posts.publishing') }}</h3>
+              <h3 class="font-bold">{{ $t('common.publishing') }}</h3>
             </template>
 
             <div class="space-y-4">
@@ -105,7 +105,7 @@ const handleSubmit = async () => {
                 <USelect v-model="form.status" :options="['draft', 'published', 'scheduled', 'archived']" />
               </UFormField>
 
-              <UFormField v-if="form.status === 'scheduled'" :label="$t('posts.schedule_date')">
+              <UFormField v-if="form.status === 'scheduled'" :label="$t('content.schedule_date')">
                 <UInput type="datetime-local" v-model="form.scheduledAt" />
               </UFormField>
 

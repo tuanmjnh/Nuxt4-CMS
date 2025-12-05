@@ -52,7 +52,6 @@
     "author": "Author",
     "views": "Views",
     "slug": "Slug",
-    "confirm_delete": "Are you sure you want to delete this item?",
     "back": "Back",
     "save_changes": "Save Changes",
     "general": "General",
@@ -65,7 +64,6 @@
     "keywords": "Keywords",
     "refresh": "Refresh",
     "color": "Color",
-    "operation_failed": "Operation failed",
     "active": "Active",
     "inactive": "Inactive",
     "hidden": "Hidden",
@@ -78,6 +76,8 @@
     "error_fetching_data": "Error fetching data",
     "comments": "Comments",
     "avatar_help": "Click to upload a new avatar from Cloudinary",
+    "title_placeholder": "Enter title",
+    "excerpt_placeholder": "Enter excerpt",
     "name_placeholder": "Your name",
     "email_placeholder": "your{'@'}email.com",
     "bio_placeholder": "Tell us about yourself...",
@@ -159,15 +159,13 @@
     "route_created": "Route created successfully",
     "route_error": "Error saving route"
   },
-  "posts": {
-    "title": "Posts",
+  "content": {
+    "posts": "Posts",
+    "pages": "Pages",
     "latest_posts": "Latest Posts",
     "no_posts_found": "No posts found",
     "post_not_found": "Post not found",
     "back_to_posts": "Back to Posts",
-    "single": "Post",
-    "edit": "Edit Post",
-    "back": "Back to Posts",
     "title_placeholder": "Post title",
     "slug_placeholder": "post-url-slug",
     "excerpt_placeholder": "Short summary for SEO and previews",
@@ -176,16 +174,7 @@
     "meta_title_placeholder": "SEO Title",
     "meta_description": "Meta Description",
     "meta_description_placeholder": "SEO Description",
-    "publishing": "Publishing",
-    "schedule_date": "Schedule Date",
-    "update": "Update Post",
-    "create": "Create Post",
-    "create_success": "Post created successfully",
-    "create_error": "Failed to create post",
-    "update_success": "Post updated successfully",
-    "update_error": "Failed to update post",
-    "delete_success": "Post deleted successfully",
-    "delete_error": "Failed to delete post"
+    "schedule_date": "Schedule Date"
   },
   "products": {
     "title": "Products",
@@ -575,14 +564,14 @@
   "success": {
     "title": "Success",
     "success": "Operation successful.",
-    "created_new": "New record created successfully.",
-    "updated": "The record has been updated successfully.",
-    "updated_status": "The record status has been updated successfully.",
+    "create": "New record created successfully.",
+    "update": "The record has been updated successfully.",
+    "update_status": "The record status has been updated successfully.",
+    "delete": "The record has been deleted successfully.",
     "import": "Data imported successfully",
     "export": "Data exported successfully",
     "login": "Login successful.",
     "reset_pwd": "The new password after change is \"{0}\"",
-    "delete": "The record has been deleted successfully.",
     "completed_task": "Completed in its entirety ({0}) tasks"
   },
   "error": {
@@ -617,7 +606,6 @@
     "import": "Data import failed, please try again!",
     "export": "Data export failed, please try again!",
     "no_exist_file": "File does not exist. \"{0}\"",
-    "delete": "Failed to delete the record, please try again!",
     "build_render_code": "Error building render code",
     "process": "Error in processing",
     "set_task": "Set task error, please try again!",
@@ -639,7 +627,12 @@
     "invalid_role": "Invalid role",
     "access_denied": "Access denied",
     "cannot_delete_self": "Cannot delete your own account",
-    "title_content_required": "Title and content are required"
+    "title_content_required": "Title and content are required",
+    "operation_failed": "Operation failed",
+    "create": "Failed to create",
+    "update": "Failed to update",
+    "update_status": "Failed to update",
+    "delete": "Failed to delete the record, please try again!"
   },
   "warning": {
     "title": "Warning",
@@ -662,6 +655,7 @@
   },
   "message": {
     "delete_confirm_title": "Delete Confirmation",
+    "delete_confirm_desc": "Are you sure you want to delete this item?",
     "success": "Operation successful",
     "error": "Operation failed"
   }

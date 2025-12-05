@@ -65,9 +65,9 @@ const handleSubmit = async () => {
   saving.value = true
   try {
     await updatePost(postId, form.value)
-    toast.add({ title: $t('posts.update_success'), color: 'success' })
+    toast.add({ title: $t('success.update'), color: 'success' })
   } catch (error: any) {
-    toast.add({ title: error.message || $t('posts.update_error'), color: 'error' })
+    toast.add({ title: $t(error.statusMessage) || $t('error.update'), color: 'error' })
   } finally {
     saving.value = false
   }
@@ -78,9 +78,9 @@ const handleSubmit = async () => {
   <UCard>
     <template #header>
       <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold">{{ $t('posts.edit') }}</h1>
+        <h1 class="text-2xl font-bold">{{ $t('common.edit') }}</h1>
         <UButton to="/admin/posts" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
-          {{ $t('posts.back') }}
+          {{ $t('common.back') }}
         </UButton>
       </div>
     </template>
@@ -95,11 +95,11 @@ const handleSubmit = async () => {
           <!-- Main Content -->
           <div class="lg:col-span-2 space-y-6">
             <UFormField :label="$t('common.title')" name="title" required>
-              <UInput v-model="form.title" :placeholder="$t('posts.title_placeholder')" />
+              <UInput v-model="form.title" :placeholder="$t('content.title_placeholder')" />
             </UFormField>
 
             <UFormField :label="$t('common.slug')" name="slug">
-              <UInput v-model="form.slug" :placeholder="$t('posts.slug_placeholder')" />
+              <UInput v-model="form.slug" :placeholder="$t('content.slug_placeholder')" />
             </UFormField>
 
             <UFormField :label="$t('common.content')" name="content" required>
@@ -107,20 +107,20 @@ const handleSubmit = async () => {
             </UFormField>
 
             <UFormField :label="$t('common.excerpt')" name="excerpt">
-              <UTextarea v-model="form.excerpt" :rows="3" :placeholder="$t('posts.excerpt_placeholder')" />
+              <UTextarea v-model="form.excerpt" :rows="3" :placeholder="$t('content.excerpt_placeholder')" />
             </UFormField>
 
             <UCard>
               <template #header>
-                <h3 class="font-bold">{{ $t('posts.seo_settings') }}</h3>
+                <h3 class="font-bold">{{ $t('content.seo_settings') }}</h3>
               </template>
               <div class="space-y-4">
-                <UFormField :label="$t('posts.meta_title')">
-                  <UInput v-model="form.metaTitle" :placeholder="$t('posts.meta_title_placeholder')" />
+                <UFormField :label="$t('content.meta_title')">
+                  <UInput v-model="form.metaTitle" :placeholder="$t('content.meta_title_placeholder')" />
                 </UFormField>
-                <UFormField :label="$t('posts.meta_description')">
+                <UFormField :label="$t('content.meta_description')">
                   <UTextarea v-model="form.metaDescription" :rows="2"
-                    :placeholder="$t('posts.meta_description_placeholder')" />
+                    :placeholder="$t('content.meta_description_placeholder')" />
                 </UFormField>
               </div>
             </UCard>
@@ -130,7 +130,7 @@ const handleSubmit = async () => {
           <div class="space-y-6">
             <UCard>
               <template #header>
-                <h3 class="font-bold">{{ $t('posts.publishing') }}</h3>
+                <h3 class="font-bold">{{ $t('common.publishing') }}</h3>
               </template>
 
               <div class="space-y-4">
@@ -144,7 +144,7 @@ const handleSubmit = async () => {
                 </div>
 
                 <UButton type="submit" block :loading="saving">
-                  {{ $t('posts.update') }}
+                  {{ $t('common.update') }}
                 </UButton>
               </div>
             </UCard>
