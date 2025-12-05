@@ -18,7 +18,7 @@ const items = computed(() => [
     {
       label: $t('settings.profile'),
       icon: 'i-lucide-user',
-      to: '/admin/settings/profile'
+      to: '/admin/profile'
     },
     // {
     //   label: $t('system.routes'),

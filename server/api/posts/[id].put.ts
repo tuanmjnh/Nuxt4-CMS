@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { Post } from '../../models/Post'
 import { Attribute } from '../../models/Attribute'
-import { syncTags, syncKeywords } from '../../utils/taxonomy'
+import { syncTags, syncKeywords } from '../../utils/keywords'
 import { hasPermission } from '../../utils/permissions'
 
 const localizedString = z.object({

@@ -9,5 +9,5 @@ definePageMeta({
 </script>
 
 <template>
-  <div>Redirecting...</div>
+  <div>{{ $t('common.loading_text') }}</div>
 </template>

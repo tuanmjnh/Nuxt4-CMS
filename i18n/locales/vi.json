@@ -117,23 +117,30 @@
     "reference": "Tham chiếu"
   },
   "route": {
-    "admin": "Quản trị",
+    "admin": "Quản trị viên",
     "dashboard": "Bảng điều khiển",
+    "content": "Nội dung",
+    "pages": "Trang",
     "posts": "Bài viết",
+    "system": "Hệ thống",
     "categories": "Danh mục",
     "menus": "Menu",
-    "media": "Thư viện",
+    "media": "Phương tiện",
     "users": "Người dùng",
     "roles": "Vai trò",
+    "commerce": "Thương mại",
     "products": "Sản phẩm",
-    "taxonomy": "Thẻ & Từ khóa",
+    "keywords": "Thẻ & Từ khóa",
     "attributes": "Thuộc tính",
-    "system": "Hệ thống",
+    "company": "Thông tin doanh nghiệp",
     "settings": "Cài đặt",
+    "config": "Cấu hình",
+    "connect": "Kết nối",
+    "routes": "Menu hệ thống",
     "profile": "Hồ sơ",
-    "warehouses": "Kho hàng",
-    "inventory": "Xuất nhập kho",
-    "payments": "Thu chi",
+    "warehouses": "Kho",
+    "inventory": "Hàng tồn kho",
+    "payments": "Thanh toán",
     "reports": "Báo cáo"
   },
   "system": {
@@ -449,7 +456,64 @@
     "title": "Quản trị CMS",
     "growth_30_days": "Tăng trưởng (30 ngày qua)"
   },
-  "date_range": {
+  "warehouses": {
+    "title": "Kho hàng",
+    "create": "Tạo kho hàng",
+    "edit": "Chỉnh sửa kho hàng",
+    "delete": "Xóa kho hàng",
+    "name": "Tên kho",
+    "code": "Mã kho",
+    "address": "Địa chỉ",
+    "manager": "Quản lý",
+    "phone": "Điện thoại",
+    "status": "Trạng thái",
+    "description": "Mô tả",
+    "create_success": "Tạo kho hàng thành công",
+    "update_success": "Cập nhật kho hàng thành công",
+    "delete_success": "Xóa kho hàng thành công",
+    "delete_confirm": "Bạn có chắc chắn muốn xóa kho hàng này?"
+  },
+  "inventory": {
+    "title": "Xuất nhập kho",
+    "import": "Nhập kho",
+    "export": "Xuất kho",
+    "transfer": "Chuyển kho",
+    "transaction_code": "Mã giao dịch",
+    "type": "Loại",
+    "warehouse": "Kho",
+    "to_warehouse": "Đến kho",
+    "items": "Sản phẩm",
+    "total_amount": "Tổng tiền",
+    "status": "Trạng thái",
+    "note": "Ghi chú",
+    "reference": "Tham chiếu",
+    "created_by": "Tạo bởi",
+    "create_success": "Tạo giao dịch thành công"
+  },
+  "payments": {
+    "title": "Thu chi",
+    "create": "Tạo phiếu thu/chi",
+    "amount": "Số tiền",
+    "type": "Loại",
+    "method": "Phương thức",
+    "status": "Trạng thái",
+    "reference": "Tham chiếu",
+    "note": "Ghi chú",
+    "income": "Thu",
+    "expense": "Chi",
+    "cash": "Tiền mặt",
+    "bank_transfer": "Chuyển khoản",
+    "card": "Thẻ",
+    "other": "Khác",
+    "pending": "Chờ xử lý",
+    "completed": "Hoàn thành",
+    "failed": "Thất bại"
+  },
+  "reports": {
+    "title": "Báo cáo",
+    "inventory_title": "Báo cáo kho",
+    "transactions": "Giao dịch",
+    "daily_activity": "Hoạt động hàng ngày (30 ngày qua)",
     "last_7_days": "7 ngày qua",
     "last_14_days": "14 ngày qua",
     "last_30_days": "30 ngày qua",
@@ -457,6 +521,47 @@
     "last_6_months": "6 tháng qua",
     "last_year": "Năm ngoái",
     "pick_date": "Chọn ngày"
+  },
+  "setting": {
+    "customizer": "Tùy chỉnh giao diện",
+    "customize_preview": "Tùy chỉnh & Xem trước trong thời gian thực",
+    "theming": "Giao diện",
+    "color": "Màu sắc",
+    "type": "Kiểu",
+    "theme": "Chế độ",
+    "layout": "Bố cục",
+    "navbar_type": "Kiểu thanh điều hướng",
+    "direction": "Hướng",
+    "colors": {
+      "default": "Mặc định",
+      "blue": "Xanh dương",
+      "green": "Xanh lá",
+      "red": "Đỏ",
+      "rose": "Hồng",
+      "violet": "Tím",
+      "orange": "Cam",
+      "yellow": "Vàng",
+      "teal": "Xanh ngọc"
+    },
+    "grays": {
+      "default": "Mặc định",
+      "scaled": "Tỉ lệ",
+      "mono": "Đơn sắc"
+    },
+    "modes": {
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    },
+    "navbars": {
+      "sidebar": "Thanh bên",
+      "floating": "Nổi",
+      "inset": "Lồng"
+    },
+    "directions": {
+      "ltr": "Trái sang phải",
+      "rtl": "Phải sang trái"
+    }
   },
   "confirm": {
     "title": "Xác nhận",
@@ -549,111 +654,11 @@
     "tag_post": "Hỗ trợ tổ chức nội dung, hỗ trợ tìm kiếm, tăng khả năng hiển thị trên công cụ tìm kiếm (SEO), cải thiện trải nghiệm người dùng",
     "tag_product": "Cung cấp thông tin quan trọng cho người tiêu dùng và là công cụ nhận diện thương hiệu, giúp quản lý và tổ chức, cải thiện trải nghiệm người dùng, tăng cường SEO, gắn kết nội dung"
   },
-  "setting": {
-    "customizer": "Tùy chỉnh giao diện",
-    "customize_preview": "Tùy chỉnh & Xem trước trong thời gian thực",
-    "theming": "Giao diện",
-    "color": "Màu sắc",
-    "type": "Kiểu",
-    "theme": "Chế độ",
-    "layout": "Bố cục",
-    "navbar_type": "Kiểu thanh điều hướng",
-    "direction": "Hướng",
-    "colors": {
-      "default": "Mặc định",
-      "blue": "Xanh dương",
-      "green": "Xanh lá",
-      "red": "Đỏ",
-      "rose": "Hồng",
-      "violet": "Tím",
-      "orange": "Cam",
-      "yellow": "Vàng",
-      "teal": "Xanh ngọc"
-    },
-    "grays": {
-      "default": "Mặc định",
-      "scaled": "Tỉ lệ",
-      "mono": "Đơn sắc"
-    },
-    "modes": {
-      "light": "Sáng",
-      "dark": "Tối",
-      "system": "Hệ thống"
-    },
-    "navbars": {
-      "sidebar": "Thanh bên",
-      "floating": "Nổi",
-      "inset": "Lồng"
-    },
-    "directions": {
-      "ltr": "Trái sang phải",
-      "rtl": "Phải sang trái"
-    }
-  },
   "validation": {
     "name_min": "Tên phải có ít nhất 2 ký tự",
     "email_invalid": "Địa chỉ email không hợp lệ",
     "password_min": "Mật khẩu phải có ít nhất 8 ký tự",
     "passwords_mismatch": "Mật khẩu không khớp"
-  },
-  "warehouses": {
-    "title": "Kho hàng",
-    "create": "Tạo kho hàng",
-    "edit": "Chỉnh sửa kho hàng",
-    "delete": "Xóa kho hàng",
-    "name": "Tên kho",
-    "code": "Mã kho",
-    "address": "Địa chỉ",
-    "manager": "Quản lý",
-    "phone": "Điện thoại",
-    "status": "Trạng thái",
-    "description": "Mô tả",
-    "create_success": "Tạo kho hàng thành công",
-    "update_success": "Cập nhật kho hàng thành công",
-    "delete_success": "Xóa kho hàng thành công",
-    "delete_confirm": "Bạn có chắc chắn muốn xóa kho hàng này?"
-  },
-  "inventory": {
-    "title": "Xuất nhập kho",
-    "import": "Nhập kho",
-    "export": "Xuất kho",
-    "transfer": "Chuyển kho",
-    "transaction_code": "Mã giao dịch",
-    "type": "Loại",
-    "warehouse": "Kho",
-    "to_warehouse": "Đến kho",
-    "items": "Sản phẩm",
-    "total_amount": "Tổng tiền",
-    "status": "Trạng thái",
-    "note": "Ghi chú",
-    "reference": "Tham chiếu",
-    "created_by": "Tạo bởi",
-    "create_success": "Tạo giao dịch thành công"
-  },
-  "payments": {
-    "title": "Thu chi",
-    "create": "Tạo phiếu thu/chi",
-    "amount": "Số tiền",
-    "type": "Loại",
-    "method": "Phương thức",
-    "status": "Trạng thái",
-    "reference": "Tham chiếu",
-    "note": "Ghi chú",
-    "income": "Thu",
-    "expense": "Chi",
-    "cash": "Tiền mặt",
-    "bank_transfer": "Chuyển khoản",
-    "card": "Thẻ",
-    "other": "Khác",
-    "pending": "Chờ xử lý",
-    "completed": "Hoàn thành",
-    "failed": "Thất bại"
-  },
-  "reports": {
-    "title": "Báo cáo",
-    "inventory_title": "Báo cáo kho",
-    "transactions": "Giao dịch",
-    "daily_activity": "Hoạt động hàng ngày (30 ngày qua)"
   },
   "message": {
     "delete_confirm_title": "Xác nhận xóa",

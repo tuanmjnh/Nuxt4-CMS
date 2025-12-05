@@ -2,18 +2,19 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
 import { ChangeDataSchema } from './Schemas'
 
-export interface IPostMediaData {
-  type: 'video' | 'audio' | 'iframe' | 'embed'
-  url: string // Youtube/Vimeo link or MP4/MP3 file
-  embedCode?: string // iframe embed code
-  duration?: number // Duration (seconds)
-  thumbnail?: string // Thumbnail image
-  title?: string // Media title
-}
-
 export interface IPostDocument extends Omit<Models.Post, '_id'>, Document { }
 
 const PostSchema = new Schema<IPostDocument>({
+  type: {
+    type: String,
+    enum: ['post', 'page', 'product', 'project', 'service'],
+    default: 'post'
+  },
+  format: {
+    type: String,
+    enum: ['standard', 'gallery', 'video', 'audio', 'quote', 'link'],
+    default: 'standard'
+  },
   title: {
     en: { type: String, required: true },
     vi: { type: String, required: true }
@@ -87,22 +88,10 @@ const PostSchema = new Schema<IPostDocument>({
     enum: ['draft', 'published', 'scheduled', 'archived'],
     default: 'draft'
   },
-  format: {
-    type: String,
-    enum: ['standard', 'gallery', 'video', 'audio', 'quote', 'link'],
-    default: 'standard'
-  },
-
   attributes: [{
     name: String,
     value: String
   }],
-
-  type: {
-    type: String,
-    enum: ['post', 'page', 'product', 'project', 'service'],
-    default: 'post'
-  },
 
   // SEO fields
   metaTitle: String,
@@ -164,7 +153,7 @@ PostSchema.index({
   'excerpt.en': 'text',
   'excerpt.vi': 'text'
 })
-PostSchema.index({ status: 1, publishedAt: -1 })
+PostSchema.index({ type: 1, status: 1, publishedAt: -1 })
 PostSchema.index({ author: 1 })
 PostSchema.index({ categories: 1 })
 PostSchema.index({ tags: 1 })

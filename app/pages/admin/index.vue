@@ -8,7 +8,7 @@ definePageMeta({
 })
 
 // Fetch stats
-const { data: statsData, status } = await useAPI<any>('/api/report/stats')
+const { data: statsData, status } = await useAPI<any>('/api/reports/stats')
 
 const stats = computed(() => statsData.value?.stats || {
   posts: 0,
@@ -87,7 +87,7 @@ const tooltipTriggers = {
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500">{{ $t('media.title') }}</p>
-            <UButton to="/admin/media" variant="link" :padded="false">{{ $t('common.view') }}</UButton>
+            <UButton to="/admin/settings/media" variant="link" :padded="false">{{ $t('common.view') }}</UButton>
           </div>
           <UIcon name="i-lucide-image" class="text-3xl text-blue-500" />
         </div>
@@ -122,13 +122,13 @@ const tooltipTriggers = {
         <h3 class="font-bold">{{ $t('common.actions') }}</h3>
       </template>
       <div class="grid gap-4 md:grid-cols-3">
-        <UButton to="/admin/posts/create" icon="i-lucide-plus" variant="soft" block>
+        <UButton to="/admin/content/posts/create" icon="i-lucide-plus" variant="soft" block>
           {{ $t('common.create') }} {{ $t('posts.single').toLowerCase() }}
         </UButton>
-        <UButton to="/admin/products/create" icon="i-lucide-plus" variant="soft" block color="success">
+        <UButton to="/admin/commerce/products/create" icon="i-lucide-plus" variant="soft" block color="success">
           {{ $t('common.create') }} {{ $t('products.title').toLowerCase() }}
         </UButton>
-        <UButton to="/admin/users/create" icon="i-lucide-user-plus" variant="soft" block color="warning">
+        <UButton to="/admin/system/users/create" icon="i-lucide-user-plus" variant="soft" block color="warning">
           {{ $t('users.create') }}
         </UButton>
       </div>

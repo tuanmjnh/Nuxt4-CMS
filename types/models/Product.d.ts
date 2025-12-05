@@ -20,13 +20,14 @@ declare global {
       _id: string
       name: string
       slug: string
-      description?: string
-      shortDescription?: string
+      desc?: string
+      shortDesc?: string
       price: number
       salePrice?: number
       costPrice?: number
-      image: Cloudinary.IFileAttach
-      images: Cloudinary.IFileAttach[]
+      thumbnail: Cloudinary.IFileAttach
+      gallery: Cloudinary.IFileAttach[]
+      media?: Common.IPostMediaData[]
       sku?: string
       barcode?: string
       stock: number

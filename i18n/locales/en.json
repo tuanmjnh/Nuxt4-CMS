@@ -119,17 +119,24 @@
   "route": {
     "admin": "Admin",
     "dashboard": "Dashboard",
+    "content": "Content",
+    "pages": "Pages",
     "posts": "Posts",
+    "system": "System",
     "categories": "Categories",
     "menus": "Menus",
     "media": "Media",
     "users": "Users",
     "roles": "Roles",
+    "commerce": "Commerce",
     "products": "Products",
-    "taxonomy": "Tags & Keywords",
+    "keywords": "Tags & Keywords",
     "attributes": "Attributes",
-    "system": "System",
+    "company": "Business information",
     "settings": "Settings",
+    "config": "Config",
+    "connect": "Connect",
+    "routes": "System menu",
     "profile": "Profile",
     "warehouses": "Warehouses",
     "inventory": "Inventory",
@@ -449,7 +456,64 @@
     "title": "CMS Admin",
     "growth_30_days": "Growth (Last 30 Days)"
   },
-  "date_range": {
+  "warehouses": {
+    "title": "Warehouses",
+    "create": "Create Warehouse",
+    "edit": "Edit Warehouse",
+    "delete": "Delete Warehouse",
+    "name": "Warehouse Name",
+    "code": "Warehouse Code",
+    "address": "Address",
+    "manager": "Manager",
+    "phone": "Phone",
+    "status": "Status",
+    "description": "Description",
+    "create_success": "Warehouse created successfully",
+    "update_success": "Warehouse updated successfully",
+    "delete_success": "Warehouse deleted successfully",
+    "delete_confirm": "Are you sure you want to delete this warehouse?"
+  },
+  "inventory": {
+    "title": "Inventory",
+    "import": "Import",
+    "export": "Export",
+    "transfer": "Transfer",
+    "transaction_code": "Transaction Code",
+    "type": "Type",
+    "warehouse": "Warehouse",
+    "to_warehouse": "To Warehouse",
+    "items": "Items",
+    "total_amount": "Total Amount",
+    "status": "Status",
+    "note": "Note",
+    "reference": "Reference",
+    "created_by": "Created By",
+    "create_success": "Transaction created successfully"
+  },
+  "payments": {
+    "title": "Payments",
+    "create": "Create Payment",
+    "amount": "Amount",
+    "type": "Type",
+    "method": "Method",
+    "status": "Status",
+    "reference": "Reference",
+    "note": "Note",
+    "income": "Income",
+    "expense": "Expense",
+    "cash": "Cash",
+    "bank_transfer": "Bank Transfer",
+    "card": "Card",
+    "other": "Other",
+    "pending": "Pending",
+    "completed": "Completed",
+    "failed": "Failed"
+  },
+  "reports": {
+    "title": "Reports",
+    "inventory_title": "Inventory Reports",
+    "transactions": "Transactions",
+    "daily_activity": "Daily Activity (Last 30 Days)",
     "last_7_days": "Last 7 days",
     "last_14_days": "Last 14 days",
     "last_30_days": "Last 30 days",
@@ -457,6 +521,47 @@
     "last_6_months": "Last 6 months",
     "last_year": "Last year",
     "pick_date": "Pick a date"
+  },
+  "setting": {
+    "customizer": "Template Customizer",
+    "customize_preview": "Customize & Preview in Real Time",
+    "theming": "Theming",
+    "color": "Color",
+    "type": "Type",
+    "theme": "Theme",
+    "layout": "Layout",
+    "navbar_type": "Navbar Type",
+    "direction": "Direction",
+    "colors": {
+      "default": "Default",
+      "blue": "Blue",
+      "green": "Green",
+      "red": "Red",
+      "rose": "Rose",
+      "violet": "Violet",
+      "orange": "Orange",
+      "yellow": "Yellow",
+      "teal": "Teal"
+    },
+    "grays": {
+      "default": "Default",
+      "scaled": "Scaled",
+      "mono": "Mono"
+    },
+    "modes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "navbars": {
+      "sidebar": "Sidebar",
+      "floating": "Floating",
+      "inset": "Inset"
+    },
+    "directions": {
+      "ltr": "LTR",
+      "rtl": "RTL"
+    }
   },
   "confirm": {
     "title": "Confirm",
@@ -549,111 +654,11 @@
     "tag_post": "Supports content organization, supports search, increases visibility on search engines (SEO), improves user experience",
     "tag_product": "Provides important information to consumers and is a brand recognition tool, helps manage and organize, improves user experience, enhances SEO, and connects content"
   },
-  "setting": {
-    "customizer": "Template Customizer",
-    "customize_preview": "Customize & Preview in Real Time",
-    "theming": "Theming",
-    "color": "Color",
-    "type": "Type",
-    "theme": "Theme",
-    "layout": "Layout",
-    "navbar_type": "Navbar Type",
-    "direction": "Direction",
-    "colors": {
-      "default": "Default",
-      "blue": "Blue",
-      "green": "Green",
-      "red": "Red",
-      "rose": "Rose",
-      "violet": "Violet",
-      "orange": "Orange",
-      "yellow": "Yellow",
-      "teal": "Teal"
-    },
-    "grays": {
-      "default": "Default",
-      "scaled": "Scaled",
-      "mono": "Mono"
-    },
-    "modes": {
-      "light": "Light",
-      "dark": "Dark",
-      "system": "System"
-    },
-    "navbars": {
-      "sidebar": "Sidebar",
-      "floating": "Floating",
-      "inset": "Inset"
-    },
-    "directions": {
-      "ltr": "LTR",
-      "rtl": "RTL"
-    }
-  },
   "validation": {
     "name_min": "Name must be at least 2 characters",
     "email_invalid": "Invalid email address",
     "password_min": "Password must be at least 8 characters",
     "passwords_mismatch": "Passwords don't match"
-  },
-  "warehouses": {
-    "title": "Warehouses",
-    "create": "Create Warehouse",
-    "edit": "Edit Warehouse",
-    "delete": "Delete Warehouse",
-    "name": "Warehouse Name",
-    "code": "Warehouse Code",
-    "address": "Address",
-    "manager": "Manager",
-    "phone": "Phone",
-    "status": "Status",
-    "description": "Description",
-    "create_success": "Warehouse created successfully",
-    "update_success": "Warehouse updated successfully",
-    "delete_success": "Warehouse deleted successfully",
-    "delete_confirm": "Are you sure you want to delete this warehouse?"
-  },
-  "inventory": {
-    "title": "Inventory",
-    "import": "Import",
-    "export": "Export",
-    "transfer": "Transfer",
-    "transaction_code": "Transaction Code",
-    "type": "Type",
-    "warehouse": "Warehouse",
-    "to_warehouse": "To Warehouse",
-    "items": "Items",
-    "total_amount": "Total Amount",
-    "status": "Status",
-    "note": "Note",
-    "reference": "Reference",
-    "created_by": "Created By",
-    "create_success": "Transaction created successfully"
-  },
-  "payments": {
-    "title": "Payments",
-    "create": "Create Payment",
-    "amount": "Amount",
-    "type": "Type",
-    "method": "Method",
-    "status": "Status",
-    "reference": "Reference",
-    "note": "Note",
-    "income": "Income",
-    "expense": "Expense",
-    "cash": "Cash",
-    "bank_transfer": "Bank Transfer",
-    "card": "Card",
-    "other": "Other",
-    "pending": "Pending",
-    "completed": "Completed",
-    "failed": "Failed"
-  },
-  "reports": {
-    "title": "Reports",
-    "inventory_title": "Inventory Reports",
-    "transactions": "Transactions",
-    "daily_activity": "Daily Activity (Last 30 Days)"
   },
   "message": {
     "delete_confirm_title": "Delete Confirmation",

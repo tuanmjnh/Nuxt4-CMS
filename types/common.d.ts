@@ -33,6 +33,15 @@ declare global {
       by: string
       ip: string | null
     }
+
+    export interface IPostMediaData {
+      type: 'video' | 'audio' | 'iframe' | 'embed'
+      url: string // Youtube/Vimeo link or MP4/MP3 file
+      embedCode?: string // iframe embed code
+      duration?: number // Duration (seconds)
+      thumbnail?: string // Thumbnail image
+      title?: string // Media title
+    }
   }
 
   namespace Models {

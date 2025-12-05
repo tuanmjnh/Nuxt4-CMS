@@ -21,6 +21,10 @@ export default defineEventHandler(async (event) => {
       filter.status = body.status
     }
 
+    if (body.type) {
+      filter.type = body.type
+    }
+
     if (body.categories) {
       const categories = Array.isArray(body.categories) ? body.categories : [body.categories]
       if (categories.length > 0) filter.categories = { $in: categories }

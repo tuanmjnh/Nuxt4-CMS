@@ -2,14 +2,12 @@
 definePageMeta({
   middleware: [
     function (to, from) {
-      if (to.path === '/admin/settings') {
-        return navigateTo('/admin/settings/profile')
-      }
+      return navigateTo('/admin/settings/categories')
     }
   ]
 })
 </script>
 
 <template>
-  <div></div>
+  <div>{{ $t('common.loading_text') }}</div>
 </template>

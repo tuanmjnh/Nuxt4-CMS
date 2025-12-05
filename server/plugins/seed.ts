@@ -32,197 +32,267 @@ async function seedRoutes() {
       sort: 1
     },
     {
-      name: 'posts',
-      path: '/admin/posts',
-      icon: 'i-lucide-file-text',
+      name: 'content',
+      path: '/admin/content',
+      icon: 'i-lucide-file-spreadsheet',
       sort: 2,
       isVisible: true,
       children: [
-        { name: 'View', path: '/admin/posts/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/posts/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/posts/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/posts/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+        {
+          name: 'pages',
+          path: '/admin/content/pages',
+          icon: 'i-lucide-file',
+          sort: 2,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/content/pages/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/content/pages/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/content/pages/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/content/pages/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'posts',
+          path: '/admin/content/posts',
+          icon: 'i-lucide-newspaper',
+          sort: 2,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/content/posts/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/content/posts/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/content/posts/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/content/posts/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        }
       ]
     },
     {
-      name: 'categories',
-      path: '/admin/categories',
-      icon: 'i-lucide-folder',
+      name: 'commerce',
+      path: '/admin/commerce',
+      icon: 'i-lucide-shopping-bag',
       sort: 3,
       isVisible: true,
       children: [
-        { name: 'View', path: '/admin/categories/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/categories/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/categories/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/categories/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    {
-      name: 'menus',
-      path: '/admin/menus',
-      icon: 'i-lucide-menu',
-      sort: 4,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/menus/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/menus/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/menus/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/menus/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    {
-      name: 'media',
-      path: '/admin/media',
-      icon: 'i-lucide-image',
-      sort: 5,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/media/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/media/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Delete', path: '/admin/media/delete', icon: 'i-lucide-file-minus', sort: 3, isVisible: false }
-      ]
-    },
-    {
-      name: 'users',
-      path: '/admin/users',
-      icon: 'i-lucide-users',
-      sort: 6,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/users/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/users/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/users/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/users/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    {
-      name: 'roles',
-      path: '/admin/roles',
-      icon: 'i-lucide-shield',
-      sort: 7,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/roles/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/roles/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/roles/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/roles/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    {
-      name: 'products',
-      path: '/admin/products',
-      icon: 'i-lucide-package',
-      sort: 8,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/products/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/products/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/products/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/products/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    // {
-    //   name: 'Tags',
-    //   path: '/admin/taxonomies',
-    //   icon: 'i-lucide-tag',
-    //   sort: 9,
-    //   children: [
-    //     { name: 'Create', path: '/admin/taxonomies/create', isVisible: false },
-    //     { name: 'Edit', path: '/admin/taxonomies/[id]', isVisible: false },
-    //     { name: 'Delete', path: '/admin/taxonomies/delete', isVisible: false }
-    //   ]
-    // },
-    {
-      name: 'taxonomy',
-      path: '/admin/taxonomies',
-      icon: 'i-lucide-tag',
-      sort: 9,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/taxonomies/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/taxonomies/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/taxonomies/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/taxonomies/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    {
-      name: 'attributes',
-      path: '/admin/products/attributes',
-      icon: 'i-lucide-list',
-      sort: 10,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/products/attributes/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/products/attributes/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/products/attributes/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/products/attributes/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    {
-      name: 'system',
-      path: '/admin/system',
-      icon: 'i-lucide-settings',
-      sort: 11,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/system/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/system/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/system/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/system/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    {
-      name: 'warehouses',
-      path: '/admin/products/warehouse',
-      icon: 'i-lucide-warehouse',
-      sort: 12,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/products/warehouse/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/products/warehouse/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/products/warehouse/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/products/warehouse/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    {
-      name: 'inventory',
-      path: '/admin/products/inventory',
-      icon: 'i-lucide-container',
-      sort: 13,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/products/inventory/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/products/inventory/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/products/inventory/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/products/inventory/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
-      ]
-    },
-    {
-      name: 'payments',
-      path: '/admin/products/payment',
-      icon: 'i-lucide-banknote',
-      sort: 14,
-      isVisible: true,
-      children: [
-        { name: 'View', path: '/admin/products/payment/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/products/payment/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/products/payment/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/products/payment/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+        {
+          name: 'reports',
+          path: '/admin/commerce/reports',
+          icon: 'i-lucide-chart-no-axes-combined',
+          sort: 1,
+          isVisible: true
+        },
+        {
+          name: 'products',
+          path: '/admin/commerce/products',
+          icon: 'i-lucide-package',
+          sort: 2,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/commerce/products/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/commerce/products/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/commerce/products/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/commerce/products/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'warehouses',
+          path: '/admin/commerce/warehouses',
+          icon: 'i-lucide-warehouse',
+          sort: 3,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/commerce/warehouses/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/commerce/warehouses/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/commerce/warehouses/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/commerce/warehouses/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'inventory',
+          path: '/admin/commerce/inventory',
+          icon: 'i-lucide-container',
+          sort: 4,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/commerce/inventory/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/commerce/inventory/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/commerce/inventory/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/commerce/inventory/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'payments',
+          path: '/admin/commerce/payments',
+          icon: 'i-lucide-banknote',
+          sort: 5,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/commerce/payments/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/commerce/payments/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/commerce/payments/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/commerce/payments/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        }
       ]
     },
     {
       name: 'settings',
       path: '/admin/settings',
-      icon: 'i-lucide-sliders-horizontal',
-      sort: 15,
+      icon: 'i-lucide-settings',
+      sort: 4,
       isVisible: true,
       children: [
-        { name: 'View', path: '/admin/settings/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
-        { name: 'Create', path: '/admin/settings/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
-        { name: 'Edit', path: '/admin/settings/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
-        { name: 'Delete', path: '/admin/settings/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+        {
+          name: 'categories',
+          path: '/admin/settings/categories',
+          icon: 'i-lucide-folder',
+          sort: 1,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/settings/categories/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/settings/categories/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/settings/categories/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/settings/categories/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'company',
+          path: '/admin/settings/company',
+          icon: 'i-lucide-building-2',
+          sort: 2,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/settings/company/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'edit', path: '/admin/settings/company/edit', icon: 'i-lucide-file-pen', sort: 2, isVisible: false }
+          ]
+        },
+        {
+          name: 'menus',
+          path: '/admin/settings/menus',
+          icon: 'i-lucide-menu',
+          sort: 3,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/settings/menus/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/settings/menus/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/settings/menus/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/settings/menus/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'media',
+          path: '/admin/settings/media',
+          icon: 'i-lucide-image',
+          sort: 4,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/settings/media/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/settings/media/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/settings/media/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/settings/media/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'keywords',
+          path: '/admin/settings/keywords',
+          icon: 'i-lucide-tag',
+          sort: 5,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/settings/keywords/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/settings/keywords/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/settings/keywords/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/settings/keywords/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'attributes',
+          path: '/admin/settings/attributes',
+          icon: 'i-lucide-notepad-text',
+          sort: 6,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/settings/attributes/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/settings/attributes/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/settings/attributes/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/settings/attributes/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
       ]
-    }
+    },
+    {
+      name: 'system',
+      path: '/admin/system',
+      icon: 'i-simple-icons-nuxt',
+      sort: 5,
+      isVisible: true,
+      children: [
+        {
+          name: 'users',
+          path: '/admin/system/users',
+          icon: 'i-lucide-users',
+          sort: 1,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/system/users/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/system/users/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/system/users/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/system/users/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'roles',
+          path: '/admin/roles',
+          icon: 'i-lucide-shield',
+          sort: 2,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/system/roles/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/system/roles/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/system/roles/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/system/roles/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'config',
+          path: '/admin/system/config',
+          icon: 'i-simple-icons-vuetify',
+          sort: 3,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/system/config/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/system/config/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/system/config/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/system/config/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'connect',
+          path: '/admin/system/connect',
+          icon: 'i-lucide-link',
+          sort: 4,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/system/connect/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/system/connect/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/system/connect/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/system/connect/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        },
+        {
+          name: 'routes',
+          path: '/admin/system/routes',
+          icon: 'i-lucide-route',
+          sort: 5,
+          isVisible: true,
+          children: [
+            { name: 'view', path: '/admin/system/roles/view', icon: 'i-lucide-file-text', sort: 1, isVisible: false },
+            { name: 'create', path: '/admin/system/roles/create', icon: 'i-lucide-file-plus', sort: 2, isVisible: false },
+            { name: 'edit', path: '/admin/system/roles/[id]', icon: 'i-lucide-file-pen', sort: 3, isVisible: false },
+            { name: 'delete', path: '/admin/system/roles/delete', icon: 'i-lucide-file-minus', sort: 4, isVisible: false }
+          ]
+        }
+      ]
+    },
   ]
 
   console.log('Seeding routes...')
@@ -262,38 +332,41 @@ async function seedRoles() {
       isDefault: false
     },
     {
-      name: 'editor',
-      description: 'Editor can manage content',
+      name: 'manager',
+      description: 'Manager can manage content, commerce and settings',
       permissions: [
         '/api/auth/*',
-        '/api/posts*',
-        '/api/categories*',
-        '/api/taxonomies*',
-        '/api/media*',
-        '/api/products*',
-        '/api/menus*'
+        '/api/content/*',
+        '/api/commerce/*',
+        '/api/settings/*',
+      ],
+      isDefault: false
+    },
+    {
+      name: 'editor',
+      description: 'Editor can manage content and commerce',
+      permissions: [
+        '/api/auth/*',
+        '/api/content/*',
+        '/api/commerce/*'
+      ],
+      isDefault: false
+    },
+    {
+      name: 'commercial',
+      description: 'Commercial can manage commerce',
+      permissions: [
+        '/api/auth/*',
+        '/api/commerce/*'
       ],
       isDefault: false
     },
     {
       name: 'author',
-      description: 'Author can manage their own content',
+      description: 'Author can manage content',
       permissions: [
         '/api/auth/*',
-        '/api/posts*',
-        '/api/media*'
-      ],
-      isDefault: false
-    },
-    {
-      name: 'subscriber',
-      description: 'Default user role',
-      permissions: [
-        '/api/auth/*',
-        '/api/posts', // Public list
-        '/api/categories',
-        '/api/taxonomies',
-        '/api/menus/position'
+        '/api/content/*',
       ],
       isDefault: true
     }
@@ -317,9 +390,9 @@ async function seedRoles() {
 async function seedUsers(roles: any[]) {
   // Seed User Categories
   const userCategories = [
-    { name: 'VIP', type: 'user', description: 'Very Important Person' },
-    { name: 'Staff', type: 'user', description: 'Internal Staff' },
-    { name: 'Member', type: 'user', description: 'Regular Member' }
+    { name: 'Admin', slug: 'admin', type: 'user', description: 'Very Important Person' },
+    { name: 'Manager', slug: 'manager', type: 'user', description: 'Internal manager' },
+    { name: 'Staff', slug: 'staff', type: 'user', description: 'Regular staff' }
   ]
 
   const createdCategories = []
@@ -337,7 +410,7 @@ async function seedUsers(roles: any[]) {
 
   // Seed Admin User
   const adminRole = roles.find(r => r.name === 'admin')
-  const staffCategory = createdCategories.find(c => c.name === 'Staff')
+  const adminCategory = createdCategories.find(c => c.slug === 'admin')
 
   if (adminRole) {
     const adminExists = await User.findOne({ username: 'admin' })
@@ -348,7 +421,7 @@ async function seedUsers(roles: any[]) {
         email: 'admin@example.com',
         password: 'password123', // Will be hashed by pre-save hook
         roles: [adminRole._id], // Updated to array
-        category: staffCategory?._id,
+        category: adminCategory?._id,
         isActive: true,
         bio: 'System Administrator'
       })

@@ -38,7 +38,7 @@ const isActiveRoute = (routePath: string) => {
 }
 
 // Fetch admin routes
-const { data: adminRoutes } = await useAPI<{ success: boolean, data: Models.SystemRoute[] }>('/api/system/routes', {
+const { data: adminRoutes } = await useAPI<{ success: boolean, data: Models.SystemRoute[] }>('/api/routes', {
   key: 'admin-routes'
 })
 

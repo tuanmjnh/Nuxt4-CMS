@@ -29,8 +29,8 @@ const ProductSchema = new Schema<IProductDocument>({
     lowercase: true,
     trim: true
   },
-  description: String,
-  shortDescription: String,
+  desc: String,
+  shortDesc: String,
   type: {
     type: String,
     enum: ['simple', 'variable'],
@@ -69,12 +69,26 @@ const ProductSchema = new Schema<IProductDocument>({
   costPrice: Number,
   barcode: String,
 
-  image: { type: Object, default: null }, // Supports both string and Cloudinary.IFileAttach
-  images: [{
+  thumbnail: { type: Object, default: null }, // Supports both string and Cloudinary.IFileAttach
+  gallery: [{
     type: Object, // Supports both string and Cloudinary.IFileAttach
     default: null
   }],
-
+  media: [{
+    type: {
+      type: String,
+      enum: ['video', 'audio', 'iframe', 'embed'],
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    },
+    embedCode: String,
+    duration: Number,
+    thumbnail: { type: Object, default: null }, // Supports both string and Cloudinary.IFileAttach
+    title: String
+  }],
   categories: [{
     type: Schema.Types.ObjectId,
     ref: 'categories'

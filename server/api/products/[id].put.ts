@@ -1,6 +1,6 @@
 import { Product } from '../../models/Product'
 import { Attribute } from '../../models/Attribute'
-import { syncTags, syncKeywords } from '../../utils/taxonomy'
+import { syncTags, syncKeywords } from '../../utils/keywords'
 
 export default defineEventHandler(async (event) => {
   // TODO: Add admin check

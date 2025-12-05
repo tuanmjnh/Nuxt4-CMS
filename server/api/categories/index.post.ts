@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Category } from '../../models/Category'
-import { syncTags, syncKeywords } from '../../utils/taxonomy'
+import { syncTags, syncKeywords } from '../../utils/keywords'
 
 const createCategorySchema = z.object({
   name: z.string().min(1, 'Name is required'),
