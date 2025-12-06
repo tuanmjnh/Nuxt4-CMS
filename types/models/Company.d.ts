@@ -3,11 +3,11 @@ declare global {
   namespace Models {
     export interface Company {
       _id: string
-      name: string
-      shortName?: string
-      slogan?: string
-      desc?: string
-      address?: string
+      name: { en: string; vi: string } | string
+      shortName?: { en: string; vi: string } | string
+      slogan?: { en: string; vi: string } | string
+      desc?: { en: string; vi: string } | string
+      address?: { en: string; vi: string } | string
       phone?: string
       fax?: string
       email?: string
@@ -19,7 +19,7 @@ declare global {
       gallery?: Common.IFileAttach[]
       mapEmbed?: string
       social?: Common.ISocialData
-      openingHours?: string
+      openingHours?: { en: string; vi: string } | string
       bankAccounts?: {
         bankName: string,
         number: string,

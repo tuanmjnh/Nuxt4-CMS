@@ -15,14 +15,10 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'motion-v/nuxt',
     '@nuxtjs/i18n',
-    './modules/dynamic-config',
-    'nuxt-tiptap-editor',
-    '@nuxtjs/sitemap'
+    '@nuxtjs/sitemap',
+    // './modules/dynamic-config',
+    'pinia-plugin-persistedstate'
   ],
-
-  tiptap: {
-    prefix: 'Tiptap', //prefix for Tiptap imports, defaults to Tiptap
-  },
 
   css: ['~/assets/css/main.css'],
 
@@ -134,5 +130,15 @@ export default defineNuxtConfig({
       unsplashPlus: 'https://plus.unsplash.com',
       unsplashImages: 'https://images.unsplash.com'
     }
+  },
+
+  vite: {
+    optimizeDeps: {
+      include: ['sortablejs']
+    }
+  },
+
+  build: {
+    transpile: ['sortablejs']
   }
 })

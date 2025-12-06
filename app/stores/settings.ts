@@ -2,11 +2,11 @@ export const useSettingsStore = defineStore('settingsStore', () => {
   const appConfig = useAppConfig()
   const colorMode = useColorMode()
 
-  // Persisted state
-  const primary = useLocalStorage('nuxt-ui-primary', 'blue')
-  const gray = useLocalStorage('nuxt-ui-gray', 'cool')
-  const navbarType = useLocalStorage('nuxt-ui-navbar-type', 'Sidebar')
-  const direction = useLocalStorage('nuxt-ui-direction', 'LTR')
+  // State (using refs, persistence handled by plugin)
+  const primary = ref('blue')
+  const gray = ref('cool')
+  const navbarType = ref('Sidebar')
+  const direction = ref('LTR')
 
   // Sync with appConfig
   watch(primary, (val) => {
@@ -35,4 +35,6 @@ export const useSettingsStore = defineStore('settingsStore', () => {
     navbarType,
     direction
   }
+}, {
+  persist: true
 })

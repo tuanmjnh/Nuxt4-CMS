@@ -8,12 +8,12 @@ export const syncKeywords = async (keywords: string[]) => {
     const slug = toSlug(keyword)
     return {
       updateOne: {
-        filter: { slug, type: 'keyword' },
+        filter: { slug, type: 'keyword' as const },
         update: {
           $setOnInsert: {
             name: keyword,
             slug,
-            type: 'keyword',
+            type: 'keyword' as const,
             count: 0,
             createdAt: Date.now(),
             updatedAt: Date.now()

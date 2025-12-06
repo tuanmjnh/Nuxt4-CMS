@@ -8,16 +8,17 @@ const route = useRoute()
 const router = useRouter()
 const { fetchPost, updatePost } = usePosts()
 const toast = useToast()
+const { locale } = useI18n()
 
 const postId = route.params.id as string
 const saving = ref(false)
 
 interface PostForm {
   type: 'post'
-  title: string
-  slug: string
-  content: string
-  excerpt: string
+  title: { en: string; vi: string;[key: string]: string }
+  slug: { en: string; vi: string;[key: string]: string }
+  content: { en: string; vi: string;[key: string]: string }
+  excerpt: { en: string; vi: string;[key: string]: string }
   status: Models.Post['status']
   featuredImage: string
   metaTitle: string
@@ -28,10 +29,10 @@ interface PostForm {
 
 const form = ref<PostForm>({
   type: 'post',
-  title: '',
-  slug: '',
-  content: '',
-  excerpt: '',
+  title: { en: '', vi: '' },
+  slug: { en: '', vi: '' },
+  content: { en: '', vi: '' },
+  excerpt: { en: '', vi: '' },
   status: 'draft',
   featuredImage: '',
   metaTitle: '',
@@ -47,10 +48,10 @@ watch(post, (newPost) => {
   if (newPost) {
     form.value = {
       type: 'post',
-      title: typeof newPost.title === 'string' ? newPost.title : newPost.title?.en || '',
-      slug: newPost.slug,
-      content: typeof newPost.content === 'string' ? newPost.content : newPost.content?.en || '',
-      excerpt: typeof newPost.excerpt === 'string' ? newPost.excerpt : newPost.excerpt?.en || '',
+      title: typeof newPost.title === 'string' ? { en: newPost.title, vi: newPost.title } : { en: newPost.title?.en || '', vi: newPost.title?.vi || '' },
+      slug: typeof newPost.slug === 'string' ? { en: newPost.slug, vi: newPost.slug } : { en: newPost.slug?.en || '', vi: newPost.slug?.vi || '' },
+      content: typeof newPost.content === 'string' ? { en: newPost.content, vi: newPost.content } : { en: newPost.content?.en || '', vi: newPost.content?.vi || '' },
+      excerpt: typeof newPost.excerpt === 'string' ? { en: newPost.excerpt, vi: newPost.excerpt } : { en: newPost.excerpt?.en || '', vi: newPost.excerpt?.vi || '' },
       status: newPost.status,
       featuredImage: newPost.featuredImage || '',
       metaTitle: newPost.metaTitle || '',
@@ -79,7 +80,7 @@ const handleSubmit = async () => {
     <template #header>
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">{{ $t('common.edit') }}</h1>
-        <UButton to="/admin/posts" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
+        <UButton to="/admin/content/posts" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
           {{ $t('common.back') }}
         </UButton>
       </div>
@@ -95,19 +96,19 @@ const handleSubmit = async () => {
           <!-- Main Content -->
           <div class="lg:col-span-2 space-y-6">
             <UFormField :label="$t('common.title')" name="title" required>
-              <UInput v-model="form.title" :placeholder="$t('content.title_placeholder')" />
+              <UInput v-model="form.title[locale]" :placeholder="$t('content.title_placeholder')" />
             </UFormField>
 
             <UFormField :label="$t('common.slug')" name="slug">
-              <UInput v-model="form.slug" :placeholder="$t('content.slug_placeholder')" />
+              <UInput v-model="form.slug[locale]" :placeholder="$t('content.slug_placeholder')" />
             </UFormField>
 
             <UFormField :label="$t('common.content')" name="content" required>
-              <AdminTiptapEditor v-model="form.content" />
+              <AdminTiptapEditor v-model="form.content[locale]" />
             </UFormField>
 
             <UFormField :label="$t('common.excerpt')" name="excerpt">
-              <UTextarea v-model="form.excerpt" :rows="3" :placeholder="$t('content.excerpt_placeholder')" />
+              <UTextarea v-model="form.excerpt[locale]" :rows="3" :placeholder="$t('content.excerpt_placeholder')" />
             </UFormField>
 
             <UCard>

@@ -18,10 +18,10 @@ declare global {
 
     interface Product {
       _id: string
-      name: string
-      slug: string
-      desc?: string
-      shortDesc?: string
+      name: { en: string; vi: string } | string
+      slug: { en: string; vi: string } | string
+      desc?: { en: string; vi: string } | string
+      shortDesc?: { en: string; vi: string } | string
       price: number
       salePrice?: number
       costPrice?: number
@@ -55,8 +55,8 @@ declare global {
       variants: ProductVariant[]
 
       // SEO
-      metaTitle?: string
-      metaDescription?: string
+      metaTitle?: { en: string; vi: string } | string
+      metaDescription?: { en: string; vi: string } | string
       keywords?: string[]
       ogImage?: string
 

@@ -14,8 +14,8 @@ const SocialDataSchema = new Schema({
 }, { _id: false })
 
 const SeoDataSchema = new Schema({
-  title: String,
-  description: String,
+  title: { en: String, vi: String },
+  description: { en: String, vi: String },
   keywords: [String],
   image: Object
 }, { _id: false })
@@ -28,11 +28,14 @@ const BankAccountSchema = new Schema({
 }, { _id: false })
 
 const CompanySchema = new Schema<ICompanyDocument>({
-  name: { type: String, required: true },
-  shortName: String,
-  slogan: String,
-  desc: String,
-  address: String,
+  name: {
+    en: { type: String, required: true },
+    vi: { type: String, required: true }
+  },
+  shortName: { en: String, vi: String },
+  slogan: { en: String, vi: String },
+  desc: { en: String, vi: String },
+  address: { en: String, vi: String },
   phone: String,
   fax: String,
   email: String,
@@ -44,7 +47,7 @@ const CompanySchema = new Schema<ICompanyDocument>({
   gallery: { type: [Object], default: null },
   mapEmbed: String,
   social: SocialDataSchema,
-  openingHours: String,
+  openingHours: { en: String, vi: String },
   bankAccounts: [BankAccountSchema],
   seo: SeoDataSchema,
   created: { type: ChangeDataSchema, default: null },

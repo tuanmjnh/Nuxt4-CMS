@@ -8,12 +8,12 @@ definePageMeta({
 })
 
 const toast = useToast()
-const taxonomies = ref<Models.Taxonomy[]>([])
+const keywords = ref<Models.Keywords[]>([])
 const cursor = ref<string | number | Date | null>(null)
 const canLoadMore = ref(true)
 const container = useTemplateRef('container')
 const search = ref('')
-const typeFilter = ref<Models.Taxonomy['type']>('tag')
+const typeFilter = ref<Models.Keywords['type']>('tag')
 
 const columns = computed(() => [
   { accessorKey: 'name', header: $t('common.name') },
@@ -22,9 +22,9 @@ const columns = computed(() => [
   { id: 'color', header: $t('common.color') },
   { accessorKey: 'count', header: $t('common.count') },
   { id: 'actions', header: $t('common.actions') }
-] as TableColumn<Models.Taxonomy>[])
+] as TableColumn<Models.Keywords>[])
 
-const { data, status, refresh } = await useAPI<ApiResponse<Models.Taxonomy[]>>('/api/taxonomies/items', {
+const { data, status, refresh } = await useAPI<ApiResponse<Models.Keywords[]>>('/api/keywords/items', {
   method: 'POST',
   body: computed(() => ({
     cursor: cursor.value,
@@ -40,9 +40,9 @@ watch(data, (newData) => {
   if (!newData?.data) return
 
   if (!cursor.value) {
-    taxonomies.value = newData.data
+    keywords.value = newData.data
   } else {
-    taxonomies.value.push(...newData.data)
+    keywords.value.push(...newData.data)
   }
 
   canLoadMore.value = !!newData.nextCursor
@@ -79,7 +79,7 @@ const deleting = ref(false)
 const form = ref<{
   name: string
   description: string
-  type: Models.Taxonomy['type']
+  type: Models.Keywords['type']
   color: string
 }>({
   name: '',
@@ -109,8 +109,8 @@ const handleSubmit = async () => {
   saving.value = true
   try {
     const url = editingItem.value
-      ? `/api/taxonomies/${editingItem.value._id}`
-      : '/api/taxonomies'
+      ? `/api/keywords/${editingItem.value._id}`
+      : '/api/keywords'
 
     const method = editingItem.value ? 'PUT' : 'POST'
 
@@ -124,10 +124,10 @@ const handleSubmit = async () => {
 
     if (editingItem.value) {
       // Update local item
-      const index = taxonomies.value.findIndex(t => t._id === editingItem.value._id)
+      const index = keywords.value.findIndex(t => t._id === editingItem.value._id)
       if (index !== -1) {
-        const existingTaxonomy = taxonomies.value[index]
-        if (existingTaxonomy) taxonomies.value[index] = { ...existingTaxonomy, ...form.value }
+        const existingKeywords = keywords.value[index]
+        if (existingKeywords) keywords.value[index] = { ...existingKeywords, ...form.value }
       }
     } else {
       cursor.value = null
@@ -150,14 +150,14 @@ const handleDelete = async () => {
 
   deleting.value = true
   try {
-    await $fetch(`/api/taxonomies/${itemToDelete.value._id}`, {
+    await $fetch(`/api/keywords/${itemToDelete.value._id}`, {
       method: 'DELETE' as any
     })
 
     toast.add({ title: $t('common.delete_success'), color: 'success' })
     showDeleteModal.value = false
     // Remove from list directly
-    taxonomies.value = taxonomies.value.filter(t => t._id !== itemToDelete.value._id)
+    keywords.value = keywords.value.filter(t => t._id !== itemToDelete.value._id)
   } catch (error: any) {
     toast.add({ title: $t('common.delete_error'), color: 'error' })
   } finally {
@@ -170,7 +170,7 @@ const handleDelete = async () => {
   <UCard>
     <template #header>
       <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold">{{ $t('taxonomies.title') }}</h1>
+        <h1 class="text-2xl font-bold">{{ $t('keywords.title') }}</h1>
         <UButton @click="openCreateModal" icon="i-lucide-plus">
           {{ $t('common.create') }}
         </UButton>
@@ -184,7 +184,7 @@ const handleDelete = async () => {
     </div>
 
     <div ref="container" class="flex-1 overflow-y-auto" style="height: calc(100vh - 300px);">
-      <UTable :rows="taxonomies" :columns="columns" :loading="status === 'pending'" sticky>
+      <UTable :rows="keywords" :columns="columns" :loading="status === 'pending'" sticky>
         <template #type-cell="{ row }">
           <UBadge :color="row.original.type === 'tag' ? 'primary' : 'info'" variant="subtle" class="capitalize">
             {{ row.original.type }}
@@ -218,8 +218,7 @@ const handleDelete = async () => {
             ]" />
         </template>
       </UTable>
-      <div v-if="!canLoadMore && taxonomies.length > 0"
-        class="text-center p-4 text-gray-500 dark:text-gray-400 text-sm">
+      <div v-if="!canLoadMore && keywords.length > 0" class="text-center p-4 text-gray-500 dark:text-gray-400 text-sm">
         {{ $t('common.no_more_data') }}
       </div>
     </div>
@@ -233,7 +232,7 @@ const handleDelete = async () => {
           <h3 class="font-bold">{{ editingItem ? $t('common.edit') : $t('common.create') }}</h3>
         </template>
 
-        <AdminTaxonomiesTaxonomyForm v-model="form" :loading="saving" :is-editing="!!editingItem" @submit="handleSubmit"
+        <AdminkeywordsKeywordsForm v-model="form" :loading="saving" :is-editing="!!editingItem" @submit="handleSubmit"
           @cancel="showModal = false" />
       </UCard>
     </template>

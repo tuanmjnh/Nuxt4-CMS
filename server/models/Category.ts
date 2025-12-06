@@ -5,26 +5,26 @@ import { ChangeDataSchema } from './Schemas'
 export interface ICategoryDocument extends Omit<Models.Category, '_id'>, Document { }
 
 const CategorySchema = new Schema<ICategoryDocument>({
-  name: {
-    type: String,
-    required: true,
-    trim: true
+  title: {
+    en: { type: String, required: true, trim: true },
+    vi: { type: String, required: true, trim: true }
   },
   slug: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
+    en: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    vi: { type: String, required: true, unique: true, lowercase: true, trim: true }
   },
   description: {
-    type: String,
-    trim: true
+    en: { type: String, trim: true },
+    vi: { type: String, trim: true }
   },
-  image: {
+  thumbnail: {
     type: Object, // Supports both string and Cloudinary.IFileAttach
     default: null
   },
+  gallery: [{
+    type: Object, // Supports both string and Cloudinary.IFileAttach
+    default: null
+  }],
   parent: {
     type: Schema.Types.ObjectId,
     ref: 'categories',
@@ -32,12 +32,12 @@ const CategorySchema = new Schema<ICategoryDocument>({
   },
 
   // SEO fields
-  metaTitle: String,
-  metaDescription: String,
+  metaTitle: { en: String, vi: String },
+  metaDescription: { en: String, vi: String },
   keywords: [String],
   tags: [{
     type: Schema.Types.ObjectId,
-    ref: 'taxonomies'
+    ref: 'keywords'
   }],
   ogImage: String,
 
@@ -75,12 +75,30 @@ CategorySchema.index({ parent: 1 })
 CategorySchema.index({ type: 1 })
 CategorySchema.index({ tags: 1 })
 CategorySchema.index({ keywords: 1 })
+CategorySchema.index({
+  'title.en': 'text',
+  'title.vi': 'text',
+  'description.en': 'text',
+  'description.vi': 'text'
+})
 
-// Auto-generate slug from name if not provided
-// Auto-generate slug from name if not provided
+// Auto-generate slug from title if not provided
 CategorySchema.pre('validate', function (next) {
   const doc = this as unknown as ICategoryDocument
-  if (!doc.slug && doc.name) doc.slug = toSlug(doc.name)
+
+  if (doc.title && typeof doc.title === 'object') {
+    if (!doc.slug) doc.slug = { en: '', vi: '' }
+
+    // Generate EN slug
+    if (typeof doc.slug === 'object' && !doc.slug.en && doc.title.en) {
+      doc.slug.en = toSlug(doc.title.en)
+    }
+
+    // Generate VI slug
+    if (typeof doc.slug === 'object' && !doc.slug.vi && doc.title.vi) {
+      doc.slug.vi = toSlug(doc.title.vi)
+    }
+  }
   next()
 })
 

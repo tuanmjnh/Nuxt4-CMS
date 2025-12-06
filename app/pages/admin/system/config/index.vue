@@ -9,7 +9,7 @@ definePageMeta({
 
 const toast = useToast()
 const { token } = useAuth()
-const { data: configs, refresh } = await useAPI<any>('/api/system/config')
+const { data: configs, refresh } = await useAPI<any>('/api/configs')
 
 const columns = computed(() => [
   { accessorKey: 'key', header: 'Key' },
@@ -81,7 +81,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       }
     }
 
-    await $fetch('/api/system/config', {
+    await $fetch('/api/configs', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token.value}` },
       body: { ...event.data, value: payloadValue }

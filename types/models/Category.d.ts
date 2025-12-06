@@ -4,10 +4,11 @@ declare global {
   namespace Models {
     interface Category {
       _id: string
-      name: string
-      slug: string
-      description?: string
-      image?: Cloudinary.IFileAttach
+      title: { en: string; vi: string } | string
+      slug: { en: string; vi: string } | string
+      description?: { en: string; vi: string } | string
+      thumbnail?: Cloudinary.IFileAttach
+      gallery?: Cloudinary.IFileAttach[]
       parent?: Category | string
       type: 'post' | 'product' | 'user'
 

@@ -14,4 +14,5 @@ const PaymentTransactionSchema = new Schema<IPaymentTransaction>({
   timestamps: { currentTime: () => Date.now() }
 })
 
-export const PaymentTransaction = mongoose.models.PaymentTransaction || mongoose.model<IPaymentTransaction>('PaymentTransaction', PaymentTransactionSchema)
+export const PaymentTransaction =
+  mongoose.models.payment_transaction || mongoose.model<IPaymentTransaction>('payment_transaction', PaymentTransactionSchema)

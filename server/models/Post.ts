@@ -20,11 +20,8 @@ const PostSchema = new Schema<IPostDocument>({
     vi: { type: String, required: true }
   },
   slug: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
+    en: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    vi: { type: String, required: true, unique: true, lowercase: true, trim: true }
   },
   content: {
     en: { type: String, required: true },
@@ -81,7 +78,7 @@ const PostSchema = new Schema<IPostDocument>({
   }],
   tags: [{
     type: Schema.Types.ObjectId,
-    ref: 'taxonomies'
+    ref: 'keywords'
   }],
   status: {
     type: String,
@@ -126,7 +123,6 @@ const PostSchema = new Schema<IPostDocument>({
   },
 
   // Publishing
-  // Publishing
   publishedAt: Number,
   scheduledAt: Number,
   isDeleted: {
@@ -159,10 +155,25 @@ PostSchema.index({ categories: 1 })
 PostSchema.index({ tags: 1 })
 PostSchema.index({ keywords: 1 })
 
-// Auto-generate slug from title (English) if not provided
+// Auto-generate slug from title if not provided
 PostSchema.pre('save', function (next) {
   const post = this as unknown as Models.Post
-  if (!post.slug && post.title && typeof post.title === 'object' && 'en' in post.title && post.title.en) post.slug = toSlug(post.title.en)
+
+  // Handle localized titles and slugs
+  if (post.title && typeof post.title === 'object') {
+    if (!post.slug) post.slug = { en: '', vi: '' }
+
+    // Generate EN slug
+    if (typeof post.slug === 'object' && !post.slug.en && post.title.en) {
+      post.slug.en = toSlug(post.title.en)
+    }
+
+    // Generate VI slug
+    if (typeof post.slug === 'object' && !post.slug.vi && post.title.vi) {
+      post.slug.vi = toSlug(post.title.vi)
+    }
+  }
+
   next()
 })
 

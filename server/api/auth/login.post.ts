@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { User } from '../../models/User'
 import { UserSession } from '../../models/UserSession'
+import { SystemRoute } from '../../models/SystemRoute'
 
 const loginSchema = z.object({
   usernameOrEmail: z.string().min(1, 'Username or Email is required'),
@@ -38,14 +39,39 @@ export default defineEventHandler(async (event) => {
     if (!isPasswordValid)
       throw createError({ statusCode: 401, message: 'Invalid email or password', statusMessage: 'error.invalid_credentials' })
 
-    const permissions = [...new Set(user.roles.flatMap((role: any) => role.permissions))];
+    // Resolve permissions from Roles -> SystemRoutes -> API
+    const BasePermissions = [
+      '/api/auth/*',
+      '/api/routes',
+      '/api/menus/position/*'
+    ]
+
+    const roleRoutesPaths = [...new Set(user.roles.flatMap((role: any) => role.permissions))]
+    let resolvedPermissions: string[] = []
+
+    // Check for Super Admin
+    if (roleRoutesPaths.includes('*')) {
+      resolvedPermissions = ['*']
+    } else {
+      // Find SystemRoutes matching the role paths
+      const matchedRoutes = await SystemRoute.find({
+        path: { $in: roleRoutesPaths }
+      }).select('permissions').lean() as { permissions?: string[] }[]
+
+      const routePermissions = matchedRoutes
+        .flatMap((r) => r.permissions || [])
+        .filter(Boolean)
+
+      resolvedPermissions = [...BasePermissions, ...routePermissions]
+    }
+
     // Generate tokens
     const payload: JWTPayload = {
       userId: user._id.toString(),
       email: user.email,
       username: user.username,
       roles: user.roles.map((role: any) => role._id.toString()),
-      permissions: permissions,
+      permissions: [...new Set(resolvedPermissions)],
       deviceType
     }
 

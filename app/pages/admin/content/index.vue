@@ -2,7 +2,7 @@
 definePageMeta({
   middleware: [
     function (to, from) {
-      return navigateTo('/admin/content/post')
+      return navigateTo('/admin/content/posts')
     }
   ]
 })

@@ -13,39 +13,52 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo('/admin/login')
   }
 
-  // Check if user has admin access
-  const userRoles = user.value.roles || []
-  const hasAccess = userRoles.some((role: any) => {
-    const name = typeof role === 'string' ? role : role.name
-    return ['admin', 'editor', 'author'].includes(name)
-  })
+  // Fetch allowed routes from Server (Server Authority)
+  const { routes: allowedRoutes, fetchRoutes } = useAdminNavigation()
 
-  if (!hasAccess) {
-    return navigateTo('/')
+  // Ensure routes are loaded
+  if (allowedRoutes.value.length === 0) {
+    await fetchRoutes()
   }
 
-  // Check dynamic route permissions
-  // Aggregate all allowed routes from all roles
-  const allAllowedRoutes = userRoles.reduce((acc: any[], role: any) => {
-    if (typeof role !== 'string' && role.allowedRoutes) {
-      return [...acc, ...role.allowedRoutes]
+  const routes = allowedRoutes.value || []
+
+  // Always check against allowed routes
+  const targetPath = to.path
+
+  // Find if current path is allowed
+  // We match if the target path starts with any allowed route path
+  // AND ensure it's a valid segment prefix (to avoid /admin/user matching /admin/users)
+  const isAllowed = routes.some((route: any) => {
+    // Exact match
+    if (targetPath === route.path) return true
+    // Parent match
+    if (targetPath.startsWith(route.path + '/')) return true
+    return false
+  })
+
+  if (!isAllowed) {
+    // If trying to access a forbidden page, redirect to Dashboard or first allowed route
+    // However, if Dashboard itself (/admin) is forbidden, we might have a problem.
+    // Usually /admin is allowed.
+
+    // Check if we are already at a fallback to avoid loops
+    if (targetPath === '/admin') {
+      // If even admin is not allowed (weird), logout or show error
+      return // Let it pass to show 404 or empty page? Or abort?
     }
-    return acc
-  }, [])
 
-  if (allAllowedRoutes.length > 0) {
-    const targetPath = to.path
-    // Always allow dashboard and profile/settings if needed
-    if (targetPath === '/admin' || targetPath === '/admin/') return
-
-    const hasPermission = allAllowedRoutes.some((route: any) =>
-      targetPath.startsWith(route.path)
-    )
-
-    if (!hasPermission) {
-      // Redirect to first allowed route or dashboard
-      const firstRoute = allAllowedRoutes[0]
-      return navigateTo(firstRoute ? firstRoute.path : '/admin')
+    // Try to redirect to /admin if allowed, else first allowed route
+    const dashboardAllowed = routes.some((r: any) => r.path === '/admin')
+    if (dashboardAllowed) {
+      return navigateTo('/admin')
     }
+
+    if (routes.length > 0 && routes[0]) {
+      return navigateTo(routes[0].path)
+    }
+
+    // No routes allowed?
+    return abortNavigation('Access Denied')
   }
 })

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useDebounceFn, useInfiniteScroll } from '@vueuse/core'
 import type { TableColumn } from '@nuxt/ui'
+const UCheckbox = resolveComponent('UCheckbox')
 
 definePageMeta({
   layout: 'admin',
@@ -9,9 +10,10 @@ definePageMeta({
 
 const { deletePost } = usePosts()
 const toast = useToast()
+const { locale } = useI18n()
 
 const search = ref('')
-const statusFilter = ref('')
+const statusFilter = ref([])
 const showDeleteModal = ref(false)
 const postToDelete = ref<any>(null)
 const deleting = ref(false)
@@ -20,28 +22,56 @@ const posts = ref<Models.Post[]>([])
 const cursor = ref<string | number | null>(null)
 const canLoadMore = ref(true)
 const container = useTemplateRef('container')
+const table = useTemplateRef('table')
 
 const columns = computed(() => [
-  { id: 'title', header: $t('common.title') },
-  { id: 'status', header: $t('common.status') },
-  { id: 'author', header: $t('common.author') },
-  { id: 'views', header: $t('common.views') },
-  { id: 'publishedAt', header: $t('common.published') },
+  {
+    id: 'select',
+    header: ({ table }) =>
+      h(UCheckbox, {
+        modelValue: table.getIsSomePageRowsSelected()
+          ? 'indeterminate'
+          : table.getIsAllPageRowsSelected(),
+        'onUpdate:modelValue': (value: boolean | 'indeterminate') =>
+          table.toggleAllPageRowsSelected(!!value),
+        'aria-label': 'Select all'
+      }),
+    cell: ({ row }) =>
+      h(UCheckbox, {
+        modelValue: row.getIsSelected(),
+        'onUpdate:modelValue': (value: boolean | 'indeterminate') => row.toggleSelected(!!value),
+        'aria-label': 'Select row'
+      })
+  },
+  { accessorKey: 'title', header: $t('common.title') },
+  { accessorKey: 'status', header: $t('common.status') },
+  { accessorKey: 'author', header: $t('common.author') },
+  { accessorKey: 'views', header: $t('common.views') },
+  { accessorKey: 'publishedAt', header: $t('common.published') },
   { id: 'actions', header: $t('common.actions') }
 ] as TableColumn<Models.Post>[])
 
 const { data, status, refresh } = await useAPI<any>('/api/posts/items', {
   method: 'POST',
   body: computed(() => ({
-    type: 'page',
+    type: 'post',
     cursor: cursor.value,
     limit: 20,
     search: search.value,
-    status: statusFilter.value
+    // status: statusFilter.value
   })),
-  lazy: true,
-  immediate: false
+  watch: false
 })
+
+// Initialize posts from data
+if (data.value?.data) {
+  posts.value = data.value.data
+  if (data.value.nextCursor) {
+    canLoadMore.value = true
+  } else {
+    canLoadMore.value = false
+  }
+}
 
 watch(data, (newData) => {
   if (!newData?.data) return
@@ -65,13 +95,11 @@ watch(statusFilter, () => {
   refresh()
 })
 
-// Initial load
-refresh()
-
 onMounted(() => {
   useInfiniteScroll(container, () => {
     if (data.value?.nextCursor) {
       cursor.value = data.value.nextCursor
+      refresh()
     }
   }, {
     distance: 50,
@@ -125,25 +153,30 @@ const handleDelete = async () => {
 </script>
 
 <template>
-  <UCard>
+  <UCard :ui="{ header: 'flex items-center justify-between', footer: 'justify-end' }">
     <template #header>
-      <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold">{{ $t('content.posts') }}</h1>
-        <UButton to="/admin/posts/create" icon="i-lucide-plus">
-          {{ $t('common.create') }} {{ $t('content.posts') }}
-        </UButton>
-      </div>
+      <h1 class="text-2xl font-bold">{{ $t('content.posts') }}</h1>
+      <UButton to="/admin/content/posts/create" icon="i-lucide-plus">
+        {{ $t('common.create') }} {{ $t('content.posts') }}
+      </UButton>
     </template>
     <!-- Filters -->
     <div class="flex gap-4 mb-6">
       <UInput v-model="search" icon="i-lucide-search" :placeholder="$t('common.search')" class="flex-1"
         @input="handleSearch" />
-      <USelect v-model="statusFilter" :options="['published', 'draft', 'scheduled', 'archived']"
+      <USelect v-model="statusFilter" multiple :items="['published', 'draft', 'scheduled', 'archived']"
         :placeholder="$t('common.status')" class="w-40" />
     </div>
 
     <div ref="container" class="flex-1 overflow-y-auto" style="height: calc(100vh - 300px);">
-      <UTable :rows="posts" :columns="columns" :loading="status === 'pending'" sticky>
+      <UTable ref="table" :data="posts" :columns="columns" :loading="status === 'pending'" sticky>
+        <template #title-cell="{ row }">
+          <span class="font-medium">
+            {{ typeof row.original.title === 'string' ? row.original.title : row.original.title?.[locale] ||
+              row.original.title?.en }}
+          </span>
+        </template>
+
         <template #status-cell="{ row }">
           <UBadge :color="getStatusColor(row.original.status)" variant="subtle">
             {{ row.original.status }}
@@ -189,6 +222,11 @@ const handleDelete = async () => {
             ]" />
         </template>
       </UTable>
+
+      <div class="px-4 py-3.5 border-t border-accented text-sm text-muted">
+        {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
+        {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.
+      </div>
       <div v-if="!canLoadMore && posts.length > 0" class="text-center p-4 text-gray-500 dark:text-gray-400 text-sm">
         {{ $t('common.no_more_data') }}
       </div>

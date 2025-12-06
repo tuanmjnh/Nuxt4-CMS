@@ -38,15 +38,18 @@ const isActiveRoute = (routePath: string) => {
 }
 
 // Fetch admin routes
-const { data: adminRoutes } = await useAPI<{ success: boolean, data: Models.SystemRoute[] }>('/api/routes', {
-  key: 'admin-routes'
-})
+const { routes: adminRoutes, fetchRoutes } = useAdminNavigation()
+// Since middleware likely fetched it, we might already have it. 
+// If not (direct access?), fetch it (lazy=false usually in setup)
+if (adminRoutes.value.length === 0) {
+  await fetchRoutes()
+}
 
 // Computed routes with hierarchy
 const routes = computed(() => {
-  if (!adminRoutes.value?.data || adminRoutes.value.data.length === 0) return []
+  if (!adminRoutes.value || adminRoutes.value.length === 0) return []
 
-  const allRoutes = adminRoutes.value.data
+  const allRoutes = adminRoutes.value
 
   // Filter visible routes and sort by sort
   const visibleRoutes = allRoutes
@@ -92,7 +95,7 @@ const breadcrumbItems = computed(() => {
   let currentPath = ''
   for (const segment of pathSegments) {
     currentPath += `/${segment}`
-    const routeName = segment.charAt(0).toUpperCase() + segment.slice(1) // Simple capitalization
+    // const routeName = segment.charAt(0).toUpperCase() + segment.slice(1) // Simple capitalization
     items.push({ label: $t(`route.${segment}`), to: currentPath }) // $t(`route.${route.name}`)
   }
   return items
@@ -161,11 +164,14 @@ const period = ref<PeriodType>('daily')
           {{ deviceType }}
         </ClientOnly> -->
         <UDashboardNavbar :title="$t('admin.title')">
+          <!-- <template #leading>
+            <UDashboardSidebarCollapse />
+          </template> -->
           <template #left>
+            <UDashboardSidebarCollapse />
             <UBreadcrumb :items="breadcrumbItems" />
           </template>
           <template #right>
-
             <UTooltip text="Notifications" :shortcuts="['N']">
               <UButton color="neutral" variant="ghost" square @click="isNotificationsSlideoverOpen = true">
                 <UChip color="error" inset>
@@ -173,7 +179,6 @@ const period = ref<PeriodType>('daily')
                 </UChip>
               </UButton>
             </UTooltip>
-
             <!-- <UDropdownMenu :items="notifications">
               <UButton icon="i-lucide-plus" size="md" class="rounded-full" />
             </UDropdownMenu> -->

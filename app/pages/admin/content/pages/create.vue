@@ -57,7 +57,7 @@ const handleSubmit = async () => {
     }
     await createPost(postData)
     toast.add({ title: $t('success.create'), color: 'success' })
-    router.push('/admin/posts')
+    router.push('/admin/content/pages')
   } catch (error: any) {
     toast.add({ title: $t(error.statusMessage) || $t('error.operation_failed'), color: 'error' })
   } finally {
@@ -71,7 +71,7 @@ const handleSubmit = async () => {
     <template #header>
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">{{ $t('common.create') }}</h1>
-        <UButton to="/admin/posts" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
+        <UButton to="/admin/content/pages" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
           {{ $t('common.back') }}
         </UButton>
       </div>

@@ -17,7 +17,7 @@ const columns = computed<TableColumn<Models.Connect>[]>(() => [
   { id: 'actions', header: $t('common.actions') }
 ])
 
-const { data: connects, refresh, pending } = await useAPI<Models.Response<Record<string, Models.Connect>>>('/api/system/connect')
+const { data: connects, refresh, pending } = await useAPI<Models.Response<Record<string, Models.Connect>>>('/api/connect')
 
 const items = computed<Models.Connect[]>(() => {
   if (!connects.value?.data) return []
@@ -89,7 +89,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     }
 
     if (isEdit.value && selectedId.value) {
-      await $api(`/api/system/connect/${selectedId.value}`, {
+      await $api(`/api/connect/${selectedId.value}`, {
         method: 'PUT',
         body: payload
       })
@@ -98,7 +98,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       // but here we might want to add a single one. 
       // The current backend structure for 'create' was bulk.
       // Let's use the index.post.ts which handles upsert by key.
-      await $api('/api/system/connect', {
+      await $api('/api/connect', {
         method: 'POST',
         body: {
           [event.data.key]: {
@@ -122,7 +122,7 @@ const onDelete = async (id?: string) => {
   if (!confirm($t('message.delete_confirm'))) return
 
   try {
-    await $api(`/api/system/connect/${id}`, {
+    await $api(`/api/connect/${id}`, {
       method: 'DELETE'
     })
     toast.add({ title: $t('message.success'), color: 'success' })
@@ -135,7 +135,7 @@ const onDelete = async (id?: string) => {
 const onToggleStatus = async (row: Models.Connect) => {
   try {
     const newFlag = row.flag === 1 ? 0 : 1
-    await $api('/api/system/connect/status', {
+    await $api('/api/connect/status', {
       method: 'PUT',
       body: {
         id: row._id,

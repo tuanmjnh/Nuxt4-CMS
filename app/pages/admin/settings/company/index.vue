@@ -8,6 +8,7 @@ definePageMeta({
 })
 
 const toast = useToast()
+const { locale } = useI18n()
 
 const items = [
   { slot: 'general', label: $t('settings.general') },
@@ -18,18 +19,18 @@ const items = [
 ]
 
 const schema = z.object({
-  name: z.string().min(1, $t('common.required')),
-  shortName: z.string().optional(),
-  slogan: z.string().optional(),
-  desc: z.string().optional(),
-  address: z.string().optional(),
+  name: z.object({ en: z.string().min(1, $t('common.required')), vi: z.string().min(1, $t('common.required')) }),
+  shortName: z.object({ en: z.string().optional(), vi: z.string().optional() }),
+  slogan: z.object({ en: z.string().optional(), vi: z.string().optional() }),
+  desc: z.object({ en: z.string().optional(), vi: z.string().optional() }),
+  address: z.object({ en: z.string().optional(), vi: z.string().optional() }),
   phone: z.string().optional(),
   fax: z.string().optional(),
   email: z.string().email($t('company.invalid_email')).optional().or(z.literal('')),
   hotline: z.string().optional(),
   website: z.string().url($t('company.invalid_url')).optional().or(z.literal('')),
   taxCode: z.string().optional(),
-  openingHours: z.string().optional(),
+  openingHours: z.object({ en: z.string().optional(), vi: z.string().optional() }),
   mapEmbed: z.string().optional(),
 
   logo: z.any().optional(),
@@ -47,8 +48,8 @@ const schema = z.object({
   }),
 
   seo: z.object({
-    title: z.string().optional(),
-    description: z.string().optional(),
+    title: z.object({ en: z.string().optional(), vi: z.string().optional() }),
+    description: z.object({ en: z.string().optional(), vi: z.string().optional() }),
     keywords: z.string().optional(), // We'll handle array conversion
     image: z.any().optional()
   }),
@@ -64,18 +65,18 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 const state = reactive<Schema>({
-  name: '',
-  shortName: '',
-  slogan: '',
-  desc: '',
-  address: '',
+  name: { en: '', vi: '' },
+  shortName: { en: '', vi: '' },
+  slogan: { en: '', vi: '' },
+  desc: { en: '', vi: '' },
+  address: { en: '', vi: '' },
   phone: '',
   fax: '',
   email: '',
   hotline: '',
   website: '',
   taxCode: '',
-  openingHours: '',
+  openingHours: { en: '', vi: '' },
   mapEmbed: '',
 
   logo: null,
@@ -93,8 +94,8 @@ const state = reactive<Schema>({
   },
 
   seo: {
-    title: '',
-    description: '',
+    title: { en: '', vi: '' },
+    description: { en: '', vi: '' },
     keywords: '',
     image: null
   },
@@ -109,29 +110,18 @@ watch(companyInfo, (newInfo) => {
     const data = newInfo.data
 
     // Map basic fields
-    state.name = data.name || ''
-    state.shortName = data.shortName || ''
-    state.slogan = data.slogan || ''
-    state.desc = data.desc || ''
-    state.address = data.address || ''
+    state.name = typeof data.name === 'string' ? { en: data.name, vi: data.name } : { en: data.name?.en || '', vi: data.name?.vi || '' }
+    state.shortName = typeof data.shortName === 'string' ? { en: data.shortName, vi: data.shortName } : { en: data.shortName?.en || '', vi: data.shortName?.vi || '' }
+    state.slogan = typeof data.slogan === 'string' ? { en: data.slogan, vi: data.slogan } : { en: data.slogan?.en || '', vi: data.slogan?.vi || '' }
+    state.desc = typeof data.desc === 'string' ? { en: data.desc, vi: data.desc } : { en: data.desc?.en || '', vi: data.desc?.vi || '' }
+    state.address = typeof data.address === 'string' ? { en: data.address, vi: data.address } : { en: data.address?.en || '', vi: data.address?.vi || '' }
     state.phone = data.phone || ''
     state.fax = data.fax || ''
     state.email = data.email || ''
     state.hotline = data.hotline || ''
-    state.website = data.website || '' // Assuming website is part of company model but not in interface? It was in previous vue file. 
-    // Wait, previous vue file had website, but model interface doesn't have it explicitly in the snippet I saw?
-    // Let's check Company.d.ts again. 
-    // It has: name, shortName, slogan, desc, address, phone, fax, email, hotline, taxCode...
-    // It does NOT have website in the interface I saw in Step 345.
-    // But previous vue file had it. I should probably add it to interface if needed, or maybe it was removed.
-    // I'll keep it in state but maybe it won't be saved if not in model.
-    // Actually, I should check if I should add it to the model. 
-    // The user said "check schema". 
-    // I'll assume standard fields. I'll add website to state just in case, but if it's not in model it won't save.
-    // Let's stick to what's in the model + what was there before.
-
+    state.website = data.website || ''
     state.taxCode = data.taxCode || ''
-    state.openingHours = data.openingHours || ''
+    state.openingHours = typeof data.openingHours === 'string' ? { en: data.openingHours, vi: data.openingHours } : { en: data.openingHours?.en || '', vi: data.openingHours?.vi || '' }
     state.mapEmbed = data.mapEmbed || ''
 
     state.logo = data.logo || null
@@ -141,8 +131,8 @@ watch(companyInfo, (newInfo) => {
     state.social = { ...state.social, ...data.social }
 
     state.seo = {
-      title: data.seo?.title || '',
-      description: data.seo?.description || '',
+      title: typeof data.seo?.title === 'string' ? { en: data.seo.title, vi: data.seo.title } : { en: data.seo?.title?.en || '', vi: data.seo?.title?.vi || '' },
+      description: typeof data.seo?.description === 'string' ? { en: data.seo.description, vi: data.seo.description } : { en: data.seo?.description?.en || '', vi: data.seo?.description?.vi || '' },
       keywords: Array.isArray(data.seo?.keywords) ? data.seo.keywords.join(', ') : '',
       image: data.seo?.image || null
     }
@@ -199,15 +189,15 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
               <!-- General Tab -->
               <div v-if="item.slot === 'general'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField :label="$t('company.name')" name="name" required class="col-span-2">
-                  <UInput v-model="state.name" />
+                  <UInput v-model="state.name[locale]" />
                 </UFormField>
 
                 <UFormField :label="$t('company.short_name')" name="shortName">
-                  <UInput v-model="state.shortName" />
+                  <UInput v-model="state.shortName[locale]" />
                 </UFormField>
 
                 <UFormField :label="$t('company.slogan')" name="slogan">
-                  <UInput v-model="state.slogan" />
+                  <UInput v-model="state.slogan[locale]" />
                 </UFormField>
 
                 <UFormField :label="$t('company.email')" name="email">
@@ -235,15 +225,15 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
                 </UFormField>
 
                 <UFormField :label="$t('company.opening_hours')" name="openingHours">
-                  <UInput v-model="state.openingHours" />
+                  <UInput v-model="state.openingHours[locale]" />
                 </UFormField>
 
                 <UFormField :label="$t('company.address')" name="address" class="col-span-2">
-                  <UInput v-model="state.address" />
+                  <UInput v-model="state.address[locale]" />
                 </UFormField>
 
                 <UFormField :label="$t('company.description')" name="desc" class="col-span-2">
-                  <UTextarea v-model="state.desc" />
+                  <UTextarea v-model="state.desc[locale]" />
                 </UFormField>
               </div>
 
@@ -294,10 +284,10 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
               <!-- SEO Tab -->
               <div v-if="item.slot === 'seo'" class="space-y-4">
                 <UFormField :label="$t('company.meta_title')" name="seo.title">
-                  <UInput v-model="state.seo.title" />
+                  <UInput v-model="state.seo.title[locale]" />
                 </UFormField>
                 <UFormField :label="$t('company.meta_description')" name="seo.description">
-                  <UTextarea v-model="state.seo.description" />
+                  <UTextarea v-model="state.seo.description[locale]" />
                 </UFormField>
                 <UFormField :label="$t('company.meta_keywords')" name="seo.keywords">
                   <UInput v-model="state.seo.keywords" :placeholder="$t('company.keywords_placeholder')" />

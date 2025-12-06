@@ -9,7 +9,7 @@ declare global {
       format: 'standard' | 'gallery' | 'video' | 'audio' | 'quote' | 'link'
       // Common fields
       title: { en: string; vi: string } | string
-      slug: string
+      slug: { en: string; vi: string } | string
       content: { en: string; vi: string } | string
       excerpt?: { en: string; vi: string } | string
       featuredImage?: string

@@ -19,6 +19,10 @@ const SystemRouteSchema = new Schema<ISystemRouteDocument>({
     type: String,
     trim: true
   },
+  permissions: [{
+    type: String,
+    trim: true
+  }],
   sort: {
     type: Number,
     default: 0

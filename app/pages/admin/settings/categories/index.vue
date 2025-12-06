@@ -8,6 +8,7 @@ definePageMeta({
 
 const toast = useToast()
 const { token } = useAuth()
+const { locale } = useI18n()
 
 const showModal = ref(false)
 const showDeleteModal = ref(false)
@@ -23,12 +24,12 @@ const tabs = computed(() => [
 ])
 
 const form = ref({
-  name: '',
-  description: '',
+  name: { en: '', vi: '' },
+  description: { en: '', vi: '' },
   parent: '',
   type: 'post',
-  metaTitle: '',
-  metaDescription: '',
+  metaTitle: { en: '', vi: '' },
+  metaDescription: { en: '', vi: '' },
   keywords: [] as string[],
   ogImage: ''
 })
@@ -66,7 +67,7 @@ const buildTree = (items: any[]) => {
   const list = JSON.parse(JSON.stringify(items))
 
   list.forEach((item: any) => {
-    map[item._id] = { ...item, label: item.name, children: [] }
+    map[item._id] = { ...item, label: item.name?.[locale.value] || item.name?.en || item.name, children: [] }
   })
 
   list.forEach((item: any) => {
@@ -179,12 +180,12 @@ const onTabChange = (index: number) => {
 const openCreateModal = (parentItem: any = null) => {
   editingCategory.value = null
   form.value = {
-    name: '',
-    description: '',
+    name: { en: '', vi: '' },
+    description: { en: '', vi: '' },
     parent: parentItem?._id || '',
     type: currentType.value,
-    metaTitle: '',
-    metaDescription: '',
+    metaTitle: { en: '', vi: '' },
+    metaDescription: { en: '', vi: '' },
     keywords: [],
     ogImage: ''
   }
@@ -194,12 +195,12 @@ const openCreateModal = (parentItem: any = null) => {
 const editCategory = (category: any) => {
   editingCategory.value = category
   form.value = {
-    name: category.name,
-    description: category.description || '',
+    name: typeof category.name === 'string' ? { en: category.name, vi: category.name } : { en: category.name?.en || '', vi: category.name?.vi || '' },
+    description: typeof category.description === 'string' ? { en: category.description, vi: category.description } : { en: category.description?.en || '', vi: category.description?.vi || '' },
     parent: category.parent?._id || category.parent || '',
     type: category.type || 'post',
-    metaTitle: category.metaTitle || '',
-    metaDescription: category.metaDescription || '',
+    metaTitle: typeof category.metaTitle === 'string' ? { en: category.metaTitle, vi: category.metaTitle } : { en: category.metaTitle?.en || '', vi: category.metaTitle?.vi || '' },
+    metaDescription: typeof category.metaDescription === 'string' ? { en: category.metaDescription, vi: category.metaDescription } : { en: category.metaDescription?.en || '', vi: category.metaDescription?.vi || '' },
     keywords: category.keywords || [],
     ogImage: category.ogImage || ''
   }
@@ -292,7 +293,7 @@ const handleDelete = async () => {
               <div class="flex flex-col text-left">
                 <span class="font-medium text-sm">{{ item.label }}</span>
                 <div class="flex gap-2 items-center text-xs text-gray-500">
-                  <span>{{ item.slug }}</span>
+                  <span>{{ item.slug?.[locale] || item.slug?.en || item.slug }}</span>
                   <span v-if="item.postCount > 0">• {{ item.postCount }} posts</span>
                 </div>
               </div>

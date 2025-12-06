@@ -12,9 +12,9 @@ interface ProductAttributeForm {
 }
 
 interface ProductForm {
-  name: string
-  slug: string
-  description: string
+  name: { en: string; vi: string }
+  slug: { en: string; vi: string }
+  description: { en: string; vi: string }
   type: 'simple' | 'variable'
   status: 'draft' | 'published' | 'archived'
   price: number
@@ -31,14 +31,15 @@ interface ProductForm {
 const route = useRoute()
 const toast = useToast()
 const saving = ref(false)
+const { locale } = useI18n()
 
 // Fetch Product
 const { data: product, refresh } = await useFetch<Models.Product>(`/api/products/${route.params.id}`)
 
 const form = ref<ProductForm>({
-  name: '',
-  slug: '',
-  description: '',
+  name: { en: '', vi: '' },
+  slug: { en: '', vi: '' },
+  description: { en: '', vi: '' },
   type: 'simple',
   status: 'draft',
   price: 0,
@@ -56,9 +57,9 @@ const form = ref<ProductForm>({
 watch(product, (newVal) => {
   if (newVal) {
     form.value = {
-      name: newVal.name,
-      slug: newVal.slug,
-      description: newVal.description || '',
+      name: typeof newVal.name === 'string' ? { en: newVal.name, vi: newVal.name } : { en: newVal.name?.en || '', vi: newVal.name?.vi || '' },
+      slug: typeof newVal.slug === 'string' ? { en: newVal.slug, vi: newVal.slug } : { en: newVal.slug?.en || '', vi: newVal.slug?.vi || '' },
+      description: typeof newVal.description === 'string' ? { en: newVal.description, vi: newVal.description } : { en: newVal.description?.en || '', vi: newVal.description?.vi || '' },
       type: newVal.type as 'simple' | 'variable',
       status: newVal.status as 'draft' | 'published' | 'archived',
       price: newVal.price || 0,
@@ -150,10 +151,10 @@ const saveProduct = async () => {
           </template>
           <div class="space-y-4">
             <UFormField :label="$t('common.name')" name="name" required>
-              <UInput v-model="form.name" />
+              <UInput v-model="form.name[locale]" />
             </UFormField>
             <UFormField :label="$t('common.description')" name="description">
-              <AdminTiptapEditor v-model="form.description" />
+              <AdminTiptapEditor v-model="form.description[locale]" />
             </UFormField>
           </div>
         </UCard>
@@ -252,7 +253,7 @@ const saveProduct = async () => {
             <USelect v-model="form.status" :options="['draft', 'published', 'archived']" />
           </UFormField>
           <UFormField :label="$t('common.slug')" class="mt-4">
-            <UInput v-model="form.slug" />
+            <UInput v-model="form.slug[locale]" />
           </UFormField>
 
           <UFormField :label="$t('common.keywords')" class="mt-4">

@@ -32,7 +32,7 @@ const tooltipTriggers = {
   [Line.selectors.line]: (d: any) => `
     <div class="p-2">
       <div class="font-bold mb-1">${new Date(d.date).toLocaleDateString()}</div>
-      <div class="text-primary-500">${$t('posts.title')}: ${d.posts}</div>
+      <div class="text-primary-500">${$t('content.posts')}: ${d.posts}</div>
       <div class="text-green-500">${$t('products.title')}: ${d.products}</div>
     </div>
   `
@@ -46,7 +46,7 @@ const tooltipTriggers = {
       <UCard>
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-500">{{ $t('posts.title') }}</p>
+            <p class="text-sm text-gray-500">{{ $t('content.posts') }}</p>
             <p class="text-2xl font-bold">{{ stats.posts }}</p>
             <div class="flex gap-2 text-xs text-gray-400 mt-1">
               <span>{{ stats.postViews }} {{ $t('common.views') }}</span>
@@ -123,7 +123,7 @@ const tooltipTriggers = {
       </template>
       <div class="grid gap-4 md:grid-cols-3">
         <UButton to="/admin/content/posts/create" icon="i-lucide-plus" variant="soft" block>
-          {{ $t('common.create') }} {{ $t('posts.single').toLowerCase() }}
+          {{ $t('common.create') }} {{ $t('content.posts').toLowerCase() }}
         </UButton>
         <UButton to="/admin/commerce/products/create" icon="i-lucide-plus" variant="soft" block color="success">
           {{ $t('common.create') }} {{ $t('products.title').toLowerCase() }}

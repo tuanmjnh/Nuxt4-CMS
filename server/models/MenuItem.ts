@@ -43,7 +43,7 @@ const MenuItemSchema = new Schema<IMenuItemDocument>({
   },
   tag: {
     type: Schema.Types.ObjectId,
-    ref: 'taxonomies'
+    ref: 'keywords'
   },
 
   // Display options

@@ -15,7 +15,8 @@ export default defineEventHandler(async (event: H3Event) => {
     '/api/auth/register',
     '/api/auth/refresh',
     '/api/seed',
-    '/api/_nuxt_icon'
+    '/api/_nuxt_icon',
+    '/api/icons'
   ]
   if (strictlyPublicRoutes.some(route => path.startsWith(route))) return
 
@@ -38,17 +39,26 @@ export default defineEventHandler(async (event: H3Event) => {
 
         // Optimum query: Only get _id and isActive. Use .lean() to return pure JS object (faster)
         const userStatus = await User.findById(payload.userId)
-          .select('isActive') // Can get more roles if want to update permissions immediately
+          .select('isActive roles') // Can get more roles if want to update permissions immediately
+          .populate('roles')
           .lean()
 
         // Logic: There is a user in DB AND User is active
         if (userStatus && userStatus.isActive === true) {
+          // Flatten permissions from all roles
+          const permissions = userStatus.roles
+            ? (userStatus.roles as any[]).flatMap((r: any) => r.permissions || [])
+            : []
+          // Unique permissions
+          const uniquePermissions = [...new Set(permissions)]
+
           // Valid user -> Assign context
           // Tip: Combine payload (with available basic info) and latest data from DB (rights/active)
           event.context.user = {
             ...payload,
             // If you want the rights (roles/permissions) to always be the latest, get from DB and overwrite the payload
             // roles: userStatus.roles
+            permissions: uniquePermissions,
             isActive: userStatus.isActive
           }
         } else {

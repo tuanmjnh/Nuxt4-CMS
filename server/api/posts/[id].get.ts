@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
     if (id.match(/^[0-9a-fA-F]{24}$/)) {
       filter._id = id
     } else {
-      filter.slug = id
+      filter.$or = [
+        { 'slug.en': id },
+        { 'slug.vi': id }
+      ]
     }
 
     // Public users only see published posts

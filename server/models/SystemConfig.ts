@@ -25,6 +25,10 @@ const systemConfigSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  group: {
+    type: String,
+    default: 'general'
+  },
   history: { type: ChangeDataSchema, default: null },
   createdAt: { type: Number },
   updatedAt: { type: Number }

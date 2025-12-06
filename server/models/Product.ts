@@ -18,19 +18,15 @@ const VariantSchema = new Schema({
 
 const ProductSchema = new Schema<IProductDocument>({
   name: {
-    type: String,
-    required: true,
-    trim: true
+    en: { type: String, required: true, trim: true },
+    vi: { type: String, required: true, trim: true }
   },
   slug: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
+    en: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    vi: { type: String, required: true, unique: true, lowercase: true, trim: true }
   },
-  desc: String,
-  shortDesc: String,
+  desc: { en: String, vi: String },
+  shortDesc: { en: String, vi: String },
   type: {
     type: String,
     enum: ['simple', 'variable'],
@@ -95,7 +91,7 @@ const ProductSchema = new Schema<IProductDocument>({
   }],
   tags: [{
     type: Schema.Types.ObjectId,
-    ref: 'taxonomies'
+    ref: 'keywords'
   }],
 
   attributes: [{
@@ -107,8 +103,8 @@ const ProductSchema = new Schema<IProductDocument>({
 
   variants: [VariantSchema],
 
-  metaTitle: String,
-  metaDescription: String,
+  metaTitle: { en: String, vi: String },
+  metaDescription: { en: String, vi: String },
   keywords: [String],
   ogImage: String,
 
@@ -132,7 +128,12 @@ const ProductSchema = new Schema<IProductDocument>({
 })
 
 // Indexes
-ProductSchema.index({ name: 'text', description: 'text' })
+ProductSchema.index({
+  'name.en': 'text',
+  'name.vi': 'text',
+  'desc.en': 'text',
+  'desc.vi': 'text'
+})
 ProductSchema.index({ categories: 1 })
 ProductSchema.index({ tags: 1 })
 ProductSchema.index({ keywords: 1 })
@@ -142,7 +143,20 @@ ProductSchema.index({ price: 1 })
 // Auto-generate slug
 ProductSchema.pre('validate', function (next) {
   const doc = this as unknown as IProductDocument
-  if (!doc.slug && doc.name) doc.slug = toSlug(doc.name)
+
+  if (doc.name && typeof doc.name === 'object') {
+    if (!doc.slug) doc.slug = { en: '', vi: '' }
+
+    // Generate EN slug
+    if (typeof doc.slug === 'object' && !doc.slug.en && doc.name.en) {
+      doc.slug.en = toSlug(doc.name.en)
+    }
+
+    // Generate VI slug
+    if (typeof doc.slug === 'object' && !doc.slug.vi && doc.name.vi) {
+      doc.slug.vi = toSlug(doc.name.vi)
+    }
+  }
   next()
 })
 

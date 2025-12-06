@@ -7,13 +7,14 @@ definePageMeta({
 const router = useRouter()
 const toast = useToast()
 const saving = ref(false)
+const { locale } = useI18n()
 
 const form = ref({
-  name: '',
-  slug: '',
+  name: { en: '', vi: '' },
+  slug: { en: '', vi: '' },
   type: 'simple',
   status: 'draft',
-  description: '',
+  description: { en: '', vi: '' },
   tags: [],
   attributes: [],
   keywords: []
@@ -53,11 +54,11 @@ const handleSubmit = async () => {
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <UFormField :label="$t('products.name')" name="name" required>
-            <UInput v-model="form.name" />
+            <UInput v-model="form.name[locale]" />
           </UFormField>
 
           <UFormField :label="$t('common.slug')" name="slug">
-            <UInput v-model="form.slug" :placeholder="$t('common.auto_generated')" />
+            <UInput v-model="form.slug[locale]" :placeholder="$t('common.auto_generated')" />
           </UFormField>
 
           <UFormField :label="$t('products.type')" name="type">
@@ -70,7 +71,7 @@ const handleSubmit = async () => {
         </div>
 
         <UFormField :label="$t('common.description')" name="description" class="mt-6">
-          <AdminTiptapEditor v-model="form.description" />
+          <AdminTiptapEditor v-model="form.description[locale]" />
         </UFormField>
 
         <UFormField :label="$t('common.keywords')" name="keywords" class="mt-6">

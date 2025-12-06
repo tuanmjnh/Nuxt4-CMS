@@ -3,13 +3,28 @@ import { Category } from '../../models/Category'
 import { syncTags, syncKeywords } from '../../utils/keywords'
 
 const createCategorySchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  slug: z.string().optional(),
-  description: z.string().optional(),
-  image: z.string().optional(),
+  title: z.object({
+    en: z.string().min(1, 'English title is required'),
+    vi: z.string().min(1, 'Vietnamese title is required')
+  }),
+  slug: z.object({
+    en: z.string().optional(),
+    vi: z.string().optional()
+  }).optional(),
+  description: z.object({
+    en: z.string().optional(),
+    vi: z.string().optional()
+  }).optional(),
+  image: z.any().optional(), // Supports both string and object
   parent: z.string().optional(),
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
+  metaTitle: z.object({
+    en: z.string().optional(),
+    vi: z.string().optional()
+  }).optional(),
+  metaDescription: z.object({
+    en: z.string().optional(),
+    vi: z.string().optional()
+  }).optional(),
   keywords: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional()
 })

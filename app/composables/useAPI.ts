@@ -2,7 +2,8 @@ import type { UseFetchOptions } from 'nuxt/app'
 
 export function useAPI<T>(url: string | (() => string), options: UseFetchOptions<T> = {}) {
   const { token } = useAuth()
-  const { locale } = useI18n()
+  const nuxtApp = useNuxtApp()
+  const locale = nuxtApp.$i18n.locale
 
   const headers: any = { 'Accept-Language': locale.value }
   if (token.value) headers.Authorization = `Bearer ${token.value}`

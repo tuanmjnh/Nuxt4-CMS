@@ -2,18 +2,14 @@
 const { user, logout } = useAuth()
 
 const items = computed(() => [
-  [
-    {
-      label: user.value?.name || 'User',
-      avatar: {
-        src: user.value?.avatar?.url
-      },
-      type: 'label',
-      ui: {
-        label: 'cursor-pointer'
-      }
-    }
-  ],
+  // [
+  //   {
+  //     label: user.value?.name || 'User',
+  //     avatar: { src: user.value?.avatar?.url },
+  //     type: 'label',
+  //     ui: { label: 'cursor-pointer' }
+  //   }
+  // ],
   [
     {
       label: $t('settings.profile'),

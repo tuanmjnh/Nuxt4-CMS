@@ -7,6 +7,8 @@ declare global {
       path: string
       name: string
       icon?: string
+      icon?: string
+      permissions?: string[]
       sort: number
       isVisible: boolean
       parent?: SystemRoute | string

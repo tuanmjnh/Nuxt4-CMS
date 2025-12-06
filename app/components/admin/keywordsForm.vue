@@ -3,7 +3,7 @@ const props = defineProps<{
   modelValue?: {
     name: string
     description: string
-    type: Models.Taxonomy['type']
+    type: Models.Keywords['type']
     color: string
   }
   loading?: boolean

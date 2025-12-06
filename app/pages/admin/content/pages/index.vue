@@ -129,7 +129,7 @@ const handleDelete = async () => {
     <template #header>
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">{{ $t('content.pages') }}</h1>
-        <UButton to="/admin/posts/create" icon="i-lucide-plus">
+        <UButton to="/admin/content/pages/create" icon="i-lucide-plus">
           {{ $t('common.create') }} {{ $t('content.pages') }}
         </UButton>
       </div>

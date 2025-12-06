@@ -8,19 +8,20 @@ const router = useRouter()
 const { createPost } = usePosts()
 const toast = useToast()
 const { user } = useAuth()
+const { locale } = useI18n()
 
 interface PostForm {
   type: 'post'
-  title: string
-  content: string
-  excerpt: string
+  title: { en: string; vi: string }
+  content: { en: string; vi: string }
+  excerpt: { en: string; vi: string }
   status: 'draft' | 'published' | 'scheduled' | 'archived'
   thumbnail?: any
   scheduledAt: string
   tags: string[]
   attributes: any[]
   categories: string[]
-  slug: string
+  slug: { en: string; vi: string;[key: string]: string }
   author: string
   format: 'standard' | 'gallery' | 'video' | 'audio' | 'quote' | 'link'
 }
@@ -28,22 +29,22 @@ interface PostForm {
 const loading = ref(false)
 const form = ref<PostForm>({
   type: 'post',
-  title: '',
-  content: '',
-  excerpt: '',
+  title: { en: '', vi: '' },
+  content: { en: '', vi: '' },
+  excerpt: { en: '', vi: '' },
   status: 'draft',
   thumbnail: undefined,
   scheduledAt: '',
   tags: [],
   attributes: [],
   categories: [],
-  slug: '',
+  slug: { en: '', vi: '' },
   author: '',
   format: 'standard'
 })
 
 const handleSubmit = async () => {
-  if (!form.value.title || !form.value.content) {
+  if (!form.value.title[locale.value] || !form.value.content[locale.value]) {
     toast.add({ title: $t('error.title_content_required'), color: 'error' })
     return
   }
@@ -57,7 +58,7 @@ const handleSubmit = async () => {
     }
     await createPost(postData)
     toast.add({ title: $t('success.create'), color: 'success' })
-    router.push('/admin/posts')
+    router.push('/admin/content/posts')
   } catch (error: any) {
     toast.add({ title: $t(error.statusMessage) || $t('error.create'), color: 'error' })
   } finally {
@@ -71,7 +72,7 @@ const handleSubmit = async () => {
     <template #header>
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">{{ $t('common.create') }}</h1>
-        <UButton to="/admin/posts" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
+        <UButton to="/admin/content/posts" color="neutral" variant="ghost" icon="i-lucide-arrow-left">
           {{ $t('common.back') }}
         </UButton>
       </div>
@@ -81,15 +82,19 @@ const handleSubmit = async () => {
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
           <UFormField :label="$t('common.title')" name="title" required>
-            <UInput v-model="form.title" :placeholder="$t('content.title_placeholder')" />
+            <UInput v-model="form.title[locale]" :placeholder="$t('content.title_placeholder')" />
+          </UFormField>
+
+          <UFormField :label="$t('common.slug')" name="slug">
+            <UInput v-model="form.slug[locale]" :placeholder="$t('content.slug_placeholder')" />
           </UFormField>
 
           <UFormField :label="$t('common.content')" name="content" required>
-            <AdminTiptapEditor v-model="form.content" />
+            <AdminTiptapEditor v-model="form.content[locale]" />
           </UFormField>
 
           <UFormField :label="$t('common.excerpt')" name="excerpt">
-            <UTextarea v-model="form.excerpt" :rows="3" :placeholder="$t('content.excerpt_placeholder')" />
+            <UTextarea v-model="form.excerpt[locale]" :rows="3" :placeholder="$t('content.excerpt_placeholder')" />
           </UFormField>
         </div>
 

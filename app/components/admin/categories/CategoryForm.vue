@@ -1,12 +1,13 @@
 <script setup lang="ts">
+const { locale } = useI18n()
 const props = defineProps<{
   modelValue?: {
-    name: string
-    description: string
+    name: { en: string; vi: string }
+    description: { en: string; vi: string }
     parent: string
     type: string
-    metaTitle: string
-    metaDescription: string
+    metaTitle: { en: string; vi: string }
+    metaDescription: { en: string; vi: string }
     keywords: string[]
     ogImage: string
   }
@@ -23,12 +24,12 @@ const emit = defineEmits<{
 
 const form = computed({
   get: () => props.modelValue || {
-    name: '',
-    description: '',
+    name: { en: '', vi: '' },
+    description: { en: '', vi: '' },
     parent: '',
     type: 'post',
-    metaTitle: '',
-    metaDescription: '',
+    metaTitle: { en: '', vi: '' },
+    metaDescription: { en: '', vi: '' },
     keywords: [],
     ogImage: ''
   },
@@ -52,11 +53,11 @@ const handleImageSelect = (files: any[]) => {
     </UFormField>
 
     <UFormField :label="$t('categories.name')" name="name" required>
-      <UInput v-model="form.name" />
+      <UInput v-model="form.name[locale]" />
     </UFormField>
 
     <UFormField :label="$t('categories.description')" name="description">
-      <UTextarea v-model="form.description" />
+      <UTextarea v-model="form.description[locale]" />
     </UFormField>
 
     <UFormField :label="$t('categories.parent')" name="parent">
@@ -69,11 +70,12 @@ const handleImageSelect = (files: any[]) => {
 
       <div class="space-y-4">
         <UFormField :label="$t('categories.meta_title')" name="metaTitle">
-          <UInput v-model="form.metaTitle" :placeholder="$t('categories.meta_title')" />
+          <UInput v-model="form.metaTitle[locale]" :placeholder="$t('categories.meta_title')" />
         </UFormField>
 
         <UFormField :label="$t('categories.meta_description')" name="metaDescription">
-          <UTextarea v-model="form.metaDescription" :rows="2" :placeholder="$t('categories.meta_description')" />
+          <UTextarea v-model="form.metaDescription[locale]" :rows="2"
+            :placeholder="$t('categories.meta_description')" />
         </UFormField>
 
         <UFormField :label="$t('categories.keywords')" name="keywords">

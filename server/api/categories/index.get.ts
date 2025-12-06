@@ -12,8 +12,8 @@ export default defineEventHandler(async (event) => {
       filter.type = type
 
     const categories = await Category.find(filter)
-      .populate('parent', 'name slug')
-      .sort({ name: 1 })
+      .populate('parent', 'title slug')
+      .sort({ 'title.en': 1 })
       .lean()
 
     return { success: true, data: categories }
